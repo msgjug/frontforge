@@ -1,7 +1,9 @@
 import { AppNode, property, propertys } from "../../core/app_node";
+import Prefab from "../../core/prefab";
 import { RegClass } from "../../core/serialize";
 import Utils from "../../core/utils";
 import PrefabStr from "./page_ff.prefab.html?raw"
+import Stuff from "./stuff";
 @RegClass("PageFF")
 export default class PageFF extends AppNode {
     //button按钮
@@ -11,10 +13,10 @@ export default class PageFF extends AppNode {
     btnMsgBox: HTMLButtonElement = null;
     toastInd = 0;
     msgBoxInd = 0;
-    onClickToast(){
+    onClickToast() {
         Utils.scene.toast(`这是一个Toast${this.toastInd++}`);
     }
-    onClickMsgbox(){
+    onClickMsgbox() {
         Utils.app.msgBox(`这是一个弹窗消息${this.msgBoxInd++}`);
     }
 
@@ -67,6 +69,17 @@ export default class PageFF extends AppNode {
     lbEb: HTMLSpanElement = null;
     onEbChanged() {
         this.lbEb.innerText = this.eb.value;
+    }
+
+
+    //元素/容器
+    @property("div[name=stuff_contain]")
+    stuffContain: HTMLDivElement = null;
+    @property("button[name=stuff_add]", { onclick: "onClickAddStuff" })
+    btnAddStuff: HTMLButtonElement = null;
+    onClickAddStuff() {
+        let stuff = Prefab.Instantiate(Stuff);
+        this.addChild(stuff, this.stuffContain);
     }
 };
 
