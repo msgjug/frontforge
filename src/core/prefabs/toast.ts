@@ -32,5 +32,7 @@ export default class Toast extends AppNode {
         )
             .start();
     }
+    static get PrefabStr(){
+        return PrefabStr;
+    }
 };
-Toast["PrefabStr"] = PrefabStr;

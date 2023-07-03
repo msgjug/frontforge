@@ -46,12 +46,6 @@ export function RegClass(regClassName: string) {
     }
 }
 
-window["ClassProperty"] = ClassProperty;
-window["NameClassMap"] = NameClassMap;
-window["ClassNameMap"] = ClassNameMap;
-window["n2c"] = n2c;
-window["c2n"] = c2n;
-
 export default abstract class SerializeAble {
     protected static __cn: string = "SerializeAble";
     //序列化

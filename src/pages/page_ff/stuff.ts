@@ -1,4 +1,4 @@
-import { AppNode, property, propertys } from "../../core/app_node";
+import { AppNode, property } from "../../core/app_node";
 import { RegClass } from "../../core/serialize";
 import PrefabStr from "./stuff.prefab.html?raw"
 
@@ -18,6 +18,7 @@ export default class Stuff extends AppNode {
     onClickDel() {
         this.dispose();
     }
+    static get PrefabStr(){
+        return PrefabStr;
+    }
 };
-
-Stuff["PrefabStr"] = PrefabStr;

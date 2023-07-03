@@ -36,5 +36,7 @@ export default class MsgBoxYesNo extends Panel {
         this.subject.emit("no");
         this.dispose();
     }
+    static get PrefabStr(){
+        return PrefabMsgBoxYesNo;
+    }
 };
-MsgBoxYesNo["PrefabStr"] = PrefabMsgBoxYesNo;

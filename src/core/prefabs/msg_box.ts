@@ -27,6 +27,8 @@ export default class MsgBox extends Panel {
     onClickOk() {
         this.dispose();
     }
+
+    static get PrefabStr():string {
+        return PrefabMsgBox;
+    }
 };
-window["mb"] = MsgBox;
-MsgBox["PrefabStr"] = PrefabMsgBox;

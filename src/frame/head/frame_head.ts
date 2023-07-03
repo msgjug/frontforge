@@ -42,6 +42,7 @@ export default class FrameHead extends AppNode {
 
     refresh() {
     }
+    static get PrefabStr(){
+        return PrefabStr;
+    }
 };
-
-FrameHead["PrefabStr"] = PrefabStr;

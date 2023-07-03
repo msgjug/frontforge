@@ -27,6 +27,7 @@ export default class Scene extends AppNode {
         this.addChild(toast, "div[class=toast-container]");
         toast.show(text, sec);
     }
+    static get PrefabStr():string {
+        return PrefabStr;
+    }
 };
-
-Scene["PrefabStr"] = PrefabStr;

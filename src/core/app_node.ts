@@ -78,6 +78,10 @@ export class AppNode {
         this.ele.style.opacity = `${val}`;
     }
 
+    static get PrefabStr():string {
+        return "";
+    }
+
     init(prefabEle: HTMLElement, style: Element = null) {
         if (!prefabEle) {
             console.warn("AppNode::load, warn: ele为空。");
@@ -202,22 +206,60 @@ export class AppNode {
 
         child.onLoad();
     }
+    getChildren(targetEle?: Element | string) {
+        if (!targetEle) {
+            return this.children;
+        }
+
+        if (targetEle) {
+            if (typeof targetEle === "string") {
+                targetEle = this.ele.querySelector(targetEle);
+            }
+        }
+        else {
+            targetEle = this.ele;
+        }
+
+        return this.children.filter(child => child.ele.parentElement == targetEle);
+    }
     removeChild(child: AppNode) {
         ArrayUtils.remove(this.children, child);
         child.ele.remove();
         child.parent = null;
     }
 
-    removeAllChildren() {
+    removeAllChildren(targetEle?: Element | string) {
+        if (targetEle) {
+            if (typeof targetEle === "string") {
+                targetEle = this.ele.querySelector(targetEle);
+            }
+        }
+        else {
+            targetEle = this.ele;
+        }
+
         let list = this.children.slice();
         list.forEach(child => {
-            this.removeChild(child);
+            if (!targetEle || child.ele.parentElement == targetEle) {
+                this.removeChild(child);
+            }
         });
     }
-    disposeAllChildren() {
+    disposeAllChildren(targetEle?: Element | string) {
+        if (targetEle) {
+            if (typeof targetEle === "string") {
+                targetEle = this.ele.querySelector(targetEle);
+            }
+        }
+        else {
+            targetEle = this.ele;
+        }
+
         let list = this.children.slice();
         list.forEach(child => {
-            child.dispose();
+            if (!targetEle || child.ele.parentElement == targetEle) {
+                child.dispose();
+            }
         });
     }
 
@@ -260,5 +302,3 @@ export class AppNode {
         css.remove();
     }
 };
-
-window["an"] = AppNode;

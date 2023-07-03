@@ -81,6 +81,7 @@ export default class PageFF extends AppNode {
         let stuff = Prefab.Instantiate(Stuff);
         this.addChild(stuff, this.stuffContain);
     }
+    static get PrefabStr(){
+        return PrefabStr;
+    }
 };
-
-PageFF["PrefabStr"] = PrefabStr;
