@@ -48,6 +48,16 @@ const STYLE_LIST = [
     "backgroundSize"
 ];
 
+const ATTR_LIST = [
+    "src",
+    "value",
+];
+
+const MEMBER_LIST = [
+    "innerText",
+    "innerHTML"
+];
+
 @RegClass("AppNode")
 export class AppNode {
     subject: Subject = new Subject();
@@ -160,6 +170,20 @@ export class AppNode {
                                     return;
                                 }
                                 ele["style"][styleKey] = rec.option[styleKey];
+                            });
+                        }
+                    });
+                    ATTR_LIST.forEach(attrKey => {
+                        if (rec.option[attrKey]) {
+                            eleList.forEach(ele => {
+                                ele.setAttribute(attrKey,rec.option[attrKey]);
+                            });
+                        }
+                    });
+                    MEMBER_LIST.forEach(memKey => {
+                        if (rec.option[memKey]) {
+                            eleList.forEach(ele => {
+                                ele[memKey] = rec.option[memKey];
                             });
                         }
                     });
