@@ -56,19 +56,6 @@ h1 {
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #64afffaa);
-}
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #64afffaa);
-}
-
 .card {
   padding: 2em;
 }
@@ -91,8 +78,7 @@ button {
 button:hover {
   border-color: #64afff;
 }
-button:focus,
-button:focus-visible {
+button:active {
   outline: 4px auto -webkit-focus-ring-color;
 }
 

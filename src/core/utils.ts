@@ -1,4 +1,5 @@
 import data from "./cache_data";
+import { HttpRequest } from "./http_request";
 import Scene from "./scene";
 import { c2n, n2c } from "./serialize";
 import { Subject } from "./subject";
@@ -90,14 +91,30 @@ export default class Utils {
         return [(255 - r), (255 - g), (255 - b)];
     }
 
-    static CreateEditor(uid: string) {
-        //@ts-ignore
-        let editor = ace.edit(`${uid}`);
-        editor.setTheme(`ace/theme/${data.editorTheme}`);
-        editor.setFontSize(`${data.fontSize}px`);
-
-        return editor;
+    static Post(action: string, msg: any = {}) {
+        let dat: any = {
+            action: action,
+        };
+        Object.assign(dat, msg);
+        return HttpRequest.Post("REQ")
+            .setHeader({
+                "Sess-Token": data.sessToken
+            })
+            .setBody(dat);
     }
+
+    static Get(action: string, msg: any = {}) {
+        let dat: any = {
+            action: action,
+        };
+        Object.assign(dat, msg);
+        return HttpRequest.Post("REQ")
+            .setHeader({
+                "Sess-Token": data.sessToken
+            })
+            .setParam(dat);
+    }
+
 };
 export class rAF {
     //封装动画RAF函数  代替定时器
