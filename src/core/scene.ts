@@ -8,7 +8,7 @@ export default class Scene extends AppNode {
     stamp: string = "";
     curPage: AppNode = null;
 
-    replacePage(node: AppNode, stamp?: string) {
+    replacePage(node: AppNode, stamp: string) {
         if (stamp) {
             if (this.stamp === stamp) {
                 return;
