@@ -66,45 +66,59 @@ export default abstract class SerializeAble {
         });
         return json;
     }
-    fromJSON(json: any) {
+    assignFromJSON(json: any) {
         if (typeof json === "string") {
             json = JSON.parse(json);
         }
-        let _assign = (obj: Object, property: string, data) => {
-            if (data === null || data === undefined) {
-                obj[property] = null;
+        let _assign = (obj: Object, property: string | number, dat) => {
+            if (typeof dat === "undefined") {
+
             }
-            else if (typeof data === "object" && data instanceof Array) {
+            else if (typeof dat === "number" || typeof dat === "string" || typeof dat === "boolean") {
+                obj[property] = dat;
+            }
+            else if (typeof dat === "object" && dat instanceof Array) {
                 let list = [];
-                data.forEach((dc, ind) => {
-                    list[ind] = SerializeAble.CreateFromJSON(dc);
+                dat.forEach((dc, ind) => {
+                    _assign(list, ind, dc);
                 });
                 obj[property] = list;
             }
-            else if (typeof data === "object" && data.__cn) {
-                obj[property] = SerializeAble.CreateFromJSON(data);
+            else if (typeof dat === "object" && dat.__cn) {
+                if (obj[property] && obj[property].assignFromJSON) {
+                    obj[property].assignFromJSON(dat);
+                }
+                else {
+                    obj[property] = SerializeAble.CreateFromJSON(dat);
+                }
             }
             else {
-                if (data !== undefined) {
-                    obj[property] = data;
+                obj[property] = {};
+                for (let key in dat) {
+                    _assign(obj[property], key, dat[key]);
                 }
             }
         };
-        json && Object.keys(this).forEach(property => {
-            const serialize = Reflect.getMetadata(SerializeMetaKey, this, property);
-            if (serialize) {
-                let data = json[serialize];
-                _assign(this, property, data);
+        if (json) {
+            let keys = Object.keys(this);
+            for (let i = 0; i < keys.length; i++) {
+                let property = keys[i];
+                const serialize = Reflect.getMetadata(SerializeMetaKey, this, property);
+                if (serialize) {
+                    let data = json[serialize];
+                    _assign(this, property, data);
+                }
             }
-        });
+        }
     }
+    
     //反序列化
     static CreateFromJSON<T extends SerializeAble>(json: any): T {
         let out: T;
         if (json && json.__cn) {
             let ctor = NameClassMap.get(json.__cn);
             out = new ctor();
-            out.fromJSON(json);
+            out.assignFromJSON(json);
         }
         else {
             out = json;
