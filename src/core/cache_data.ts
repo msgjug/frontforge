@@ -6,6 +6,7 @@ import { Uid } from "./utils";
 
 @RegClass("CacheRecord")
 export class CacheRecord<T> extends SerializeAble {
+    subject: Subject = new Subject();
     @Serialize()
     timestamp: number = 0;
     @Serialize()
