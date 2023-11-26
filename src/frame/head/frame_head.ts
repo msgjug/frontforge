@@ -10,10 +10,10 @@ import PrefabStr from './frame_head.prefab.html?raw'
 // import IconFilter from "../../assets/filter.svg"
 
 import MsgHub from "../../core/subject";
-import PageFF from "../../pages/page_ff/page_ff";
+import PageIndex from "../../pages/page_index/page_index";
 
 const ROUTE: Col<new () => AppNode> = {
-    "index": PageFF,
+    "index": PageIndex,
 };
 
 @RegClass("FrameHead")
