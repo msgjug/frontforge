@@ -1,4 +1,4 @@
-import { Col } from "./data_ext";
+import { Col, ResourceReferce } from "./data_ext";
 import { ClassProperty, PropertyInfo, PropertyRecord, RegClass } from "./serialize";
 import { Subject } from "./subject";
 import { ArrayUtils } from "./utils";
@@ -309,17 +309,20 @@ export class AppNode {
     onLoad() { }
     onDispose() { }
 
-    private static __CssPool: Element[] = [];
+    private static __CssRefPool: ResourceReferce<Element>[] = [];
     private __updateId = 0;
     private __addCssInHead(css: Element) {
         let ind = this.__findCssIndex(css);
         if (ind !== -1) {
-            return AppNode.__CssPool[ind];
+            AppNode.__CssRefPool[ind].ref++;
+            return AppNode.__CssRefPool[ind].res;
         }
         else {
             css.setAttribute("type", "text/css");
-            AppNode.__CssPool.push(css);
+            let rr = new ResourceReferce(css);
+            AppNode.__CssRefPool.push(rr);
             document.head.appendChild(css);
+            return rr.res;
         }
     }
     private __removeCssFromHead(css: Element) {
@@ -328,10 +331,14 @@ export class AppNode {
             return;
         }
 
-        AppNode.__CssPool.splice(ind, 1)[0].remove();
+        let rr = AppNode.__CssRefPool[ind];
+        rr.ref--;
+        if (!rr.hasRef()) {
+            AppNode.__CssRefPool.splice(ind, 1)[0].res.remove();
+        }
     }
 
     private __findCssIndex(css: Element) {
-        return AppNode.__CssPool.findIndex(ele => ele.innerHTML === css.innerHTML);
+        return AppNode.__CssRefPool.findIndex(ele => ele.res.innerHTML === css.innerHTML);
     }
 };
