@@ -88,7 +88,7 @@ export class AppNode {
         this.ele.style.opacity = `${val}`;
     }
 
-    static get PrefabStr():string {
+    static get PrefabStr(): string {
         return "";
     }
 
@@ -99,9 +99,9 @@ export class AppNode {
         this.ele = prefabEle;
         this.ele["app_node"] = this;
         if (style) {
-            this.css = style;
-            this.css.setAttribute("type", "text/css");
-            this.__addCssInHead(this.css);
+            this.css = this.__addCssInHead(style);
+            //  ;
+            // this.css
         }
 
         let propInfo = ClassProperty.get(<any>this.constructor);
@@ -176,7 +176,7 @@ export class AppNode {
                     ATTR_LIST.forEach(attrKey => {
                         if (rec.option[attrKey]) {
                             eleList.forEach(ele => {
-                                ele.setAttribute(attrKey,rec.option[attrKey]);
+                                ele.setAttribute(attrKey, rec.option[attrKey]);
                             });
                         }
                     });
@@ -312,17 +312,26 @@ export class AppNode {
     private static __CssPool: Element[] = [];
     private __updateId = 0;
     private __addCssInHead(css: Element) {
-        if (ArrayUtils.contains(AppNode.__CssPool, css)) {
-            return;
+        let ind = this.__findCssIndex(css);
+        if (ind !== -1) {
+            return AppNode.__CssPool[ind];
         }
-        AppNode.__CssPool.push(css);
-        document.head.appendChild(css);
+        else {
+            css.setAttribute("type", "text/css");
+            AppNode.__CssPool.push(css);
+            document.head.appendChild(css);
+        }
     }
     private __removeCssFromHead(css: Element) {
-        if (!ArrayUtils.contains(AppNode.__CssPool, css)) {
+        let ind = this.__findCssIndex(css);
+        if (ind === -1) {
             return;
         }
-        ArrayUtils.remove(AppNode.__CssPool, css);
-        css.remove();
+
+        AppNode.__CssPool.splice(ind, 1)[0].remove();
+    }
+
+    private __findCssIndex(css: Element) {
+        return AppNode.__CssPool.findIndex(ele => ele.innerHTML === css.innerHTML);
     }
 };
