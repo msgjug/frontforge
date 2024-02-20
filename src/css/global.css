@@ -108,18 +108,3 @@ button:active {
   align-items: center;
   justify-content: center;
 }
-
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #74beff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
-
