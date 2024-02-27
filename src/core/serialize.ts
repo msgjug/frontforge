@@ -37,7 +37,7 @@ export function RegClass(regClassName: string) {
         ctor.__cn = regClassName;
         NameClassMap.set(ctor.__cn, ctor);
         ClassNameMap.set(ctor, ctor.__cn);
-        
+
         let info = ClassProperty.get(<any>ctor);
         if (!info) {
             info = new PropertyInfo();
@@ -49,18 +49,30 @@ export function RegClass(regClassName: string) {
 export abstract class CloneAble {
     abstract clone(): CloneAble;
 };
-export default abstract class SerializeAble extends CloneAble{
-    //序列化
+export default abstract class SerializeAble extends CloneAble {
     toJSON(): any {
-        let json: any = {};
+        let json: any = {
+            __cn: this.constructor["__cn"],
+        };
+        let _assign = (dat: any, property: string | number, obj: any) => {
+            if (obj[property].toJSON) {
+                dat[property] = obj[property].toJSON();
+            }
+            else if (typeof obj[property] === "object" && obj[property] instanceof Array) {
+                let list = [];
+                obj[property].forEach((ele, ind) => {
+                    _assign(list, ind, obj[property]);
+                });
+                dat[property] = list;
+            }
+            else {
+                dat[property] = obj[property];
+            }
+        };
         Object.keys(this).forEach(property => {
             const serialize = Reflect.getMetadata(SerializeMetaKey, this, property);
             if (serialize) {
-                if (this[property] instanceof SerializeAble) {
-                    json[serialize] = this[property].toJSON();
-                } else {
-                    json[serialize] = this[property];
-                }
+                _assign(json, serialize, this);
             }
         });
         return json;
@@ -70,7 +82,10 @@ export default abstract class SerializeAble extends CloneAble{
             json = JSON.parse(json);
         }
         let _assign = (obj: Object, property: string | number, cls: new () => SerializeAble, dat: any) => {
-            if (typeof dat === "undefined") {
+            if (dat === undefined) {
+
+            }
+            else if (dat === null) {
 
             }
             else if (typeof dat === "number" || typeof dat === "string" || typeof dat === "boolean") {
@@ -89,9 +104,14 @@ export default abstract class SerializeAble extends CloneAble{
                     prop.assignFromJSON(dat);
                     obj[property] = prop;
                 }
-                // else if (dat.__cn) {
-                //     obj[property] = SerializeAble.CreateFromJSON(dat);
-                // }
+                else if (dat.__cn) {
+                    if (obj[property] && obj[property].assignFromJSON) {
+                        obj[property].assignFromJSON(dat);
+                    }
+                    else {
+                        obj[property] = SerializeAble.CreateFromJSON(dat, n2c(dat.__cn));
+                    }
+                }
                 else if (obj[property] && obj[property].assignFromJSON) {
                     obj[property].assignFromJSON(dat);
                 }
