@@ -108,7 +108,7 @@ export default class Utils {
             action: action,
         };
         Object.assign(dat, msg);
-        return HttpRequest.Post("REQ")
+        return HttpRequest.Get("REQ")
             .setHeader({
                 "Sess-Token": data.sessToken
             })
