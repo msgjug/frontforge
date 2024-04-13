@@ -91,6 +91,14 @@ export default class Utils {
         return [(255 - r), (255 - g), (255 - b)];
     }
 
+    static NumberToDigitString(num: number, digit: number) {
+        let str = num.toFixed(0);
+        if (str.length < digit) {
+            str = (new Array(digit - str.length).fill("0")).join("") + str;
+        }
+        return str;
+    }
+
     static Post(action: string, msg: any = {}) {
         let dat: any = {
             action: action,

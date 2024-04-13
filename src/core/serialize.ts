@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { Col } from "./data_ext";
 export class PropertyRecord {
     key: string = "";
@@ -11,9 +10,22 @@ export class PropertyInfo {
     super: string = "";
 };
 
-export const SerializeMetaKey = "Serialize";
-export const SerializeMetaClassName = "SerializeClassName";
+// 记录类的序列化结构
+export class ClassSerializeInfo {
+    ctor: Function = null; //类构造
+    memberList: string[] = []; //成员名 
+    memberCtorList: string[] = []; //成员类名，如果是基础属性，则为空字符串
 
+    constructor(ctor) {
+        this.ctor = ctor;
+    }
+
+    addSerialize(key: string, ctorName: string = "") {
+        this.memberList.push(key);
+        this.memberCtorList.push(ctorName);
+    }
+};
+export const ClassSerializeInfoMap = new Map<any, ClassSerializeInfo>(); //类的序列化结构 MAP
 export var NameClassMap = new Map<string, new () => any>();
 export var ClassNameMap: Map<new () => any, string> = new Map();
 export var ClassProperty: Map<new () => any, PropertyInfo> = new Map();
@@ -24,12 +36,24 @@ export function Class2Name(ctor: new () => any) {
 export function Name2Class(cn: string) {
     return NameClassMap.get(cn);
 }
+export function GetCSIByClass(ctor: any) { //类 -> 序列化结构
+    return ClassSerializeInfoMap.get(ctor);
+};
+export function GetCSI(cn: string) { //类名 -> 序列化结构
+    return GetCSIByClass(n2c(cn));
+}
 export const n2c = Name2Class;
 export const c2n = Class2Name;
 //序列化装饰器
-export function Serialize(name?: string) {
+
+//成员序列化，CLS为成员类型
+export function Serialize<T>(cls?: new () => T) {
     return (target: Object, property: string): void => {
-        Reflect.defineMetadata(SerializeMetaKey, name || property, target, property);
+        if (!ClassSerializeInfoMap.get(target.constructor)) {
+            ClassSerializeInfoMap.set(target.constructor, new ClassSerializeInfo(target.constructor));
+        }
+        let csi = ClassSerializeInfoMap.get(target.constructor);
+        csi.addSerialize(property, cls ? cls["__cn"] : "");
     };
 }
 export function RegClass(regClassName: string) {
@@ -55,25 +79,25 @@ export default abstract class SerializeAble extends CloneAble {
             __cn: this.constructor["__cn"],
         };
         let _assign = (dat: any, property: string | number, obj: any) => {
-            if (obj[property].toJSON) {
-                dat[property] = obj[property].toJSON();
-            }
-            else if (typeof obj[property] === "object" && obj[property] instanceof Array) {
-                let list = [];
-                obj[property].forEach((ele, ind) => {
-                    _assign(list, ind, obj[property]);
-                });
-                dat[property] = list;
-            }
-            else {
-                dat[property] = obj[property];
+            if (obj[property] !== undefined && obj[property] !== null) {
+                if (obj[property].toJSON) {
+                    dat[property] = obj[property].toJSON();
+                }
+                else if (typeof obj[property] === "object" && obj[property] instanceof Array) {
+                    let list = [];
+                    obj[property].forEach((ele, ind) => {
+                        _assign(list, ind, obj[property]);
+                    });
+                    dat[property] = list;
+                }
+                else {
+                    dat[property] = obj[property];
+                }
             }
         };
-        Object.keys(this).forEach(property => {
-            const serialize = Reflect.getMetadata(SerializeMetaKey, this, property);
-            if (serialize) {
-                _assign(json, serialize, this);
-            }
+        let csi = GetCSIByClass(this.constructor);
+        csi.memberList.forEach(sKey => {
+            _assign(json, sKey, this);
         });
         return json;
     }
@@ -124,16 +148,15 @@ export default abstract class SerializeAble extends CloneAble {
             }
         };
         if (json) {
-            let keys = Object.keys(this);
-            for (let i = 0; i < keys.length; i++) {
-                let property = keys[i];
-                const serializeKey = Reflect.getMetadata(SerializeMetaKey, this, property);
-                if (serializeKey) {
-                    let data = json[serializeKey];
-                    const cls: new () => SerializeAble = Reflect.getMetadata(SerializeMetaClassName, this, property);
-                    _assign(this, property, cls, data);
+            let csi = GetCSIByClass(this.constructor);
+            csi.memberList.forEach((sKey, ind) => {
+                let dat = json[sKey];
+                let cls: new () => SerializeAble;
+                if (csi.memberCtorList[ind]) {
+                    cls = n2c(csi.memberCtorList[ind]);
                 }
-            }
+                _assign(this, sKey, cls, dat);
+            });
         }
     }
     //反序列化
