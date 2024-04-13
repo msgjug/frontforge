@@ -11,13 +11,16 @@ import PrefabStr from './frame_head.prefab.html?raw'
 
 import MsgHub from "../../core/subject";
 import PageIndex from "../../pages/page_index/page_index";
+import PageCreator from "../../pages/page_creator/page_creator";
 
 const ROUTE: Col<new () => AppNode> = {
     "index": PageIndex,
+    "creator": PageCreator
 };
 
 @RegClass("FrameHead")
 export default class FrameHead extends AppNode {
+    stamp: string = "";
     @property("b[name=site_name]", { onclick: "onClickTitle" })
     lbSiteName: HTMLElement = null;
 
@@ -31,7 +34,13 @@ export default class FrameHead extends AppNode {
         this.refresh();
     }
     jumpStamp(stamp: string) {
-        Utils.scene.replacePage(Prefab.Instantiate(ROUTE[stamp]), stamp);
+        if (stamp) {
+            if (this.stamp === stamp) {
+                return;
+            }
+            this.stamp = stamp;
+        }
+        Utils.scene.replacePage(Prefab.Instantiate(ROUTE[stamp]));
     }
     onClickTitle() {
         Utils.app.msgBox("FrontForge弹窗");
@@ -42,7 +51,7 @@ export default class FrameHead extends AppNode {
 
     refresh() {
     }
-    static get PrefabStr(){
+    static get PrefabStr() {
         return PrefabStr;
     }
 };

@@ -5,16 +5,9 @@ import Prefab from "./prefab";
 import Toast from "./prefabs/toast";
 @RegClass("Scene")
 export default class Scene extends AppNode {
-    stamp: string = "";
     curPage: AppNode = null;
 
-    replacePage(node: AppNode, stamp: string) {
-        if (stamp) {
-            if (this.stamp === stamp) {
-                return;
-            }
-            this.stamp = stamp;
-        }
+    replacePage(node: AppNode) {
         if (this.curPage) {
             this.curPage.dispose();
         }
