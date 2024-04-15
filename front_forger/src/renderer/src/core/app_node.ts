@@ -1,4 +1,4 @@
-import { Col, ResourceReferce } from "./data_ext";
+import { ResourceReferce } from "./data_ext";
 import { ClassProperty, PropertyInfo, PropertyRecord, RegClass } from "./serialize";
 import { Subject } from "./subject";
 import { ArrayUtils } from "./utils";
@@ -106,7 +106,7 @@ export class AppNode {
 
         let propInfo = ClassProperty.get(<any>this.constructor);
         if (propInfo) {
-            let col: Col<PropertyRecord> = {};
+            let col: { [key: string]: PropertyRecord } = {};
 
             let supers: PropertyInfo[] = [];
             let ctor = this;

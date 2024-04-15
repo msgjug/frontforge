@@ -1,5 +1,6 @@
 import { AppNode, property } from "../../core/app_node";
 import { RegClass } from "../../core/serialize";
+import PrefabStr from "./script_item.prefab.html?raw"
 
 @RegClass("ScriptItem")
 export class ScriptItem extends AppNode {
@@ -16,5 +17,9 @@ export class ScriptItem extends AppNode {
 
   onClickDel() {
     this.subject.emit("del", this.scriptName);
+  }
+
+  static get PrefabStr() {
+    return PrefabStr;
   }
 };

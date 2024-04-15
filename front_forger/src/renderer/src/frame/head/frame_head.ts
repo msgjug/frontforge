@@ -1,26 +1,20 @@
-import { AppNode, property, propertys } from "../../core/app_node";
+import { AppNode, property } from "../../core/app_node";
 import Prefab from "../../core/prefab";
 import { RegClass } from "../../core/serialize";
 import Utils from "../../core/utils";
-import { Col } from "../../core/data_ext";
 import PrefabStr from './frame_head.prefab.html?raw'
 
-// import IconList from "../../assets/list.svg"
-// import IconTimeLine from "../../assets/time.svg"
-// import IconFilter from "../../assets/filter.svg"
-
 import MsgHub from "../../core/subject";
-import PageIndex from "../../pages/page_index/page_index";
+import PageCreator from "../../pages/page_creator/page_creator";
 
-const ROUTE: Col<new () => AppNode> = {
-    "index": PageIndex,
+const ROUTE: { [key: string]: new () => AppNode } = {
+    "index": PageCreator,
+    "creator": PageCreator
 };
 
 @RegClass("FrameHead")
 export default class FrameHead extends AppNode {
     stamp: string = "";
-    @property("b[name=site_name]", { onclick: "onClickTitle" })
-    lbSiteName: HTMLElement = null;
 
     onLoad(): void {
         super.onLoad();

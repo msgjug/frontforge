@@ -1,0 +1,13 @@
+import './app_node'
+import './binder'
+import './data_ext'
+import './http_request'
+import './macro'
+import './prefab'
+import './serialize'
+import './subject'
+import './utils'
+import './web_application'
+
+import './prefabs/panel'
+import './prefabs/msg_box'
