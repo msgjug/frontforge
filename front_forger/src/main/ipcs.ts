@@ -3,6 +3,7 @@ import { AppUtils } from "./app_utils";
 import fs from 'fs';
 import { ProtocolObjectIPCResponse, ProtocolObjectProjectConfig } from "./protocol_dist";
 import { execSync } from "child_process";
+import ActionExec from "./action_exec";
 
 export class IPCS {
     static Init() {
@@ -43,7 +44,11 @@ export class IPCS {
         await IPCS.__CopyFile(`"${TEMPLATE_DIR}*.*"`, `"${PROJ_DIR}\\"`);
         await fs.writeFileSync(`${PROJ_DIR}/front_forge_project.json`, JSON.stringify(conf.toField()));
         await IPCS.__FileContentReplaceKey(`${PROJ_DIR}/src/core/macro.ts`, ["{{APP_NAME}}", conf.app_name]);
-
+        let ae = new ActionExec(`${PROJ_DIR}`);
+        ae.onData = (str: string, delta: string) => {
+            console.log(delta);
+        };
+        await ae.cmd("npm.cmd", ["install"]);
         return rsp.toMixed();
     }
     protected static async _ReadEditorConfig(_) {

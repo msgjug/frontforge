@@ -1,32 +1,77 @@
 <style>
+  .area-wrap {
+    border: 1px solid gray;
+  }
+
+  .area-contain {
+    padding: 0.5em;
+  }
+
   .creator {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     flex-grow: 1;
   }
+
+  .top-area {
+    height: 3em;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .asset-area {
+    min-width: 15em;
+    width: 30%;
+  }
+
+  .main-area {}
+
+  .main-area .tap {
+    background: gray;
+  }
+
+  .main-area .tap[cur] {
+    background: rgb(14, 59, 196);
+    color: white;
+  }
 </style>
 
 <dom>
   <div class="creator">
-    <div class="rect-wrap row" style="background:gray;">
-      <div class="title">项目</div>
-      <button name="btn_test_ipc">新建</button>
-      <button name="btn_test_ipc">打开</button>
-      <div class="row" style="align-items: center;flex-grow: 1;">项目名字</div>
-      <button name="btn_test_ipc">关闭</button>
+    <div class="top-area area-wrap">
+      <input placeholder="入口Prefab名" />
+      <div class="row">
+        <button>▶Run</button>
+        <button>⏱Build</button>
+        <button>⚙Setup</button>
+      </div>
+      <div class="row">
+        <button>◰Open Project Dir</button>
+        <button>╳Close Project</button>
+      </div>
     </div>
-    <div style="display:flex; flex-direction: column;">
-      <div name="side">
-        <div class="row" name="top">
-          <button name="btn_new_page">创建页面</button>
-          <button name="btn_new_box">创建面板</button>
-        </div>
-        <div name="script_contain">
+    <div class="row" style="flex-grow: 1;">
+      <div class="asset-area area-wrap">
+        <div class="title">asset</div>
+        <div class="area-contain">
+          <div>123</div>
+          <div>123</div>
+          <div>123</div>
+          <div>123</div>
         </div>
       </div>
-      <div name="main">
-
+      <div class="main-area area-wrap" style="flex-grow: 1;">
+        <div class="title row">
+          <div>main</div>
+          <div class="row">
+            <button class="tap" cur>TypeScript</button>
+            <button class="tap">Dom</button>
+            <button class="tap">Lion</button>
+          </div>
+        </div>
+        <div class="area-contain">ace
+        </div>
       </div>
     </div>
   </div>
