@@ -1,0 +1,37 @@
+<style>
+    .box-project {
+        color: #cccccc;
+        width: 50%;
+        min-width: 25em;
+        min-height: 15em;
+        max-height: 90%;
+        /* overflow-y: scroll; */
+    }
+
+    .project-item {
+        border: 1px solid white;
+        padding: 1em;
+        margin: 0.4em 0;
+    }
+</style>
+
+<dom>
+    <div class="panel-bg">
+        <div name="panel" class="box-project panel">
+            <div class="nav row title">
+                <div style="flex-grow: 1;">项目</div>
+                <div class="btn">x</div>
+            </div>
+            <div class="panel-contain">
+                <div class="row">
+                    <input style="flex-grow: 1;" placeholder="搜索项目" $="ebSearch" @input="onEditSearch"/>
+                    <button @click="onClickLoad">导入项目</button>
+                    <button @click="onClickNew">新建项目</button>
+                </div>
+                <div $="projectContain" style="max-height:25em;overflow-y:scroll;">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</dom>

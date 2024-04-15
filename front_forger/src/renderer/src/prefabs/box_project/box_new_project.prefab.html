@@ -1,0 +1,29 @@
+<style>
+    .box-new-project {
+        color: #cccccc;
+    }
+
+    .box-new-project-contain {
+        display: flex;
+        flex-direction: column;
+    }
+</style>
+
+<dom>
+    <div class="panel-bg">
+        <div name="panel" class="box-new-project panel">
+            <div class="nav row title">
+                <div style="flex-grow: 1;">新建项目</div>
+                <div @click="onClickClose" class="btn">x</div>
+            </div>
+            <div class="panel-contain box-new-project-contain">
+                <input style="flex-grow: 1;" placeholder="项目名字" $="ebName" />
+                <div>
+                    <input style="flex-grow: 1;" placeholder="项目位置" $="ebPath" />
+                    <button @click="onClickLocation">浏览</button>
+                </div>
+                <button @click="onClickSubmit">新建项目</button>
+            </div>
+        </div>
+    </div>
+</dom>

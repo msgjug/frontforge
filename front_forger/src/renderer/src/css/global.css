@@ -59,17 +59,9 @@ h1 {
   text-align: center;
 }
 
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
+/* 
 button {
   color:#bcbcbc;
-  border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
@@ -84,20 +76,39 @@ button:hover {
 }
 button:active {
   outline: 4px auto -webkit-focus-ring-color;
-}
+} */
 
 .panel {
   background: #1b1d21;
   color: #bcbcbc;
   border: 4px solid #bcbcbc;
-
   display: flex;
-  align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: stretch;
+  flex-direction: column;
+}
+.panel-contain {
+  padding: 1em;
 }
 .panel button {
     color: #1b1d21;
     background: #bcbcbc;
+}
+
+.btn {
+  padding: 0.5em 0.7em;
+  font-weight: bold;
+}
+
+.nav {
+
+}
+.nav .btn {
+  background: gray;
+  color:black;
+  text-align: center;
+  padding: 0 0.25em;
+  cursor: pointer;
 }
 
 .panel-bg {

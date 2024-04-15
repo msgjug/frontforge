@@ -1,7 +1,7 @@
 
 export class PropertyRecord {
     key: string = "";
-    queryStr: string = "";
+    query: string = "";
     option: any = null;
     muti = false;
 };

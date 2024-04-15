@@ -1,0 +1,27 @@
+<style>
+    .project-item {
+        border: 1px solid white;
+        padding: 1em;
+        margin: 0.4em 0;
+        display: flex;
+        flex-direction: row;
+        align-items: baseline;
+        justify-content: space-between;
+    }
+
+    .project-item:hover {
+        background: gray;
+    }
+</style>
+
+<dom>
+    <div class="project-item">
+        <div style="" $="lbName">name</div>
+        <div style="border-radius: 10px; background: #0095ff; color: black; padding: 0.5em;" $="lbVersion">
+            edtior_version</div>
+            <div class="row">
+                <button class="btn" style="background:red" @click="onClickDel">x</button>
+                <button class="btn" @click="onClickOpen">></button>
+            </div>
+    </div>
+</dom>

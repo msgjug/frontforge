@@ -4,23 +4,33 @@ import { NameClassMap, n2c } from "./serialize";
 export default class Prefab {
     static Instantiate<T extends AppNode>(ctorOrPrefabStr: new () => T | string): T {
         let prefabStr = "";
-        let ctor: any = null;
+        let ctor: new () => T = null;
         if (typeof ctorOrPrefabStr === "string") {
             prefabStr = ctorOrPrefabStr;
         }
         else {
-            ctor = ctorOrPrefabStr;
+            ctor = <new () => T>ctorOrPrefabStr;
             prefabStr = ctorOrPrefabStr["PrefabStr"];
         }
 
-        let ele = document.createElement("div");
+        let ele = document.createElement("prefab");
         ele.innerHTML = prefabStr;
 
         let dom = ele.querySelector("dom");
         let style = ele.querySelector("style");
+        let bind = ele.querySelector("bind");
+
+        let bindInfo = null;
+        if (bind) {
+            try {
+                bindInfo = JSON.parse(bind.innerHTML.trim());
+            } catch (e) {
+                console.warn("Instantiate", e);
+            }
+        }
+
         if (!ctor) {
-            let nodeCtorName = dom.getAttribute("node") || "AppNode";
-            ctor = NameClassMap.get(nodeCtorName);
+            ctor = NameClassMap.get(bindInfo ? bindInfo.name : "AppNode");
         }
 
         let node: T = new ctor();
@@ -37,7 +47,7 @@ export default class Prefab {
                 child.onLoad();
             });
         }
-        node.init(<HTMLElement>dom.children[0], style);
+        node.init(<HTMLElement>dom.children[0], bindInfo, style);
 
         return node;
     }

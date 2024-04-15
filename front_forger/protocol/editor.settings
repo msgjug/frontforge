@@ -1,0 +1,33 @@
+enums {
+
+};
+
+classes {
+    # 编辑器配置
+    EditorConfig {
+        # 历史项目记录
+        project_configs "([ProjectConfig])";
+    };
+
+    #  
+    ProjectConfig { 
+        app_name "(str)";
+        app_version "(str)";
+        path "(str)";
+        prefabs_list "([PrefabConfig])";
+        create_date "(int)0";
+        edit_date "(int)0";
+    }
+    
+    # 
+    PrefabConfig {
+        name "(str)";
+        group "(str)";
+    };
+
+    #
+    IPCResponse {
+        ret "(int)0";
+        msg "(str)";
+    };
+};

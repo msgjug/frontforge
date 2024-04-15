@@ -3,7 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { dialog } from 'electron/main'
-import { AppUtils } from './app_open'
+import { AppUtils } from './app_utils'
 import { IPCS } from './ipcs'
 
 function createWindow(): void {

@@ -3,6 +3,12 @@ import { ClassProperty, PropertyInfo, PropertyRecord, RegClass } from "./seriali
 import { Subject } from "./subject";
 import { ArrayUtils } from "./utils";
 
+// 解析DOM节点中的@ 带头的属性
+export const AT_KEYS = {
+    "@click": "onclick",
+    "@change": "onchange",
+    "@input": "oninput",
+}
 
 export function property(queryStr: string, options?: any) {
     return (target: Object, propertyKey: string): void => {
@@ -16,7 +22,7 @@ export function property(queryStr: string, options?: any) {
         let rec = new PropertyRecord();
         rec.key = propertyKey;
         rec.option = options;
-        rec.queryStr = queryStr;
+        rec.query = queryStr;
         info.recCol[propertyKey] = rec;
     };
 }
@@ -33,7 +39,7 @@ export function propertys(queryStr: string, options?: any) {
         let rec = new PropertyRecord();
         rec.key = propertyKey;
         rec.option = options;
-        rec.queryStr = queryStr;
+        rec.query = queryStr;
         rec.muti = true;
         info.recCol[propertyKey] = rec;
     };
@@ -91,8 +97,49 @@ export class AppNode {
     static get PrefabStr(): string {
         return "";
     }
-
-    init(prefabEle: HTMLElement, style: Element = null) {
+    protected _recBindDom(ele: Element) {
+        //$
+        if (ele.hasAttribute("$")) {
+            let varKey = ele.getAttribute("$");
+            if (AppNode.HasOwnPropertyRec(this, varKey)) {
+                this[varKey] = ele;
+            }
+            else {
+                console.warn(`$ ${this.constructor.name}, 代码中没有找到 ${varKey}成员`);
+            }
+        }
+        //@
+        for (let key in AT_KEYS) {
+            if (ele.hasAttribute(key)) {
+                let varKey = ele.getAttribute(key);
+                if (AppNode.HasOwnPropertyRec(this, varKey)) {
+                    ele[AT_KEYS[key]] = this[varKey].bind(this);
+                }
+                else {
+                    console.warn(`${this.constructor.name}, ${key} 代码中没有找到 ${varKey}成员`);
+                }
+            }
+        }
+        for (let i = 0; i < ele.children.length; i++) {
+            let child = ele.children[i];
+            this._recBindDom(child);
+        }
+    }
+    static HasOwnPropertyRec(obj: Object, propName: string) {
+        if (obj.hasOwnProperty(propName)) {
+            return true;
+        }
+        else {
+            if (obj instanceof AppNode) {
+                return AppNode.HasOwnPropertyRec(Object.getPrototypeOf(obj), propName);
+            }
+            else {
+                return false;
+            }
+        }
+    }
+    //todo:bindInfo
+    init(prefabEle: HTMLElement, bindInfo: any, style: Element = null) {
         if (!prefabEle) {
             console.warn("AppNode::load, warn: ele为空。");
         }
@@ -100,9 +147,51 @@ export class AppNode {
         this.ele["app_node"] = this;
         if (style) {
             this.css = this.__addCssInHead(style);
-            //  ;
-            // this.css
         }
+
+        //最新的绑定方式2024-4-15
+        this._recBindDom(this.ele);
+
+        //最新绑定方式2024-2-2
+        if (bindInfo) {
+            for (let i = 0; i < bindInfo.props.length; i++) {
+                let rec: PropertyRecord = bindInfo.props[i];
+                let eleList = [];
+
+                if (rec.muti) {
+                    let list = this.ele.querySelectorAll(rec.query);
+                    list.forEach(ele => {
+                        eleList.push(ele);
+                    });
+                    if (eleList.length === 0) {
+                        console.warn(`${this.constructor.name}, propertys 没有找到${rec.query}`);
+                        continue;
+                    }
+                }
+                else {
+                    eleList[0] = this.ele.querySelector(rec.query);
+                }
+
+                if (!eleList[0]) {
+                    console.warn(`${this.constructor.name}, property 没有找到${rec.query}`);
+                    continue;
+                }
+                else {
+                    if (rec.key) {
+                        if (rec.muti) {
+                            this[rec.key] = eleList;
+                        }
+                        else {
+                            this[rec.key] = eleList[0];
+                        }
+                    }
+                    if (rec.option) {
+                        this.__assignOption(rec.key, rec.option, eleList);
+                    }
+                }
+            }
+        }
+        //最新绑定方式2024-2-2
 
         let propInfo = ClassProperty.get(<any>this.constructor);
         if (propInfo) {
@@ -132,73 +221,26 @@ export class AppNode {
                 let rec = col[key];
                 let eleList: Element[] = [];
                 if (rec.muti) {
-                    let list = this.ele.querySelectorAll(rec.queryStr);
+                    let list = this.ele.querySelectorAll(rec.query);
                     list.forEach(ele => {
                         eleList.push(ele);
                     });
                     if (eleList.length === 0) {
-                        console.warn(`${this.constructor.name}, propertys 没有找到${rec.queryStr}`);
+                        console.warn(`${this.constructor.name}, propertys 没有找到${rec.query}`);
                         continue;
                     }
                     this[key] = eleList;
                 }
                 else {
-                    eleList[0] = this.ele.querySelector(rec.queryStr);
+                    eleList[0] = this.ele.querySelector(rec.query);
                     if (!eleList[0]) {
-                        console.warn(`${this.constructor.name}, property 没有找到${rec.queryStr}`);
+                        console.warn(`${this.constructor.name}, property 没有找到${rec.query}`);
                         continue;
                     }
                     this[key] = eleList[0];
                 }
                 if (rec.option) {
-                    OPTION_CB_LIST.forEach(cbName => {
-                        if (rec.option[cbName]) {
-                            if (!this[rec.option[cbName]]) {
-                                console.warn(`${this.constructor.name}, property option的${cbName}属性，没找到${this.constructor.name}中有${rec.option[cbName]}方法。`);
-                            }
-                            else {
-                                eleList.forEach(ele => {
-                                    ele[cbName] = this[rec.option[cbName]].bind(this, ele);
-                                });
-                            }
-                        }
-                    });
-                    STYLE_LIST.forEach(styleKey => {
-                        if (rec.option[styleKey]) {
-                            eleList.forEach(ele => {
-                                if (!ele["style"]) {
-                                    return;
-                                }
-                                ele["style"][styleKey] = rec.option[styleKey];
-                            });
-                        }
-                    });
-                    ATTR_LIST.forEach(attrKey => {
-                        if (rec.option[attrKey]) {
-                            eleList.forEach(ele => {
-                                ele.setAttribute(attrKey, rec.option[attrKey]);
-                            });
-                        }
-                    });
-                    MEMBER_LIST.forEach(memKey => {
-                        if (rec.option[memKey]) {
-                            eleList.forEach(ele => {
-                                ele[memKey] = rec.option[memKey];
-                            });
-                        }
-                    });
-
-                    if (rec.option["isNode"]) {
-                        if (this[key] instanceof Array) {
-                            let list = this[key].slice();
-                            list.forEach((ele, ind) => {
-                                this[key][ind] = eleList[ind]["app_node"];
-                            });
-                        }
-                        else {
-                            this[key] = eleList[0]["app_node"];
-                        }
-                    }
+                    this.__assignOption(key, rec.option, eleList);
                 }
             }
         }
@@ -208,6 +250,61 @@ export class AppNode {
         }
 
         this.inited = true;
+    }
+    private __assignOption(key, option, eleList) {
+        OPTION_CB_LIST.forEach(cbName => {
+            if (option[cbName]) {
+                if (!this[option[cbName]]) {
+                    console.warn(`${this.constructor.name}, property option的${cbName}属性，没找到${this.constructor.name}中有${option[cbName]}方法。`);
+                }
+                else {
+                    eleList.forEach(ele => {
+                        if (option.args) {
+                            ele[cbName] = this[option[cbName]].bind(this, ...option.args);
+                        }
+                        else {
+                            ele[cbName] = this[option[cbName]].bind(this, ele);
+                        }
+                    });
+                }
+            }
+        });
+        STYLE_LIST.forEach(styleKey => {
+            if (option[styleKey]) {
+                eleList.forEach(ele => {
+                    if (!ele["style"]) {
+                        return;
+                    }
+                    ele["style"][styleKey] = option[styleKey];
+                });
+            }
+        });
+        ATTR_LIST.forEach(attrKey => {
+            if (option[attrKey]) {
+                eleList.forEach(ele => {
+                    ele.setAttribute(attrKey, option[attrKey]);
+                });
+            }
+        });
+        MEMBER_LIST.forEach(memKey => {
+            if (option[memKey]) {
+                eleList.forEach(ele => {
+                    ele[memKey] = option[memKey];
+                });
+            }
+        });
+
+        if (option["isNode"] && key) {
+            if (this[key] instanceof Array) {
+                let list = this[key].slice();
+                list.forEach((ele, ind) => {
+                    this[key][ind] = eleList[ind]["app_node"];
+                });
+            }
+            else {
+                this[key] = eleList[0]["app_node"];
+            }
+        }
     }
 
     addChild(child: AppNode, targetEle?: Element | string) {

@@ -1,8 +1,7 @@
 import { AppNode, property, propertys } from "../../core/app_node";
 import Prefab from "../../core/prefab";
-import SerializeAble, { RegClass } from "../../core/serialize";
+import { RegClass } from "../../core/serialize";
 import Utils from "../../core/utils";
-import { Arg1, Test1 } from "./data_test";
 import PrefabStr from "./page_index.prefab.html?raw"
 import Stuff from "./stuff";
 @RegClass("PageIndex")

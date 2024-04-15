@@ -14,13 +14,13 @@ export default class Scene extends AppNode {
         this.addChild(node);
         this.curPage = node;
     }
-
+    
     toast(text: string, sec: number = 2) {
         let toast = Prefab.Instantiate(Toast);
         this.addChild(toast, "div[class=toast-container]");
         toast.show(text, sec);
     }
-    static get PrefabStr():string {
+    static get PrefabStr(): string {
         return PrefabStr;
     }
 };

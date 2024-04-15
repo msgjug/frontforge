@@ -22,7 +22,7 @@ export default class WebApplication extends Subject {
         data.load();
 
         this.root = new AppNode();
-        this.root.init(document.body);
+        this.root.init(document.body, null);
         rAF.set(this.loop);
 
         this.blocker = Prefab.Instantiate(Blocker);
