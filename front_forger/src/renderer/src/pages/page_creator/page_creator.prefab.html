@@ -8,16 +8,26 @@
 </style>
 
 <dom>
-<div class="creator">
-  <button name="btn_test_ipc">IPC</button>
-  <div class="row" name="top">
-    <div class="rect-wrap">
-      <div class="title">创建脚本</div>
-      <input placeholder="脚本名字" name="script_name" />
-      <button name="btn_new_script">创建</button>
+  <div class="creator">
+    <div class="rect-wrap row" style="background:gray;">
+      <div class="title">项目</div>
+      <button name="btn_test_ipc">新建</button>
+      <button name="btn_test_ipc">打开</button>
+      <div class="row" style="align-items: center;flex-grow: 1;">项目名字</div>
+      <button name="btn_test_ipc">关闭</button>
+    </div>
+    <div style="display:flex; flex-direction: column;">
+      <div name="side">
+        <div class="row" name="top">
+          <button name="btn_new_page">创建页面</button>
+          <button name="btn_new_box">创建面板</button>
+        </div>
+        <div name="script_contain">
+        </div>
+      </div>
+      <div name="main">
+
+      </div>
     </div>
   </div>
-  <div name="script_contain">
-  </div>
-</div>
 </dom>

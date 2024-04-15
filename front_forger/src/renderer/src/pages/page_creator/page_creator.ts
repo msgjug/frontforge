@@ -16,7 +16,6 @@ export default class PageCreator extends AppNode {
   @property("div[name=script_contain]")
   scriptContain: HTMLDivElement = null;
   scriptItemCol: { [key: string]: ScriptItem } = {};
-
   @property("input[name=script_name]")
   ebNewScript: HTMLInputElement = null;
   @property("button[name=btn_new_script]", { onclick: "onClickNewScript" })

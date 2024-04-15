@@ -1,0 +1,39 @@
+<style>
+    .footer-wrap {
+        /* flex-grow: 1; */
+        display: flex;
+        align-items: flex-end;
+    }
+
+    .footer {
+        color: #919191;
+        background: black;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 0.8em;
+        padding: 0.5em 0;
+
+        flex-grow: 1;
+    }
+
+    .footer .links {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .footer .links a {
+        padding: 0 0.7em;
+    }
+</style>
+
+<dom node="FrameFoot">
+    <div class="footer-wrap">
+      <div class="footer">
+        <div>前端框架FrontForge，使用Vite构建，简单易用。</div>
+        <div class="links">仓库：
+          <a href="//gitee.com/wildptr/frontforge">https://gitee.com/wildptr/frontforge</a>
+        </div>
+      </div>
+    </div>
+</dom>
