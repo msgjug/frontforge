@@ -1,0 +1,30 @@
+<style>
+    .box-new-prefab-asset {
+        color: #cccccc;
+    }
+
+    .box-new-prefab-asset-contain {
+        display: flex;
+        flex-direction: column;
+    }
+</style>
+
+<dom>
+    <div class="panel-bg">
+        <div name="panel" class="box-new-prefab-asset panel">
+            <div class="nav row title">
+                <div style="flex-grow: 1;">新建资源</div>
+                <div @click="onClickClose" class="btn">x</div>
+            </div>
+            <div class="panel-contain box-new-prefab-asset-contain">
+                <input style="flex-grow: 1;" placeholder="Prefab名字" $="ebName" />
+                <div class="row">
+                    <input style="flex-grow: 1;" placeholder="组" $="ebGroup" />
+                    <select @change="onSelectGroup" $="selGroup">
+                    </select>
+                </div>
+                <button @click="onClickSubmit">新建</button>
+            </div>
+        </div>
+    </div>
+</dom>

@@ -18,7 +18,6 @@ classes {
         create_date "(int)0";
         edit_date "(int)0";
     }
-    
     # 
     PrefabConfig {
         name "(str)";

@@ -1,7 +1,8 @@
 import { ResourceReferce } from "./data_ext";
-import { ClassProperty, PropertyInfo, PropertyRecord, RegClass } from "./serialize";
+import Prefab from "./prefab";
+import { ClassProperty, n2c, PropertyInfo, PropertyRecord, RegClass } from "./serialize";
 import { Subject } from "./subject";
-import { ArrayUtils } from "./utils";
+import { ArrayUtils, Sync } from "./utils";
 
 // 解析DOM节点中的@ 带头的属性
 export const AT_KEYS = {
@@ -97,12 +98,22 @@ export class AppNode {
     static get PrefabStr(): string {
         return "";
     }
-    protected _recBindDom(ele: Element) {
+    protected async _recBindDom(ele: Element) {
+        let isRef = ele.tagName === "REF";
+        let appNode: AppNode = null;
+        //ref 标签
+        if (isRef) {
+            //引用。
+            let ctorName = ele.getAttribute("ctor");
+            let ctor = n2c(ctorName);
+            appNode = Prefab.Instantiate(ctor);
+            this.addChild(appNode, ele.parentElement);
+        }
         //$
         if (ele.hasAttribute("$")) {
             let varKey = ele.getAttribute("$");
             if (AppNode.HasOwnPropertyRec(this, varKey)) {
-                this[varKey] = ele;
+                this[varKey] = isRef ? appNode : ele;
             }
             else {
                 console.warn(`$ ${this.constructor.name}, 代码中没有找到 ${varKey}成员`);
@@ -120,9 +131,14 @@ export class AppNode {
                 }
             }
         }
-        for (let i = 0; i < ele.children.length; i++) {
-            let child = ele.children[i];
-            this._recBindDom(child);
+        if (!isRef) {
+            for (let i = 0; i < ele.children.length; i++) {
+                let child = ele.children[i];
+                this._recBindDom(child);
+            }
+        }
+        else {
+            ele.remove();
         }
     }
     static HasOwnPropertyRec(obj: Object, propName: string) {
@@ -308,6 +324,10 @@ export class AppNode {
     }
 
     addChild(child: AppNode, targetEle?: Element | string) {
+        if( !child ){ 
+            console.error("AppNode::addChild, error: child == null");
+            return;
+        }
         if (child.parent) {
             console.error("AppNode::addChild, error: child 已有 parent");
             return;

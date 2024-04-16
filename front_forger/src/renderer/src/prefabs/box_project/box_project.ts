@@ -1,7 +1,7 @@
 import { RegClass } from "../../core/serialize";
 import PrefabStr from "./box_project.prefab.html?raw"
 import EditorEnv from "../../env";
-import {  ProtocolFactory, ProtocolObjectEditorConfig, ProtocolObjectIPCResponse, ProtocolObjectProjectConfig } from "../../protocol_dist";
+import { ProtocolFactory, ProtocolObjectEditorConfig, ProtocolObjectIPCResponse, ProtocolObjectProjectConfig } from "../../protocol_dist";
 import Prefab from "../../core/prefab";
 import ProjectItem from "./project_item";
 import BoxNewProject from "./box_new_project";

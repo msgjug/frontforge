@@ -17,6 +17,7 @@ import PageCreator from './prefabs/page_creator/page_creator'
     app.root.addChild(scene);
     Utils.scene = scene;
     scene.replacePage(Prefab.Instantiate(PageCreator));
+
     window["app"] = app;
   })
 })();

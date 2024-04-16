@@ -2,7 +2,8 @@ import { AppNode } from "./app_node";
 import { NameClassMap, n2c } from "./serialize";
 
 export default class Prefab {
-    static Instantiate<T extends AppNode>(ctorOrPrefabStr: new () => T | string): T {
+    //dom string 或 AppNode类
+    static Instantiate<T extends AppNode>(ctorOrPrefabStr: string | (new () => T)): T {
         let prefabStr = "";
         let ctor: new () => T = null;
         if (typeof ctorOrPrefabStr === "string") {
@@ -10,7 +11,11 @@ export default class Prefab {
         }
         else {
             ctor = <new () => T>ctorOrPrefabStr;
-            prefabStr = ctorOrPrefabStr["PrefabStr"];
+            if (!ctor) {
+                console.error(`Instantiate, error: 空构造`);
+                return null;
+            }
+            prefabStr = ctor["PrefabStr"];
         }
 
         let ele = document.createElement("prefab");

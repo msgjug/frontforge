@@ -20,11 +20,6 @@
     justify-content: space-between;
   }
 
-  .asset-area {
-    min-width: 15em;
-    width: 30%;
-  }
-
   .main-area {}
 
   .main-area .tap {
@@ -52,14 +47,8 @@
       </div>
     </div>
     <div class="row" style="flex-grow: 1;">
-      <div class="asset-area area-wrap">
-        <div class="title">asset</div>
-        <div class="area-contain">
-          <div>123</div>
-          <div>123</div>
-          <div>123</div>
-          <div>123</div>
-        </div>
+      <div class="area-wrap">
+        <ref $="assetMgr" ctor="AssetMgr" />
       </div>
       <div class="main-area area-wrap" style="flex-grow: 1;">
         <div class="title row">

@@ -1,14 +1,16 @@
 import { dialog, ipcMain } from "electron/main";
-import { AppUtils } from "./app_utils";
 import fs from 'fs';
 import { ProtocolObjectIPCResponse, ProtocolObjectProjectConfig } from "./protocol_dist";
 import { execSync } from "child_process";
 import ActionExec from "./action_exec";
+import { ProjectUtils } from "./project_utils";
+import { DirentHandle } from "../classes/dirent_handle";
 
 export class IPCS {
     static Init() {
         ipcMain.handle("FF:LocatDir", this._LocatDir);
-        ipcMain.handle("FF:OpenApp", this._OpenApp);
+        ipcMain.handle("FF:ListDir", this._ListDir);
+
         ipcMain.handle("FF:CreateNewProjectDir", this._CreateNewProjectDir);
         ipcMain.handle("FF:ReadEditorConfig", this._ReadEditorConfig);
         ipcMain.handle("FF:SaveEditorConfig", this._SaveEditorConfig);
@@ -24,6 +26,28 @@ export class IPCS {
             str = str.replace(pair[0], pair[1]);
         }
         await fs.writeFileSync(path, str);
+    }
+    private static __GetNameByPath(path: string) {
+        let i1 = path.lastIndexOf("/");
+        let i2 = path.lastIndexOf("\\");
+        if( i1 === -1 && i2 === -1 ){ 
+            console.warn("__GetNameByPath, warn:", path);
+            return path;
+        }
+        if( i1 > i2 ){ 
+            return path.substring( i1 + 1 );
+        }
+        else {
+            return path.substring( i2 + 1 );
+        }
+    }
+    protected static async _ListDir(_, path: string) {
+        let dh = new DirentHandle();
+        dh.isDir = true;
+        dh.path = path;
+        dh.name = IPCS.__GetNameByPath(path);
+        await ProjectUtils.ListDir(path + "/", dh);
+        return dh;
     }
     protected static async _CreateNewProjectDir(_, json: JSON) {
         let rsp = new ProtocolObjectIPCResponse();
@@ -69,15 +93,5 @@ export class IPCS {
         }
 
         return "";
-    }
-    protected static async _OpenApp(_) {
-        const { canceled, filePaths } = await dialog.showOpenDialog(null!, {
-            properties: ['openFile', 'openDirectory']
-        });
-        if (!canceled) {
-            return await AppUtils.OpenAppPath(filePaths[0])
-        }
-
-        return [];
     }
 };  
