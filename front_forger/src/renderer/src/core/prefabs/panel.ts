@@ -3,7 +3,6 @@ import { RegClass } from "../serialize";
 
 @RegClass("Panel")
 export default class Panel extends AppNode {
-    @property("div[name=panel]")
     divPanel: HTMLDivElement = null;
     onLoad(): void {
         super.onLoad();

@@ -1,17 +1,39 @@
 <style>
-    .asset-group { 
-        border:1px solid white;
-        border-radius: 10px;
+    .asset-group {
+        border: 1px solid white;
+        border-radius: 0.5em;
+        background: rgba(0, 0, 0, 0.5);
+        margin-top: 0.5em;
+    }
+
+    .asset-group[drag-over]{
+        /* background:red; */
+    }
+
+    .asset-group:first-child {}
+
+    .asset-group-btn-fold {
+        /* border-radius: 15px; */
+        /* height: 2em; */
+        width: 2em;
+        padding: 0;
+        background: none;
+        color: white;
+        border: none;
     }
 
     .asset-group-title {
         cursor: pointer;
+        font-weight: bold;
     }
 </style>
 <dom>
-    <div>
-        <div $="lbName" class="asset-group-title">group_name</div>
-        <div $="contain">
+    <div class="asset-group" @drop="onItemDrop">
+        <div class="row" style="justify-content: space-between;">
+            <div $="lbName" class="asset-group-title" style="flex-grow: 1;">group_name</div>
+            <button class="asset-group-btn-fold" $="btnFold" @click="onToggleFold">-</button>
+        </div>
+        <div $="contain" style="padding: 0 0 0.5em 0;">
         </div>
     </div>
 </dom>

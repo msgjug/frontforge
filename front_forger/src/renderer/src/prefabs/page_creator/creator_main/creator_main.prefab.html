@@ -1,0 +1,78 @@
+<style>
+    .main-area {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+    }
+
+    .main-area select {
+        max-width: 8em;
+    }
+
+    .main-area .tap {
+        margin: 0.3em -0.2em 0;
+        background: #474c4d;
+        border: none;
+        border-top-left-radius: 0.5em;
+        border-top-right-radius: 0.5em;
+        min-width: 5em;
+        color: white;
+    }
+
+    .main-area .tap[cur] {
+        margin: 0 0.2em 0;
+        background: #f7922c;
+        color: black;
+    }
+
+    .main-ace-wrap {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .emoji-btn {
+        background: none;
+        border: none;
+        font-size: 1.5em;
+        transition: transform 0.15s ease-out, filter 0.15s ease-out;
+    }
+
+    .emoji-btn:hover {
+        transform: scale(1.1);
+    }
+
+    .emoji-btn:active {
+        transform: scale(0.9);
+        filter: brightness(2);
+    }
+</style>
+
+<dom>
+    <div class="main-area">
+        <div class="row" style="
+        justify-content: space-between;
+        padding-top: 0.5em;
+        background: rgba(0,0,0,0.5);">
+            <div $="lbName">__</div>
+            <div class="row">
+                <button @click="onClickSave" class="emoji-btn">💾</button>
+                <button @click="onClickDelete" class="emoji-btn">🚫</button>
+            </div>
+            <div $="tabView" class="row" ctor="TabView">
+                <button class="tap" cur>TypeScript</button>
+                <button class="tap">Dom</button>
+                <button class="tap">Union</button>
+                <button class="tap">Column</button>
+            </div>
+            <div class="row">
+                <select $="selTheme" @change="onSelectTheme" ctor="Selector">
+                </select>
+                <select $="selFontSize" @change="onSelectFrontSize" ctor="Selector">
+                </select>
+            </div>
+        </div>
+        <div $="aceWrap" class="main-ace-wrap" style="flex-grow: 1;">
+        </div>
+    </div>
+</dom>

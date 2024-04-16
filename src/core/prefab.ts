@@ -19,7 +19,7 @@ export default class Prefab {
         let dom = ele.querySelector("dom");
         let style = ele.querySelector("style");
         if (!ctor) {
-            let nodeCtorName = dom.getAttribute("node") || "AppNode";
+            let nodeCtorName = dom.getAttribute("ctor") || "AppNode";
             ctor = NameClassMap.get(nodeCtorName);
         }
 

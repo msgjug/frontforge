@@ -1,8 +1,10 @@
+import { electron } from "process";
 import Panel from "../../../core/prefabs/panel";
 import { RegClass } from "../../../core/serialize";
 import EditorEnv from "../../../env";
-import { ProtocolObjectPrefabConfig } from "../../../protocol_dist";
+import { ProtocolObjectIPCResponse, ProtocolObjectPrefabConfig } from "../../../protocol_dist";
 import PrefabStr from "./box_new_prefab_asset.prefab.html?raw"
+import Utils from "../../../core/utils";
 
 @RegClass("BoxNewPrefabAsset")
 export default class BoxNewPrefabAsset extends Panel {
@@ -24,21 +26,32 @@ export default class BoxNewPrefabAsset extends Panel {
             str += `<option value="${groups[i]}">${groups[i]}</option>`;
         }
         this.selGroup.innerHTML = str;
+
+        this.ebGroup.value = this.selGroup.value;
     }
 
-    onSelectGroup(g1, g2) {
-        console.log(g1, g2);
+    onSelectGroup(evt) {
+        this.ebGroup.value = evt.target.value
     }
 
-    onClickSubmit() {
+    async onClickSubmit() {
         let prefabName = this.ebName.value;
         if (!prefabName) {
             return;
         }
+        let groupName = this.ebGroup.value;
+        if (!groupName) {
+            return;
+        }
 
         let conf = new ProtocolObjectPrefabConfig();
-        conf.group = "prefabs";
+        conf.group = groupName;
         conf.name = prefabName;
+        let rsp: ProtocolObjectIPCResponse = await window.electron.ipcRenderer.invoke("FF:NewPrefabAsset", prefabName, EditorEnv.GetProjectConfig());
+        if (rsp.ret) {
+            Utils.app.msgBox(rsp.msg, "错误");
+            return;
+        }
         this.subject.emit("new", conf);
         this.dispose();
     }

@@ -5,22 +5,25 @@
     }
 
     .asset-btns {
+        background: rgba(0, 0, 0, 0.5);
     }
+
     .asset-btns .btn {
-        padding:0 0.15em;
+        flex-grow: 1;
     }
 </style>
 
 <dom>
     <div class="asset-area">
-        <div class="title">asset</div>
+        <!-- <div class="title">asset</div> -->
+        <div class="asset-btns row ">
+            <button @click="onClickNewPrefab" class="btn">New</button>
+            <button @click="onClickFold" class="btn">Fold All</button>
+            <button @click="onClickUnfold" class="btn">Unflod All</button>
+            <button @click="onClickRefresh" class="btn">Refresh</button>
+        </div>
         <div class="area-contain" style="display:flex;flex-direction: column;">
-            <div class="asset-btns row " >
-                <button @click="onClickNewPrefab" class="btn">新建</button>
-                <button class="btn">全部折叠</button>
-                <button class="btn">全部展开</button>
-            </div>
-            <div $="contain" >
+            <div $="contain">
             </div>
         </div>
     </div>

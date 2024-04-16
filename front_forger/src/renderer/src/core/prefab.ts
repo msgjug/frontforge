@@ -39,19 +39,6 @@ export default class Prefab {
         }
 
         let node: T = new ctor();
-        {//children
-            let childEle = ele.querySelectorAll("node");
-            childEle.forEach(childEle => {
-                let childCtorName = childEle.innerHTML;
-                let childCtor = n2c(childCtorName);
-                let child = Prefab.Instantiate(childCtor);
-                child.parent = node;
-                childEle.parentElement.replaceChild(child.ele, childEle);
-                node.children.push(child);
-                //todo: 这里child 的onLoad比parent更早执行，应该是更迟才是合理的。
-                child.onLoad();
-            });
-        }
         node.init(<HTMLElement>dom.children[0], bindInfo, style);
 
         return node;

@@ -509,7 +509,7 @@ this.group = gBuf.readString ();
     }
 };
 export class ProtocolObjectProjectConfig extends Protocol {
-    app_name : string = "";app_version : string = "";path : string = "";prefabs_list : ProtocolObjectPrefabConfig [] = [];
+    app_name : string = "";app_version : string = "";path : string = "";entrance_prefab_name : string = "";prefabs_list : ProtocolObjectPrefabConfig [] = [];create_date : number = 0;edit_date : number = 0;
 
     getClassName(){
         return "ProjectConfig"
@@ -520,10 +520,13 @@ export class ProtocolObjectProjectConfig extends Protocol {
         out["app_name"] = this.app_name;
 out["app_version"] = this.app_version;
 out["path"] = this.path;
+out["entrance_prefab_name"] = this.entrance_prefab_name;
 out["prefabs_list"] = [];
 this.prefabs_list.forEach(ele => {
     out["prefabs_list"].push(ele.toMixed());
 });
+out["create_date"] = this.create_date;
+out["edit_date"] = this.edit_date;
 
         return out;
     }
@@ -532,6 +535,7 @@ this.prefabs_list.forEach(ele => {
         this.app_name = input.hasOwnProperty("app_name") && input["app_name"] !== null ? input["app_name"] : this.app_name;
 this.app_version = input.hasOwnProperty("app_version") && input["app_version"] !== null ? input["app_version"] : this.app_version;
 this.path = input.hasOwnProperty("path") && input["path"] !== null ? input["path"] : this.path;
+this.entrance_prefab_name = input.hasOwnProperty("entrance_prefab_name") && input["entrance_prefab_name"] !== null ? input["entrance_prefab_name"] : this.entrance_prefab_name;
 {
     let arr: any[] = input.hasOwnProperty("prefabs_list") && input["prefabs_list"] !== null ? input["prefabs_list"] : [];
     let count = arr.length;
@@ -541,6 +545,8 @@ this.path = input.hasOwnProperty("path") && input["path"] !== null ? input["path
     this.prefabs_list.push( ele );
     }
 }
+this.create_date = input.hasOwnProperty("create_date") && input["create_date"] !== null ? input["create_date"] : this.create_date;
+this.edit_date = input.hasOwnProperty("edit_date") && input["edit_date"] !== null ? input["edit_date"] : this.edit_date;
 
     }
     protected _toBinary( gBuf: GrowBuffer) {
@@ -550,11 +556,14 @@ this.path = input.hasOwnProperty("path") && input["path"] !== null ? input["path
         gBuf.writeString (this.app_name);
 gBuf.writeString (this.app_version);
 gBuf.writeString (this.path);
+gBuf.writeString (this.entrance_prefab_name);
 __arr_size = this.prefabs_list.length;
 gBuf.writeUint32(__arr_size);
 for (let i = 0; i < __arr_size; i++) {
     gBuf.writeUint8Array(this.prefabs_list[i].toBinary());
 }
+gBuf.writeInt32 (this.create_date);
+gBuf.writeInt32 (this.edit_date);
 
     }
     protected _fromBinary( gBuf: GrowBuffer ) {
@@ -563,12 +572,15 @@ for (let i = 0; i < __arr_size; i++) {
         this.app_name = gBuf.readString ();
 this.app_version = gBuf.readString ();
 this.path = gBuf.readString ();
+this.entrance_prefab_name = gBuf.readString ();
 __arr_size = gBuf.readUint32();
 for (let i = 0; i < __arr_size; i++) {
     let ele = new ProtocolObjectPrefabConfig();
 ele.fromBinary(gBuf.readUint8Array());
 this.prefabs_list.push(ele);
 }
+this.create_date = gBuf.readInt32 ();
+this.edit_date = gBuf.readInt32 ();
 
     }
 };

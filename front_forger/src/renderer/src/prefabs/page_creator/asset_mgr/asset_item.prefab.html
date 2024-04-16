@@ -1,14 +1,23 @@
 <style>
-    .asset-item { 
-        border:1px solid gray;
-        border-radius: 10px;
+    .asset-item {
+        border-bottom: 1px gray dashed;
     }
-    .asset-item[cur] { 
-        background:red;
+
+    .asset-item:hover {
+        background: rgba(255, 255, 255, 0.5);
+    }
+
+    .asset-item:first-child {
+        border-top: 1px gray dashed;
+        border-bottom: 1px gray dashed;
+    }
+
+    .asset-item[cur] {
+        background: #f7922c;
     }
 </style>
 <dom>
-    <div class="asset-item">
+    <div @click="onClick" class="asset-item" draggable="true">
         <div $="lbName">asset_name</div>
     </div>
 </dom>

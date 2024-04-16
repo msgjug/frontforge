@@ -136,6 +136,10 @@ button:active {
   display:flex;
   flex-direction: row;
 }
+.col {
+  display:flex;
+  flex-direction: column;
+}
 
 .input-style {
   padding:0.5em;

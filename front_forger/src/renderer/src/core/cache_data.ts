@@ -1,7 +1,13 @@
 import Macro from "./macro";
 import SerializeAble, { RegClass, Serialize } from "./serialize";
 import { Subject } from "./subject";
-import { Uid } from "./utils";
+
+export const NATIVE_PATHS = {
+    CACHE_DATA: "CacheData", //CacheData 文件
+    DIR_SCREEN_SHOTS: "ScreenShots" //ScreenShots 文件夹
+};
+
+type Col<T> = { [key: string]: T };
 
 @RegClass("CacheRecord")
 export class CacheRecord<T> extends SerializeAble {
@@ -9,75 +15,105 @@ export class CacheRecord<T> extends SerializeAble {
     @Serialize()
     timestamp: number = 0;
     @Serialize()
-    timeDurling: number = 0;
+    timeDuring: number = 0;
     @Serialize()
     version = "";
     @Serialize()
-    data: T;
+    data: any = null;
 
-    static Create<T>(data: T, version: string = Macro.APP_VERSION) {
+    static Create<T>(data: T, version: string = Macro.APP_VERSION, timestamp = 0) {
         let rec = new CacheRecord<T>();
         rec.data = data;
-        rec.timestamp = Date.now();
+        rec.timestamp = timestamp;
         rec.version = version;
         return rec;
     }
 
     static CheckTime<T>(rec: CacheRecord<T>) {
-        return Date.now() - rec.timestamp < rec.timeDurling;
+        if (rec.timestamp === 0) {
+            return true;
+        }
+        return Date.now() - rec.timestamp < rec.timeDuring;
     }
     static CheckVersion<T>(rec: CacheRecord<T>, version: string) {
         return version === rec.version;
     }
-};
 
-@RegClass("CacheRecordStorage")
-export class CacheRecordStorage extends SerializeAble {
-    storage: { [key: string]: CacheRecord<any> } = {};
+    isValid() {
+        return CacheRecord.CheckTime(this) && CacheRecord.CheckVersion(this, Macro.APP_VERSION);
+    }
+    toJSON() {
+        return super.toJSON();
+        // return {
+        //     __cn: this.constructor["__cn"],
+        //     serialize: this.serialize
+        // };
+    }
 
-    get<T>(key: string) {
-        let rec: CacheRecord<T> = this.storage[key];
-        return rec;
-    }
-    isValid(key: string) {
-        let rec = this.get(key);
-        return rec && CacheRecord.CheckVersion(rec, Macro.APP_VERSION) && CacheRecord.CheckTime(rec);
-    }
-    create<T>(key: string, dat: T, time = 60000) {
-        let rec = CacheRecord.Create(dat);
-        rec.timeDurling = time;
-        this.storage[key] = rec;
-        return rec;
-    }
-    clear() {
-        this.storage = {};
+    assignFromJSON(json: any): void {
+        super.assignFromJSON(json);
+        // this.serialize = json.serialize;
     }
 };
 
-
-@RegClass("CacheData")
-export class CacheData extends SerializeAble {
-    subject: Subject = new Subject();
+@RegClass("CacheRecordCollection")
+export class CacheRecordCollection extends SerializeAble {
     @Serialize()
-    protected _sessToken = "";
-    get sessToken() {
-        if (!this._sessToken) {
-            this._sessToken = Uid.getUid(20);
-            this.save();
+    col: Col<CacheRecord<any>> = {};
+    get<T>(key: string):T {
+        let rec: CacheRecord<T> = null;
+        rec = this.col[key];
+        if (!rec || !CacheRecord.CheckVersion(rec, Macro.APP_VERSION)) {
+            return undefined;
         }
-        return this._sessToken;
+        return rec.data;
+    }
+    set<T>(key: string, val: T) {
+        let rec: CacheRecord<T> = this.rec(key, val);
+        rec.data = val;
+        data.save();
+        return rec.data;
+    }
+    rec<T>(key: string, defVal: T) {
+        if (!this.has(key)) {
+            let rec = CacheRecord.Create<T>(defVal, Macro.APP_VERSION);
+            this.col[key] = rec;
+
+            return rec;
+        }
+        else {
+            return this.col[key];
+        }
+    }
+    del(key: string) {
+        if (this.col[key]) {
+            this.col[key] = null;
+            delete this.col[key];
+            data.save();
+        }
+    }
+    has(key: string) {
+        return this.col[key] && this.col[key].isValid();
     }
 
-    cache: CacheRecordStorage = new CacheRecordStorage();
-    @Serialize()
-    storage: CacheRecordStorage = new CacheRecordStorage();
+    clean() {
+        this.col = {};
+    }
+};
+
+export class CacheData extends SerializeAble {
+    //临时
+    cache: CacheRecordCollection = new CacheRecordCollection();
+    //storage
+    @Serialize(CacheRecordCollection)
+    storage: CacheRecordCollection = new CacheRecordCollection();
 
     load() {
         try {
             let jsonStr = "";
-            jsonStr = window.localStorage.getItem(`${Macro.APP_NAME}/CacheData`);
+            jsonStr = window.localStorage.getItem(`${Macro.APP_NAME}/${NATIVE_PATHS.CACHE_DATA}`);
             if (jsonStr) {
-                this.assignFromJSON(JSON.parse(jsonStr));
+                this.assignFromJSON(jsonStr);
             }
         }
         catch (e) {
@@ -87,7 +123,7 @@ export class CacheData extends SerializeAble {
     save() {
         try {
             let jsonStr = JSON.stringify(this);
-            window.localStorage.setItem(`${Macro.APP_NAME}/CacheData`, jsonStr);
+            window.localStorage.setItem(`${Macro.APP_NAME}/${NATIVE_PATHS.CACHE_DATA}`, jsonStr);
         } catch (e) {
             console.error("CacheData::save, error:", e);
         }
@@ -96,4 +132,5 @@ export class CacheData extends SerializeAble {
 
 var data = new CacheData();
 export default data;
+
 window["cdata"] = data;

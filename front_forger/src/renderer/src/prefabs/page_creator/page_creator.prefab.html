@@ -1,6 +1,6 @@
 <style>
   .area-wrap {
-    border: 1px solid gray;
+    /* border: 1px solid gray; */
   }
 
   .area-contain {
@@ -20,16 +20,6 @@
     justify-content: space-between;
   }
 
-  .main-area {}
-
-  .main-area .tap {
-    background: gray;
-  }
-
-  .main-area .tap[cur] {
-    background: rgb(14, 59, 196);
-    color: white;
-  }
 </style>
 
 <dom>
@@ -50,18 +40,10 @@
       <div class="area-wrap">
         <ref $="assetMgr" ctor="AssetMgr" />
       </div>
-      <div class="main-area area-wrap" style="flex-grow: 1;">
-        <div class="title row">
-          <div>main</div>
-          <div class="row">
-            <button class="tap" cur>TypeScript</button>
-            <button class="tap">Dom</button>
-            <button class="tap">Lion</button>
-          </div>
-        </div>
-        <div class="area-contain">ace
-        </div>
+      <div class="area-wrap col" style="flex-grow: 1;">
+        <ref $="creatorMain"  ctor="CreatorMain" />
       </div>
     </div>
+    <div class="row">foot</div>
   </div>
 </dom>

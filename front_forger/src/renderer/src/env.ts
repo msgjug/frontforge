@@ -1,4 +1,15 @@
+import data from "./core/cache_data";
+import SerializeAble, { RegClass, Serialize } from "./core/serialize";
 import { ProtocolObjectEditorConfig, ProtocolObjectProjectConfig } from "./protocol_dist";
+
+
+@RegClass("ACEConfig")
+export class ACEConfig extends SerializeAble {
+    @Serialize()
+    fontSize = 12;
+    @Serialize()
+    theme = "ambiance";
+};
 
 export default class EditorEnv {
     protected static _EditorConfig: ProtocolObjectEditorConfig = null;
@@ -18,10 +29,100 @@ export default class EditorEnv {
         await window.electron.ipcRenderer.invoke('FF:SaveEditorConfig', this._EditorConfig.toField());
     }
     protected static _ProjectConfig: ProtocolObjectProjectConfig = null;
+    static async InitProjectConfig(path: string) {
+        this._ProjectConfig = new ProtocolObjectProjectConfig();
+        let json = await window.electron.ipcRenderer.invoke('FF:ReadProjectConfig', path);
+        this._ProjectConfig.fromMixed(json);
+    }
     static GetProjectConfig() {
         return this._ProjectConfig;
     }
     static SetProjectConfig(config: ProtocolObjectProjectConfig) {
-        return this._ProjectConfig = config;
+        this._ProjectConfig = config;
+        window.electron.ipcRenderer.invoke('FF:SaveProjectConfig', this._ProjectConfig.toMixed());
+    }
+    static get editorTheme() {
+        if (!data.storage.has("ace-config")) {
+            data.storage.rec("ace-config", new ACEConfig());
+        }
+        let conf = data.storage.get<ACEConfig>("ace-config");
+        return conf.theme;
+    }
+    static set editorTheme(val) {
+        if (!data.storage.has("ace-config")) {
+            data.storage.rec("ace-config", new ACEConfig());
+        }
+        let conf = data.storage.get<ACEConfig>("ace-config");
+        conf.theme = val;
+        data.save();
+    }
+    static get editorFontSize() {
+        if (!data.storage.has("ace-config")) {
+            data.storage.rec("ace-config", new ACEConfig());
+        }
+        let conf = data.storage.get<ACEConfig>("ace-config");
+        return conf.fontSize;
+    }
+    static set editorFontSize(val) {
+        if (!data.storage.has("ace-config")) {
+            data.storage.rec("ace-config", new ACEConfig());
+        }
+        let conf = data.storage.get<ACEConfig>("ace-config");
+        conf.fontSize = val;
+        data.save();
+    }
+    static CreateEditor(ele: Element) {
+        //@ts-ignore
+        if (ace) {
+            //@ts-ignore
+            let editor = ace.edit(ele);
+            editor.setTheme(`ace/theme/${EditorEnv.editorTheme}`);
+            editor.setFontSize(`${EditorEnv.editorFontSize}px`);
+
+            return editor;
+        }
+        return null;
     }
 };
+
+
+export const ACE_THEME = [
+    "ambiance",
+    "chaos",
+    "chrome",
+    "clouds",
+    "clouds_midnight",
+    "cobalt",
+    "crimson_editor",
+    "dawn",
+    "dracula",
+    "dreamweaver",
+    "eclipse",
+    "github",
+    "gob",
+    "gruvbox",
+    "idle_fingers",
+    "iplastic",
+    "katzenmilch",
+    "kr_theme",
+    "kuroir",
+    "merbivore",
+    "merbivore_soft",
+    "mono_industrial",
+    "monokai",
+    "nord_dark",
+    "pastel_on_dark",
+    "solarized_dark",
+    "solarized_light",
+    "sqlserver",
+    "terminal",
+    "textmate",
+    "tomorrow",
+    "tomorrow_night",
+    "tomorrow_night_blue",
+    "tomorrow_night_bright",
+    "tomorrow_night_eighties",
+    "twilight",
+    "vibrant_ink",
+    "xcode",
+]

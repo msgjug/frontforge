@@ -68,8 +68,17 @@ export default class BoxProject extends AppNode {
         this.refresh();
         EditorEnv.SaveEditorConfig();
     }
-    onClickLoad() {
-        console.log("load");
+    async onClickLoad() {
+        let path = await window.electron.ipcRenderer.invoke('FF:LocatDir');
+        console.log("load", path);
+        let conf = new ProtocolObjectProjectConfig();
+        conf.fromMixed(await window.electron.ipcRenderer.invoke('FF:LoadProjectDir', path));
+
+        //记录数据
+        this.editorConfig.project_configs.push(conf);
+        this.refresh();
+        EditorEnv.SaveEditorConfig();
+
     }
     onEditSearch() {
         console.log("val:", this.ebSearch.value);

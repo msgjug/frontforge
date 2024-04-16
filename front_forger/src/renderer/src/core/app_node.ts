@@ -9,6 +9,7 @@ export const AT_KEYS = {
     "@click": "onclick",
     "@change": "onchange",
     "@input": "oninput",
+    "@drop": "ondrop",
 }
 
 export function property(queryStr: string, options?: any) {
@@ -67,6 +68,7 @@ const MEMBER_LIST = [
 
 @RegClass("AppNode")
 export class AppNode {
+    private __valid = false;
     subject: Subject = new Subject();
     css: Element = null;
     ele: HTMLElement = null;
@@ -98,22 +100,34 @@ export class AppNode {
     static get PrefabStr(): string {
         return "";
     }
-    protected async _recBindDom(ele: Element) {
+    protected async _recBindDom(ele: Element, checkCtor = false) {
         let isRef = ele.tagName === "REF";
         let appNode: AppNode = null;
+        let parentEle = null;
         //ref 标签
         if (isRef) {
             //引用。
             let ctorName = ele.getAttribute("ctor");
             let ctor = n2c(ctorName);
             appNode = Prefab.Instantiate(ctor);
-            this.addChild(appNode, ele.parentElement);
+            parentEle = ele.parentElement;
+        }
+        else {
+            if (checkCtor) {
+                //检查ctor属性
+                if (ele.hasAttribute("ctor")) {
+                    let ctorName = ele.getAttribute("ctor");
+                    let ctor = n2c(ctorName);
+                    appNode = Prefab.Instantiate(ctor);
+                }
+            }
         }
         //$
         if (ele.hasAttribute("$")) {
             let varKey = ele.getAttribute("$");
             if (AppNode.HasOwnPropertyRec(this, varKey)) {
-                this[varKey] = isRef ? appNode : ele;
+                this[varKey] = appNode || ele;
+                ele.removeAttribute("$");
             }
             else {
                 console.warn(`$ ${this.constructor.name}, 代码中没有找到 ${varKey}成员`);
@@ -125,6 +139,7 @@ export class AppNode {
                 let varKey = ele.getAttribute(key);
                 if (AppNode.HasOwnPropertyRec(this, varKey)) {
                     ele[AT_KEYS[key]] = this[varKey].bind(this);
+                    ele.removeAttribute(key);
                 }
                 else {
                     console.warn(`${this.constructor.name}, ${key} 代码中没有找到 ${varKey}成员`);
@@ -132,13 +147,29 @@ export class AppNode {
             }
         }
         if (!isRef) {
-            for (let i = 0; i < ele.children.length; i++) {
-                let child = ele.children[i];
-                this._recBindDom(child);
+            if (!appNode) {
+                for (let i = 0; i < ele.children.length; i++) {
+                    let child = ele.children[i];
+                    this._recBindDom(child, true);
+                }
             }
         }
         else {
             ele.remove();
+        }
+
+        if (appNode) {
+            if (isRef) {
+                this.addChild(appNode, parentEle);
+            }
+            else {
+                // this.addChild
+                appNode.parent = this;
+                this.children.push(appNode);
+                // todo:HTMLElement Element
+                appNode.init(<any>ele, null);
+                appNode.onLoad();
+            }
         }
     }
     static HasOwnPropertyRec(obj: Object, propName: string) {
@@ -159,7 +190,7 @@ export class AppNode {
         if (!prefabEle) {
             console.warn("AppNode::load, warn: ele为空。");
         }
-        this.ele = prefabEle;
+        this.ele = <any>prefabEle;
         this.ele["app_node"] = this;
         if (style) {
             this.css = this.__addCssInHead(style);
@@ -266,6 +297,7 @@ export class AppNode {
         }
 
         this.inited = true;
+        this.__valid = true;
     }
     private __assignOption(key, option, eleList) {
         OPTION_CB_LIST.forEach(cbName => {
@@ -324,7 +356,7 @@ export class AppNode {
     }
 
     addChild(child: AppNode, targetEle?: Element | string) {
-        if( !child ){ 
+        if (!child) {
             console.error("AppNode::addChild, error: child == null");
             return;
         }
@@ -421,7 +453,13 @@ export class AppNode {
             this.__updateId = 0;
         }
 
+        this.__valid = false;
+
         this.onDispose();
+    }
+
+    static IsValid(appNode: AppNode) {
+        return appNode && appNode.__valid;
     }
     onLoad() { }
     onDispose() { }

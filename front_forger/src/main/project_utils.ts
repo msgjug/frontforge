@@ -2,29 +2,52 @@ import fs from 'fs'
 import { DirentHandle } from "../classes/dirent_handle"
 
 export class ProjectUtils {
+    static GetNameByPath(path: string) {
+        let i1 = path.lastIndexOf("/");
+        let i2 = path.lastIndexOf("\\");
+        if (i1 === -1 && i2 === -1) {
+            console.warn("__GetNameByPath, warn:", path);
+            return path;
+        }
+        if (i1 > i2) {
+            return path.substring(i1 + 1);
+        }
+        else {
+            return path.substring(i2 + 1);
+        }
+    }
     static async ListDir(path: string, parentDH: DirentHandle) {
         const fsDir = fs.opendirSync(path);
         let dirent = fsDir.readSync()!;
         while (dirent) {
             if (dirent.name !== "node_modules") {
-                let dh = new DirentHandle();
-                dh.name = dirent.name;
-                dh.path = path + dirent.name;
-                dh.isDir = dirent.isDirectory();
+                let dh: DirentHandle = (await ProjectUtils.GetDirentHandle(path + dirent.name, dirent.name))!;
                 parentDH.children.push(dh);
-                if (dh.isDir) {
-                    console.log("dir:", path + dirent.name + "/");
-                    await ProjectUtils.ListDir(path + dirent.name + "/", dh);
-                }
-                else {
-                    dh.extName = dirent.name.substring(dirent.name.lastIndexOf(".") + 1);
-                    dh.buffer = fs.readFileSync(path + dirent.name)
-                    console.log("file:", dh.path);
-                }
             }
             dirent = fsDir.readSync()!;
         }
         fsDir.closeSync();
+    }
+    static async GetDirentHandle(path: string, name: string = "") {
+        if (!fs.existsSync(path)) {
+            return null;
+        }
+        const stat = fs.statSync(path);
+        let dh = new DirentHandle();
+        dh.name = name || ProjectUtils.GetNameByPath(path);
+        dh.path = path;
+        dh.isDir = !stat.isFile();
+        if (dh.isDir) {
+            console.log("dir:", path + "/");
+            await ProjectUtils.ListDir(path + "/", dh);
+        }
+        else {
+            dh.extName = path.substring(path.lastIndexOf(".") + 1);
+            dh.dataStr = fs.readFileSync(path).toString();
+            console.log("file:", dh.path);
+        }
+
+        return dh;
     }
     //检查项目完整性
     static async CheckProject(path: string) {

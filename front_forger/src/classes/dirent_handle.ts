@@ -6,7 +6,8 @@ export class DirentHandle {
 
     //isDir==false
     extName = "";
-    buffer: Buffer = null!;
+    // buffer: Buffer = null!;
+    dataStr = "";
 
     //isDir==true
     children: DirentHandle[] = [];
