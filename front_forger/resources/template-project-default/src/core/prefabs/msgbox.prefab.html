@@ -12,10 +12,10 @@
 
 <dom node="MsgBox">
     <div class="panel-bg">
-        <div class="panel">
-            <b name="title"></b>
-            <span name="text"></span>
-            <button>ok</button>
+        <div @click="onClickBlockInput" class="panel">
+            <b $="lbTitle"></b>
+            <span $="lbText"></span>
+            <button @click="onClickOk">ok</button>
         </div>
     </div>
 </dom>

@@ -90,9 +90,21 @@ button:active {
 .panel-contain {
   padding: 1em;
 }
-.panel button {
-    color: #1b1d21;
-    background: #bcbcbc;
+
+.emoji-btn {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  transition: transform 0.15s ease-out, filter 0.15s ease-out;
+}
+
+.emoji-btn:hover {
+  transform: scale(1.1);
+}
+
+.emoji-btn:active {
+  transform: scale(0.9);
+  filter: brightness(2);
 }
 
 .btn {

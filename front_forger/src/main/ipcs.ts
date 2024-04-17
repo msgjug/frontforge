@@ -1,4 +1,4 @@
-import { dialog, ipcMain } from "electron/main";
+import { Menu, MenuItem, dialog, globalShortcut, ipcMain } from "electron/main";
 import fs from 'fs';
 import { ProtocolObjectIPCResponse, ProtocolObjectProjectConfig } from "./protocol_dist";
 import { execSync } from "child_process";
@@ -6,34 +6,79 @@ import ActionExec from "./action_exec";
 import { ProjectUtils } from "./project_utils";
 import { DirentHandle } from "../classes/dirent_handle";
 import Utils from "./utils";
+import { BrowserWindow, shell } from "electron";
 
 export class IPCS {
-    static Init() {
+    static mainWindow: BrowserWindow = null!;
+    static Init(mainWindow: BrowserWindow) {
+        IPCS.mainWindow = mainWindow;
         //弹出文件夹选择框，返回路径
-        ipcMain.handle("FF:LocatDir", this._LocatDir);
+        ipcMain.handle("FF:LocatDir", IPCS._LocatDir);
         //遍历文件文件夹，返回DH
-        ipcMain.handle("FF:ListDir", this._ListDir);
+        ipcMain.handle("FF:ListDir", IPCS._ListDir);
+        //资源管理器打开文件夹
+        ipcMain.handle("FF:OpenDir", IPCS._OpenDir);
         //获取某个文件的DH
-        ipcMain.handle("FF:GetDirentHandle", this._GetDirentHandle);
+        ipcMain.handle("FF:GetDirentHandle", IPCS._GetDirentHandle);
 
         //新建prefab资源
-        ipcMain.handle("FF:NewPrefabAsset", this._NewPrefabAsset);
+        ipcMain.handle("FF:NewPrefabAsset", IPCS._NewPrefabAsset);
         //创建新项目
-        ipcMain.handle("FF:CreateNewProjectDir", this._CreateNewProjectDir);
+        ipcMain.handle("FF:CreateNewProjectDir", IPCS._CreateNewProjectDir);
         //载入项目
-        ipcMain.handle("FF:LoadProjectDir", this._LoadProjectDir);
+        ipcMain.handle("FF:LoadProjectDir", IPCS._LoadProjectDir);
 
         //编辑器数据
-        ipcMain.handle("FF:ReadEditorConfig", this._ReadEditorConfig);
-        ipcMain.handle("FF:SaveEditorConfig", this._SaveEditorConfig);
+        ipcMain.handle("FF:ReadEditorConfig", IPCS._ReadEditorConfig);
+        ipcMain.handle("FF:SaveEditorConfig", IPCS._SaveEditorConfig);
 
         //项目数据
-        ipcMain.handle("FF:ReadProjectConfig", this._ReadProjectConfig);
-        ipcMain.handle("FF:SaveProjectConfig", this._SaveProjectConfig);
+        ipcMain.handle("FF:ReadProjectConfig", IPCS._ReadProjectConfig);
+        ipcMain.handle("FF:SaveProjectConfig", IPCS._SaveProjectConfig);
 
         //读取，保存文件
-        ipcMain.handle("FF:ReadStrFile", this._ReadStrFile);
-        ipcMain.handle("FF:SaveStrFile", this._SaveStrFile);
+        ipcMain.handle("FF:ReadStrFile", IPCS._ReadStrFile);
+        ipcMain.handle("FF:SaveStrFile", IPCS._SaveStrFile);
+        //删除文件
+        ipcMain.handle("FF:DeleteFile", IPCS._DeleteFile);
+
+        //运行
+        ipcMain.handle("FF:RunProject", IPCS._RunProject);
+        ipcMain.handle("FF:StopProject", IPCS._StopProject);
+
+        //外部浏览器打开链接
+        ipcMain.handle("FF:OpenURL", IPCS._OpenURL);
+    }
+    private static __ae: ActionExec = null!;
+    protected static async _RunProject(_, projDat: JSON) {
+        let projConf = new ProtocolObjectProjectConfig();
+        projConf.fromMixed(projDat);
+        IPCS.__ae = new ActionExec(projConf.path);
+        let port = (3000 + Math.random() * 9999).toFixed(0);
+        IPCS.__ae.cmd("npx.cmd", ["vite", "--port", port]);
+        IPCS.__ae.onData = (str: string, delta: string) => {
+            IPCS.mainWindow.webContents.send("log", delta);
+        };
+
+        let prefabConf = projConf.prefabs_list.find(ele => ele.name === projConf.entrance_prefab_name)!;
+        let prefabPath = "./prefabs/" + prefabConf.name;
+        //覆盖MAIN.ts
+        const TEMPLATE_PATH = "./resources/template-main.ts";
+        const MAIN_PATH = projConf.path + "/src/main.ts";
+        await IPCS.__CopyFile(`"${TEMPLATE_PATH}"`, `"${MAIN_PATH}"`);
+        await IPCS.__FileContentReplaceKey(`${MAIN_PATH}`,
+            ["{{PATH}}", prefabPath],
+            ["{{CLASS_NAME_BIG}}", Utils.SnakeToPascal(prefabConf.name)]
+        );
+        return port;
+    }
+    protected static async _StopProject(_) {
+        // let projConf = new ProtocolObjectProjectConfig();
+        // projConf.fromMixed(projDat);
+        if (IPCS.__ae) {
+            IPCS.__ae.kill();
+            IPCS.__ae = null!;
+        }
     }
     private static async __CopyFile(p1, p2) {
         let copyStatment = `echo f| xcopy /y /c /s /h /r ` + `${p1} ${p2} `.replaceAll("./", "").replaceAll("/", "\\");
@@ -69,7 +114,12 @@ export class IPCS {
     protected static async _GetDirentHandle(_, path: string) {
         return await ProjectUtils.GetDirentHandle(path);
     }
-
+    protected static async _OpenURL(_, url: string) {
+        shell.openExternal(url);
+    }
+    protected static async _OpenDir(_, path: string) {
+        shell.openPath(path);
+    }
     protected static async _ListDir(_, path: string) {
         let dh = new DirentHandle();
         dh.isDir = true;
@@ -93,7 +143,7 @@ export class IPCS {
         let rsp = new ProtocolObjectIPCResponse();
         let projConf = new ProtocolObjectProjectConfig();
         projConf.fromMixed(projDat);
-        console.log(`创建新项目${projConf.app_name}在文件夹${projConf.path}`);
+        // console.log(`创建新项目${projConf.app_name}在文件夹${projConf.path}`);
 
         if (fs.existsSync(projConf.path)) {
             rsp.ret = 1;
@@ -108,9 +158,6 @@ export class IPCS {
         await fs.writeFileSync(`${PROJ_DIR}/front_forge_project.json`, JSON.stringify(projConf.toField()));
         await IPCS.__FileContentReplaceKey(`${PROJ_DIR}/src/core/macro.ts`, ["{{APP_NAME}}", projConf.app_name]);
         let ae = new ActionExec(`${PROJ_DIR}`);
-        ae.onData = (str: string, delta: string) => {
-            console.log(delta);
-        };
         await ae.cmd("npm.cmd", ["install"]);
         return rsp.toMixed();
     }
@@ -145,6 +192,14 @@ export class IPCS {
     protected static async _SaveStrFile(_, path: string, dat: string) {
         fs.writeFileSync(path, dat);
         return true;
+    }
+
+    protected static async _DeleteFile(_, path: string) {
+        if (fs.existsSync(path)) {
+            fs.rmSync(path);
+            return true;
+        }
+        return false;
     }
 
     protected static async _LocatDir(_) {

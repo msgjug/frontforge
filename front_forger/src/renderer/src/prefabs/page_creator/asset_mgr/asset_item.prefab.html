@@ -1,6 +1,11 @@
 <style>
     .asset-item {
         border-bottom: 1px gray dashed;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: space-between;
     }
 
     .asset-item:hover {
@@ -15,9 +20,24 @@
     .asset-item[cur] {
         background: #f7922c;
     }
+
+    .asset-item[start] {
+        /* border: 3px dashed #2cc1f7; */
+    }
+
+    .asset-item .emoji-btn {
+        font-size:1em;
+        padding:0;
+    }
 </style>
 <dom>
     <div @click="onClick" class="asset-item" draggable="true">
         <div $="lbName">asset_name</div>
+        <div $="iconStart">🚩</div>
+        <div $="btnRoot" class="row" style="display:none">
+            <button @click="onClickSave" class="emoji-btn">💾</button>
+            <button @click="onClickSetStart" class="emoji-btn">🚩</button>
+            <button @click="onClickDelete" class="emoji-btn">🚫</button>
+        </div>
     </div>
 </dom>

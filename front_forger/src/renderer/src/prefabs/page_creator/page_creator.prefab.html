@@ -14,10 +14,11 @@
     flex-grow: 1;
   }
 
-  .top-area {
-    height: 3em;
+  .top-area { 
     display: flex;
     justify-content: space-between;
+    padding: 0.5em 0.5em;
+    background: rgba(0,0,0,0.8)
   }
 
 </style>
@@ -25,15 +26,15 @@
 <dom>
   <div class="creator">
     <div class="top-area area-wrap">
-      <input placeholder="入口Prefab名" />
       <div class="row">
-        <button>▶Run</button>
-        <button>⏱Build</button>
-        <button>⚙Setup</button>
+        <button $="btnRun" @click="onClickRun">▶Run</button>
+        <button style="display:none;background:#f7922c;" $="btnStop" @click="onClickStop">╳Stop</button>
+        <button @click="onClickBuild">⏱Build</button>
       </div>
       <div class="row">
-        <button>◰Open Project Dir</button>
-        <button>╳Close Project</button>
+        <button @click="onClickSetup">⚙Setup</button>
+        <button @click="onClickOpenProjectDir">◰Open Project Dir</button>
+        <button @click="onClickCloseProject">╳Close Project</button>
       </div>
     </div>
     <div class="row" style="flex-grow: 1;">
@@ -44,6 +45,9 @@
         <ref $="creatorMain"  ctor="CreatorMain" />
       </div>
     </div>
-    <div class="row">foot</div>
+    <div class="row" style="background:#1f2e74;border-top:1px solid gray">
+      <div $="lbInfo"></div>
+      <progress $="pb" value=0 max=100 style="display: none;"></progress>
+    </div>
   </div>
 </dom>

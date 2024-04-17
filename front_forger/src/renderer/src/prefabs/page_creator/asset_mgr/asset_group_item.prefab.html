@@ -29,9 +29,9 @@
 </style>
 <dom>
     <div class="asset-group" @drop="onItemDrop">
-        <div class="row" style="justify-content: space-between;">
+        <div class="row" style="justify-content: space-between;" @click="onToggleFold">
             <div $="lbName" class="asset-group-title" style="flex-grow: 1;">group_name</div>
-            <button class="asset-group-btn-fold" $="btnFold" @click="onToggleFold">-</button>
+            <button class="asset-group-btn-fold" $="btnFold">-</button>
         </div>
         <div $="contain" style="padding: 0 0 0.5em 0;">
         </div>

@@ -7,6 +7,8 @@ import PrefabStr from "./asset_item.prefab.html?raw"
 @RegClass("AssetItem")
 export default class AssetItem extends AppNode {
     lbName: HTMLDivElement = null;
+    btnRoot: HTMLDivElement = null;
+    iconStart: HTMLDivElement = null;
     prefabConfig: ProtocolObjectPrefabConfig = null;
     onLoad(): void {
         this.ele.ondragstart = (ev) => {
@@ -30,12 +32,32 @@ export default class AssetItem extends AppNode {
     }
     blur() {
         this.ele.removeAttribute("cur");
+        // this.btnRoot.style.display = "none";
     }
     focus() {
         this.ele.setAttribute("cur", "");
+        // this.btnRoot.style.display = "inherit";
+    }
+
+    setStart() {
+        this.ele.setAttribute("start", "");
+        this.iconStart.style.display = "inherit";
+    }
+    unsetStart() {
+        this.ele.removeAttribute("start");
+        this.iconStart.style.display = "none";
     }
     onClick() {
         this.subject.emit("click", this);
+    }
+    onClickSave() {
+        this.subject.emit("save", this);
+    }
+    onClickSetStart() {
+        this.subject.emit("set-start", this);
+    }
+    onClickDelete() {
+        this.subject.emit("delete", this);
     }
     static get PrefabStr(): string {
         return PrefabStr;

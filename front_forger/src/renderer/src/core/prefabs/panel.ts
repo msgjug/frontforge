@@ -3,11 +3,9 @@ import { RegClass } from "../serialize";
 
 @RegClass("Panel")
 export default class Panel extends AppNode {
-    divPanel: HTMLDivElement = null;
     onLoad(): void {
         super.onLoad();
         this.ele.onclick = this.onClickClose.bind(this);
-        this.divPanel.onclick = this.onClickBlockInput.bind(this);
     }
     onClickBlockInput(event) {
         event.stopPropagation();

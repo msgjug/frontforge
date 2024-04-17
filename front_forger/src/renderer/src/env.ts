@@ -39,7 +39,9 @@ export default class EditorEnv {
     }
     static SetProjectConfig(config: ProtocolObjectProjectConfig) {
         this._ProjectConfig = config;
-        window.electron.ipcRenderer.invoke('FF:SaveProjectConfig', this._ProjectConfig.toMixed());
+        if(this._ProjectConfig){
+            window.electron.ipcRenderer.invoke('FF:SaveProjectConfig', this._ProjectConfig.toMixed());
+        }
     }
     static get editorTheme() {
         if (!data.storage.has("ace-config")) {

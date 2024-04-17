@@ -1,18 +1,18 @@
-import { Col } from "./data_ext";
+
 export class PropertyRecord {
     key: string = "";
-    queryStr: string = "";
+    query: string = "";
     option: any = null;
     muti = false;
 };
 export class PropertyInfo {
-    recCol: Col<PropertyRecord> = {};
+    recCol: { [key: string]: PropertyRecord } = {};
     super: string = "";
 };
 
 // 记录类的序列化结构
 export class ClassSerializeInfo {
-    ctor: Function = null; //类构造
+    ctor: Function = null!; //类构造
     memberList: string[] = []; //成员名 
     memberCtorList: string[] = []; //成员类名，如果是基础属性，则为空字符串
 
@@ -52,12 +52,13 @@ export function Serialize<T>(cls?: new () => T) {
         if (!ClassSerializeInfoMap.get(target.constructor)) {
             ClassSerializeInfoMap.set(target.constructor, new ClassSerializeInfo(target.constructor));
         }
-        let csi = ClassSerializeInfoMap.get(target.constructor);
+        let csi = ClassSerializeInfoMap.get(target.constructor)!;
         csi.addSerialize(property, cls ? cls["__cn"] : "");
     };
 }
 export function RegClass(regClassName: string) {
     return function (ctor: any): void {
+        console.log("REG CLASS:", regClassName);
         ctor.__cn = regClassName;
         NameClassMap.set(ctor.__cn, ctor);
         ClassNameMap.set(ctor, ctor.__cn);
@@ -95,7 +96,7 @@ export default abstract class SerializeAble extends CloneAble {
                 }
             }
         };
-        let csi = GetCSIByClass(this.constructor);
+        let csi = GetCSIByClass(this.constructor)!;
         csi.memberList.forEach(sKey => {
             _assign(json, sKey, this);
         });
@@ -142,29 +143,29 @@ export default abstract class SerializeAble extends CloneAble {
                 else {
                     obj[property] = {};
                     for (let key in dat) {
-                        _assign(obj[property], key, undefined, dat[key]);
+                        _assign(obj[property], key, undefined!, dat[key]);
                     }
                 }
             }
         };
         if (json) {
-            let csi = GetCSIByClass(this.constructor);
+            let csi = GetCSIByClass(this.constructor)!;
             csi.memberList.forEach((sKey, ind) => {
                 let dat = json[sKey];
                 let cls: new () => SerializeAble;
                 if (csi.memberCtorList[ind]) {
-                    cls = n2c(csi.memberCtorList[ind]);
+                    cls = n2c(csi.memberCtorList[ind])!;
                 }
-                _assign(this, sKey, cls, dat);
+                _assign(this, sKey, cls!, dat);
             });
         }
     }
     //反序列化
-    static CreateFromJSON<T extends SerializeAble>(json: any, ctor: new () => T = null): T {
+    static CreateFromJSON<T extends SerializeAble>(json: any, ctor: new () => T = null!): T {
         let out: T;
         if (!ctor) {
             if (json && json.__cn) {
-                ctor = NameClassMap.get(json.__cn);
+                ctor = NameClassMap.get(json.__cn)!;
             }
         }
 

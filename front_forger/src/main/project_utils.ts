@@ -38,13 +38,11 @@ export class ProjectUtils {
         dh.path = path;
         dh.isDir = !stat.isFile();
         if (dh.isDir) {
-            console.log("dir:", path + "/");
             await ProjectUtils.ListDir(path + "/", dh);
         }
         else {
             dh.extName = path.substring(path.lastIndexOf(".") + 1);
             dh.dataStr = fs.readFileSync(path).toString();
-            console.log("file:", dh.path);
         }
 
         return dh;

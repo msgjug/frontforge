@@ -11,16 +11,16 @@
 
 <dom node="MsgBox">
     <div class="panel-bg">
-        <div $="divPanel" class="panel msgbox">
-            <b name="title"></b>
-            <span name="text"></span>
+        <div @click="onClickBlockInput"  class="panel msgbox">
+            <b $="lbTitle"></b>
+            <span $="lbText"></span>
             <div style="
             display: flex;
             flex-direction: row;
             justify-content: space-evenly;
             width: 100%;">
-                <button name="no">否</button>
-                <button name="yes">是</button>
+                <button @click="onClickNo" >否</button>
+                <button @click="onClickYes" >是</button>
             </div>
         </div>
     </div>

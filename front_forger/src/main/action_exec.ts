@@ -1,12 +1,11 @@
 import cp from "child_process";
 import iconv from "iconv-lite";
-import fs from 'fs';
 
 //执行任务
 export default class ActionExec {
     cwd = ""; //工作目录。
     args: { [key: string]: string } = {};
-
+    comp: cp.ChildProcessWithoutNullStreams = null!;
     _stdout = "";
     get stdout() {
         return this._stdout;
@@ -30,10 +29,10 @@ export default class ActionExec {
         }, 500);
         try {
             await new Promise<void>((ok) => {
-                var comp = cp.spawn(cmd, args, {
+                this.comp = cp.spawn(cmd, args, {
                     cwd: this.cwd
                 });
-                comp.stdout.on("data", (value) => {
+                this.comp.stdout.on("data", (value) => {
                     let str = "";
                     if (process.platform === "win32") {
                         str = iconv.decode(value, "gbk");
@@ -45,28 +44,28 @@ export default class ActionExec {
                     stdout += str + "\n";
                     this.onData && this.onData(stdout, str);
                 });
-                comp.stdout.on("error", () => {
+                this.comp.stdout.on("error", () => {
                     console.log("stream error");
                 })
-                comp.stdout.on("pause", () => {
+                this.comp.stdout.on("pause", () => {
                     console.log("stream pause");
                 })
-                comp.stdout.on("end", ok);
-                comp.stdout.on("close", ok);
-                comp.stderr.on("error", ok);
+                this.comp.stdout.on("end", ok);
+                this.comp.stdout.on("close", ok);
+                this.comp.stderr.on("error", ok);
 
-                comp.stderr.on("data", (chunk) => {
+                this.comp.stderr.on("data", (chunk) => {
                     console.error("comp err:", chunk.toString());
                 });
-                comp.stderr.on("end", () => {
+                this.comp.stderr.on("end", () => {
                     console.error("err end");
                     ok();
                 });
-                comp.stderr.on("close", () => {
+                this.comp.stderr.on("close", () => {
                     console.error("err close");
                     ok();
                 });
-                comp.stderr.on("error", (err) => {
+                this.comp.stderr.on("error", (err) => {
                     console.error("err:", err);
                     ok();
                 });
@@ -78,5 +77,12 @@ export default class ActionExec {
         clearInterval(_id);
 
         this.onEnd && this.onEnd(this.stdout);
+    }
+
+    kill() {
+        if (this.comp) {
+            this.comp.kill();
+            this.comp = null!;
+        }
     }
 };

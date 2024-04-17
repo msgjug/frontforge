@@ -23,13 +23,13 @@ export default class AssetMgr extends AppNode {
     this.refresh();
   }
   refresh() {
-    console.log(this.direntHandle);
     this.groupCol = {};
     this.disposeAllChildren(this.contain);
     let projConf = EditorEnv.GetProjectConfig();
     projConf.prefabs_list.forEach(conf => {
       this.addPrefabAsset(conf);
     });
+    this.refreshSetStart(projConf.entrance_prefab_name);
   }
   addPrefabAsset(prefabConfig: ProtocolObjectPrefabConfig) {
     let group = this.groupCol[prefabConfig.group];
@@ -151,13 +151,44 @@ export default class AssetMgr extends AppNode {
     //保存编辑器数据
     EditorEnv.SaveEditorConfig();
 
-
     //获取dh
     let newDh = await window.electron.ipcRenderer.invoke("FF:GetDirentHandle", projConf.path);
     //更新DH
     let dh = this.getDirentHandleByPath("src/prefabs");
     dh.children.push(newDh);
   }
+  refreshSetStart(startPrefabName: string ) {
+    for (let gk in this.groupCol) {
+      let group = this.groupCol[gk];
+      for (let key in group.itemCol) {
+        if (group.itemCol[key].prefabConfig.name === startPrefabName) {
+          group.itemCol[key].setStart();
+        }
+        else {
+          group.itemCol[key].unsetStart();
+        }
+      }
+    }
+  }
+  setStartAsset(prefabConfig: ProtocolObjectPrefabConfig) {
+    this.refreshSetStart(prefabConfig.name);
+  }
+  deleteAsset(prefabConfig: ProtocolObjectPrefabConfig) {
+    let projConf = EditorEnv.GetProjectConfig();
+    let foundInd = projConf.prefabs_list.findIndex(ele => ele === prefabConfig);
+    if (foundInd !== -1) {
+      projConf.prefabs_list.splice(foundInd, 1);
+    }
+
+    if (this.groupCol[prefabConfig.group]) {
+      let group = this.groupCol[prefabConfig.group]
+      group.itemCol[prefabConfig.name].dispose();
+    }
+
+    EditorEnv.SetProjectConfig(projConf);
+    EditorEnv.SaveEditorConfig();
+  }
+
   static get PrefabStr(): string {
     return PrefabStr;
   }

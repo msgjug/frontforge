@@ -2,11 +2,11 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { dialog } from 'electron/main'
+import { Menu, MenuItem, dialog, globalShortcut } from 'electron/main'
 import { ProjectUtils } from './project_utils'
 import { IPCS } from './ipcs'
 
-function createWindow(): void {
+function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 900,
@@ -36,6 +36,7 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+  return mainWindow;
 }
 
 // This method will be called when Electron has finished
@@ -52,28 +53,41 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  IPCS.Init();
+  const mainWindow = createWindow()
 
-  // ipcMain.handle("openfile", async (evt, msg) => {
-  //   const { canceled, filePaths } = await dialog.showOpenDialog(null!, {
-  //     properties: ['openFile', 'openDirectory']
-  //   });
-  //   if (!canceled) {
-  //     return filePaths;
-  //   }
-  // })
+  IPCS.Init(mainWindow);
 
-  // ipcMain.handle('call_method', (evt, msg) => {
-  //   console.log(`msg:`, msg);
-  //   return "call_method, this is a rtn";
-  // });
-  // // IPC test
-  // ipcMain.on('ping', (evt, msg: any) => {
-  //   console.log(`msg:`, msg);
-  //   return "this is a rtn";
-  // })
 
-  createWindow()
+  const menu = new Menu()
+  menu.append(new MenuItem({
+    label: 'Hotkey',
+    submenu: [{
+      role: 'help',
+      accelerator: process.platform === 'darwin' ? 'Cmd+S' : 'Control+S',
+      click: () => {
+        mainWindow.webContents.send("hot-key", "save")
+      }
+    }, {
+      role: 'help',
+      accelerator: process.platform === 'darwin' ? 'Cmd+N' : 'Control+N',
+      click: () => {
+        mainWindow.webContents.send("hot-key", "new")
+      }
+    }, {
+      role: 'help',
+      accelerator: 'F5',
+      click: () => {
+        mainWindow.webContents.send("hot-key", "run")
+      }
+    }, {
+      role: 'help',
+      accelerator: 'ESC',
+      click: () => {
+        mainWindow.webContents.send("hot-key", "esc")
+      }
+    }]
+  }))
+  Menu.setApplicationMenu(menu)
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the

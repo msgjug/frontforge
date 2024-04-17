@@ -13,6 +13,10 @@
   -webkit-text-size-adjust: 100%;
 }
 
+html {
+  overflow: hidden;
+}
+
 body,
 html,
 div {
@@ -55,17 +59,9 @@ h1 {
   text-align: center;
 }
 
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
+/* 
 button {
   color:#bcbcbc;
-  border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
@@ -80,20 +76,51 @@ button:hover {
 }
 button:active {
   outline: 4px auto -webkit-focus-ring-color;
-}
+} */
 
 .panel {
   background: #1b1d21;
   color: #bcbcbc;
   border: 4px solid #bcbcbc;
-
   display: flex;
-  align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: stretch;
+  flex-direction: column;
 }
-.panel button {
-    color: #1b1d21;
-    background: #bcbcbc;
+.panel-contain {
+  padding: 1em;
+}
+
+.emoji-btn {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  transition: transform 0.15s ease-out, filter 0.15s ease-out;
+}
+
+.emoji-btn:hover {
+  transform: scale(1.1);
+}
+
+.emoji-btn:active {
+  transform: scale(0.9);
+  filter: brightness(2);
+}
+
+.btn {
+  padding: 0.5em 0.7em;
+  font-weight: bold;
+}
+
+.nav {
+
+}
+.nav .btn {
+  background: gray;
+  color:black;
+  text-align: center;
+  padding: 0 0.25em;
+  cursor: pointer;
 }
 
 .panel-bg {
@@ -120,6 +147,10 @@ button:active {
 .row {
   display:flex;
   flex-direction: row;
+}
+.col {
+  display:flex;
+  flex-direction: column;
 }
 
 .input-style {

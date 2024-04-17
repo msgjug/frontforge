@@ -27,12 +27,20 @@ export default class ACEEditor extends AppNode {
       this.ace.session.selection.toggleBlockSelection();
     }
 
+    getValue( ){
+        return this.ace.getValue();
+    }
+
     hide(){
         this.ele.style.display = "none";
     }
 
     show(){
         this.ele.style.display = "";
+    }
+
+    resize(){
+        this.ace.resize();
     }
 
     static get PrefabStr(): string {

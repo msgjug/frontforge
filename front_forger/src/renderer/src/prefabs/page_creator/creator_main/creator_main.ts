@@ -9,6 +9,7 @@ import PrefabStr from "./creator_main.prefab.html?raw"
 import { Selector } from "./selector";
 import { TabView } from "./tab_view";
 import Utils from "../../../core/utils";
+import MsgHub from "../../../core/subject";
 
 @RegClass("CreatorMain")
 export default class CreatorMain extends AppNode {
@@ -18,6 +19,10 @@ export default class CreatorMain extends AppNode {
     aceList: ACEEditor[] = [];
     selTheme: Selector = null;
     selFontSize: Selector = null;
+
+    conf: ProtocolObjectPrefabConfig = null;
+    dhTs: DirentHandle = null;
+    dhDom: DirentHandle = null;
 
     onSelectFrontSize(evt) {
         let size = evt.target.value;
@@ -32,6 +37,9 @@ export default class CreatorMain extends AppNode {
         this.aceList.forEach(ace => {
             ace.setTheme(EditorEnv.editorTheme);
         })
+    }
+    onDispose(): void {
+        MsgHub.targetOff(this);
     }
     onLoad(): void {
         this.selTheme.setData(ACE_THEME);
@@ -51,11 +59,15 @@ export default class CreatorMain extends AppNode {
         this.aceList[1].setMode("html");
 
         this.onTabViewSelect();
+
+        MsgHub.on("hot-key", this.onHotKey, this);
     }
-    conf: ProtocolObjectPrefabConfig = null;
-    dhTs: DirentHandle = null;
-    dhDom: DirentHandle = null;
     setData(conf: ProtocolObjectPrefabConfig, dhTs: DirentHandle, dhDom: DirentHandle) {
+        if( this.conf ){ 
+            this.onClickSave();
+            this.conf=null;
+        }
+
         this.conf = conf;
         this.dhTs = dhTs;
         this.dhDom = dhDom;
@@ -71,11 +83,27 @@ export default class CreatorMain extends AppNode {
             this.lbName.innerText = "";
         }
     }
+
+    onHotKey(tag) {
+        switch (tag) {
+            case "save":
+                this.onClickSave();
+                break;
+        }
+    }
     onClickSave() {
         if (!this.conf) {
             return;
         }
+        this.dhTs.dataStr = this.aceList[0].getValue();
+        this.dhDom.dataStr = this.aceList[1].getValue();
         this.subject.emit("save", this.conf);
+    }
+    onClickSetStart() {
+        if (!this.conf) {
+            return;
+        }
+        this.subject.emit("set-start", this.conf);
     }
     async onClickDelete() {
         if (!this.conf) {
@@ -108,6 +136,8 @@ export default class CreatorMain extends AppNode {
                 this.aceWrap.style.flexDirection = "row";
                 break;
         }
+        this.aceList[0].resize();
+        this.aceList[1].resize();
     }
 
     static get PrefabStr(): string {
