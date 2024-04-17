@@ -13,7 +13,7 @@ export default class ACEEditor extends AppNode {
     setTheme(theme: string) {
         this.ace.setTheme(`ace/theme/${theme}`);
     }
-    setFontSize(size:number) {
+    setFontSize(size: number) {
         this.ace.setFontSize(`${size}px`);
     }
 
@@ -21,17 +21,27 @@ export default class ACEEditor extends AppNode {
         this.ace.session.setMode(`ace/mode/${mode}`);
     }
 
-    setValue(val){
-      this.ace.setValue(val);
-      this.ace.session.selection.selectFileStart();
-      this.ace.session.selection.toggleBlockSelection();
+    _wrapMode = false;
+    get wrapMode(){
+        return this._wrapMode;
     }
 
-    hide(){
+    set wrapMode( val ){ 
+        this._wrapMode = val;
+        this.ace.getSession().setUseWrapMode(this._wrapMode);
+    }
+
+    setValue(val) {
+        this.ace.setValue(val);
+        this.ace.session.selection.selectFileStart();
+        this.ace.session.selection.toggleBlockSelection();
+    }
+
+    hide() {
         this.ele.style.display = "none";
     }
 
-    show(){
+    show() {
         this.ele.style.display = "";
     }
 
