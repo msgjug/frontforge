@@ -39,7 +39,7 @@ export default class EditorEnv {
     }
     static SetProjectConfig(config: ProtocolObjectProjectConfig) {
         this._ProjectConfig = config;
-        if(this._ProjectConfig){
+        if (this._ProjectConfig) {
             window.electron.ipcRenderer.invoke('FF:SaveProjectConfig', this._ProjectConfig.toMixed());
         }
     }
@@ -58,6 +58,22 @@ export default class EditorEnv {
         conf.theme = val;
         data.save();
     }
+
+
+    // -nor 有编辑器的模式 -min 无编辑器的模式; 
+    static get sizeMode() {
+        if (!data.storage.has("size-mode")) {
+            data.storage.rec("size-mode", "normal");
+        }
+        return data.storage.get<string>("size-mode");
+    }
+    static set sizeMode(val: string) {
+        if (!data.storage.has("size-mode")) {
+            data.storage.rec<string>("size-mode", "nor");
+        }
+        data.storage.set("size-mode", val);
+    }
+
     static get editorFontSize() {
         if (!data.storage.has("ace-config")) {
             data.storage.rec("ace-config", new ACEConfig());

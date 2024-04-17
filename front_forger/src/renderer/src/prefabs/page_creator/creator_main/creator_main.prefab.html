@@ -42,7 +42,7 @@
             <div class="row">
                 <button @click="onClickSave" class="emoji-btn">💾</button>
                 <button @click="onClickSetStart" class="emoji-btn">🚩</button>
-                <button @click="onClickDelete" class="emoji-btn">🚫</button>
+                <button @click="onClickDelete" class="emoji-btn">🗑️</button>
             </div>
             <div $="tabView" class="row" ctor="TabView">
                 <button class="tap" cur>TypeScript</button>
@@ -51,6 +51,7 @@
                 <button class="tap">Column</button>
             </div>
             <div class="row">
+                <button @click="onToggleWrap" $="btnWrap">NoWrap</button>
                 <select $="selTheme" @change="onSelectTheme" ctor="Selector">
                 </select>
                 <select $="selFontSize" @change="onSelectFrontSize" ctor="Selector">

@@ -23,6 +23,8 @@ export default class PageCreator extends AppNode {
   direntHandle: DirentHandle = null;
   assetMgr: AssetMgr = null;
   creatorMain: CreatorMain = null;
+  createMainWrap: HTMLDivElement = null;
+  topArea: HTMLDivElement = null;
 
   btnRun: HTMLButtonElement = null;
   btnStop: HTMLButtonElement = null;
@@ -43,6 +45,8 @@ export default class PageCreator extends AppNode {
     this.creatorMain.subject.on("delete", this.onClickDelete, this);
     window.electron.ipcRenderer.on("hot-key", this.onHotkey.bind(this));
     window.electron.ipcRenderer.on("log", this.onIPCLog.bind(this));
+
+    this.refreshSizeMode();
   }
   onIPCLog(_, deltaStr: string) {
     console.log("-log:", deltaStr);
@@ -132,6 +136,8 @@ export default class PageCreator extends AppNode {
 
     this.btnRun.style.display = "";
     this.btnStop.style.display = "none";
+
+    this.lbInfo.innerText = `已停止预览`;
   }
   async onClickBuild() {
   }
@@ -146,7 +152,28 @@ export default class PageCreator extends AppNode {
     EditorEnv.SetProjectConfig(null);
     Utils.scene.replacePage(Prefab.Instantiate(PageCreator));
   }
-
+  onClickMin() {
+    EditorEnv.sizeMode = "min";
+    this.refreshSizeMode();
+  }
+  onClickNormal() {
+    EditorEnv.sizeMode = "nor";
+    this.refreshSizeMode();
+  }
+  async refreshSizeMode() {
+    switch (EditorEnv.sizeMode) {
+      case "nor":
+        this.createMainWrap.style.display = "";
+        this.topArea.style.flexDirection = "";
+        await window.electron.ipcRenderer.invoke("FF:ResizeWindow", 1000, 800);
+        break;
+      case "min":
+        this.createMainWrap.style.display = "none";
+        this.topArea.style.flexDirection = "column";
+        await window.electron.ipcRenderer.invoke("FF:ResizeWindow", 300, 800);
+        break;
+    }
+  }
   static get PrefabStr(): string {
     return PrefabStr;
   }

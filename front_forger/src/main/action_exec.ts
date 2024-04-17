@@ -81,7 +81,9 @@ export default class ActionExec {
 
     kill() {
         if (this.comp) {
-            this.comp.kill();
+            if( !this.comp.kill('SIGTERM')){
+                console.error("fail to kill child process!");
+            }
             this.comp = null!;
         }
     }

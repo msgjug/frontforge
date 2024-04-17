@@ -14,22 +14,29 @@
     flex-grow: 1;
   }
 
-  .top-area { 
+  .top-area {
     display: flex;
     justify-content: space-between;
     padding: 0.5em 0.5em;
-    background: rgba(0,0,0,0.8)
+    background: rgba(0, 0, 0, 0.8)
   }
 
+  .top-area button {
+    flex-grow: 1;
+  }
 </style>
 
 <dom>
   <div class="creator">
-    <div class="top-area area-wrap">
+    <div $="topArea" class="top-area area-wrap">
       <div class="row">
         <button $="btnRun" @click="onClickRun">▶Run</button>
         <button style="display:none;background:#f7922c;" $="btnStop" @click="onClickStop">╳Stop</button>
         <button @click="onClickBuild">⏱Build</button>
+      </div>
+      <div class="row">
+        <button @click="onClickMin">最小模式</button>
+        <button @click="onClickNormal">正常模式</button>
       </div>
       <div class="row">
         <button @click="onClickSetup">⚙Setup</button>
@@ -38,11 +45,11 @@
       </div>
     </div>
     <div class="row" style="flex-grow: 1;">
-      <div class="area-wrap">
+      <div class="area-wrap" style="flex-grow: 1;">
         <ref $="assetMgr" ctor="AssetMgr" />
       </div>
-      <div class="area-wrap col" style="flex-grow: 1;">
-        <ref $="creatorMain"  ctor="CreatorMain" />
+      <div $="createMainWrap" class="area-wrap col" style="flex-grow: 1;">
+        <ref $="creatorMain" ctor="CreatorMain" />
       </div>
     </div>
     <div class="row" style="background:#1f2e74;border-top:1px solid gray">

@@ -19,6 +19,7 @@ export default class CreatorMain extends AppNode {
     aceList: ACEEditor[] = [];
     selTheme: Selector = null;
     selFontSize: Selector = null;
+    btnWrap: HTMLButtonElement = null;
 
     conf: ProtocolObjectPrefabConfig = null;
     dhTs: DirentHandle = null;
@@ -63,9 +64,9 @@ export default class CreatorMain extends AppNode {
         MsgHub.on("hot-key", this.onHotKey, this);
     }
     setData(conf: ProtocolObjectPrefabConfig, dhTs: DirentHandle, dhDom: DirentHandle) {
-        if( this.conf ){ 
+        if (this.conf) {
             this.onClickSave();
-            this.conf=null;
+            this.conf = null;
         }
 
         this.conf = conf;
@@ -90,6 +91,13 @@ export default class CreatorMain extends AppNode {
                 this.onClickSave();
                 break;
         }
+    }
+    onToggleWrap() {
+        this.aceList.forEach(ace => {
+            ace.wrapMode = !ace.wrapMode;
+        });
+
+        this.btnWrap.innerText = this.aceList[0].wrapMode ? "WrapMode" : "NoWrap";
     }
     onClickSave() {
         if (!this.conf) {

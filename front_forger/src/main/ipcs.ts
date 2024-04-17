@@ -46,8 +46,14 @@ export class IPCS {
         ipcMain.handle("FF:RunProject", IPCS._RunProject);
         ipcMain.handle("FF:StopProject", IPCS._StopProject);
 
+        //控制窗口大小
+        ipcMain.handle("FF:ResizeWindow", IPCS._ResizeWindow);
+
         //外部浏览器打开链接
         ipcMain.handle("FF:OpenURL", IPCS._OpenURL);
+    }
+    protected static _ResizeWindow(_, width: number, height: number) {
+        IPCS.mainWindow.setSize(width, height, true);
     }
     private static __ae: ActionExec = null!;
     protected static async _RunProject(_, projDat: JSON) {
