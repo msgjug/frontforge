@@ -8,6 +8,7 @@ import Utils from './core/utils'
 import Scene from './core/scene'
 import PageCreator from './prefabs/page_creator/page_creator'
 
+
 (() => {
   window.addEventListener('DOMContentLoaded', () => {
     var app = new WebApplication();

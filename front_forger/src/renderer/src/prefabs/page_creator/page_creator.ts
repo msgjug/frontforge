@@ -2,7 +2,7 @@ import { AppNode, property } from "../../core/app_node";
 import Prefab from "../../core/prefab";
 import { RegClass } from "../../core/serialize";
 import PrefabStr from "./page_creator.prefab.html?raw"
-import Utils, { Sync } from "../../core/utils";
+import Utils, { Sync, Syncer } from "../../core/utils";
 import { ProtocolObjectPrefabConfig, ProtocolObjectProjectConfig } from "../../protocol_dist";
 import BoxProject from "../box_project/box_project";
 import EditorEnv from "../../env";
@@ -33,7 +33,7 @@ export default class PageCreator extends AppNode {
   pb: HTMLProgressElement = null;
 
   waitForIp = false;
-  onLoad(): void {
+  async onLoad() {
     let panel = Prefab.Instantiate(BoxProject);
     Utils.scene.addChild(panel);
     panel.subject.on("open", this.onOpenProject, this);

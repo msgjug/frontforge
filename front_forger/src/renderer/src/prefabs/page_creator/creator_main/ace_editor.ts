@@ -28,7 +28,7 @@ export default class ACEEditor extends AppNode {
 
     getValue() {
         return this.ace.getValue();
-    }
+}
     set wrapMode(val) {
         this._wrapMode = val;
         this.ace.getSession().setUseWrapMode(this._wrapMode);

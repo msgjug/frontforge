@@ -214,17 +214,22 @@ export class Sync {
 
 export class Syncer<T> {
     private __syncCallback: (val: T) => void = null;
+    private __syncCancelCallback: (val: T) => void = null;
     async() {
-        return new Promise<T>((ok) => {
+        return new Promise<T>((ok, cancel) => {
             this.__syncCallback = ok;
+            this.__syncCancelCallback = cancel;
         });
     }
     finish(val: T) {
         this.__syncCallback && this.__syncCallback(val);
         this.__syncCallback = null;
     }
+    cancel() {
+        this.__syncCancelCallback && this.__syncCancelCallback(null);
+        this.__syncCancelCallback = null;
+    }
 };
-
 
 export class ArrayUtils {
     static contains(arr: any[], obj: any): boolean {
