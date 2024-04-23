@@ -2,7 +2,7 @@ import { electron } from "process";
 import Panel from "../../../core/prefabs/panel";
 import { RegClass } from "../../../core/serialize";
 import EditorEnv from "../../../env";
-import { ProtocolObjectIPCResponse, ProtocolObjectPrefabConfig } from "../../../protocol_dist";
+import { ProtocolObjectIPCResponse, ProtocolObjectPrefabConfig } from "../../../../../classes/protocol_dist";
 import PrefabStr from "./box_new_prefab_asset.prefab.html?raw"
 import Utils from "../../../core/utils";
 

@@ -1,7 +1,7 @@
 import { AppNode } from "../../../core/app_node";
 import { RegClass } from "../../../core/serialize";
 import EditorEnv from "../../../env";
-import { ProtocolObjectPrefabConfig } from "../../../protocol_dist";
+import { ProtocolObjectPrefabConfig } from "../../../../../classes/protocol_dist";
 import PrefabStr from "./asset_item.prefab.html?raw"
 
 @RegClass("AssetItem")

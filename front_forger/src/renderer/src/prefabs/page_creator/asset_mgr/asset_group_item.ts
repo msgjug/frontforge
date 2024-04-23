@@ -2,7 +2,7 @@ import { AppNode } from "../../../core/app_node";
 import Prefab from "../../../core/prefab";
 import { RegClass } from "../../../core/serialize";
 import EditorEnv from "../../../env";
-import { ProtocolObjectPrefabConfig } from "../../../protocol_dist";
+import { ProtocolObjectPrefabConfig } from "../../../../../classes/protocol_dist";
 import PrefabStr from "./asset_group_item.prefab.html?raw"
 import AssetItem from "./asset_item";
 

@@ -4,7 +4,7 @@ import Prefab from "../../../core/prefab";
 import { RegClass } from "../../../core/serialize";
 import Utils from "../../../core/utils";
 import EditorEnv from "../../../env";
-import { ProtocolObjectPrefabConfig } from "../../../protocol_dist";
+import { ProtocolObjectPrefabConfig } from "../../../../../classes/protocol_dist";
 import AssetGroupItem from "./asset_group_item";
 import AssetItem from "./asset_item";
 import PrefabStr from "./asset_mgr.prefab.html?raw"
@@ -157,7 +157,7 @@ export default class AssetMgr extends AppNode {
     let dh = this.getDirentHandleByPath("src/prefabs");
     dh.children.push(newDh);
   }
-  refreshSetStart(startPrefabName: string ) {
+  refreshSetStart(startPrefabName: string) {
     for (let gk in this.groupCol) {
       let group = this.groupCol[gk];
       for (let key in group.itemCol) {
@@ -183,6 +183,10 @@ export default class AssetMgr extends AppNode {
     if (this.groupCol[prefabConfig.group]) {
       let group = this.groupCol[prefabConfig.group]
       group.itemCol[prefabConfig.name].dispose();
+    }
+
+    if (this.curItem.prefabConfig.name === prefabConfig.name) {
+      this.setCurItem(null);
     }
 
     EditorEnv.SetProjectConfig(projConf);

@@ -1,6 +1,6 @@
 import Panel from "../../core/prefabs/panel";
 import { RegClass } from "../../core/serialize";
-import { ProtocolObjectEditorConfig, ProtocolObjectProjectConfig } from "../../protocol_dist";
+import { ProtocolObjectEditorConfig, ProtocolObjectProjectConfig } from "../../../../classes/protocol_dist";
 import PrefabStr from "./box_new_project.prefab.html?raw"
 @RegClass("BoxNewProject")
 export default class BoxNewProject extends Panel {

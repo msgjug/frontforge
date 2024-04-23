@@ -136,6 +136,16 @@ button:active {
   justify-content: center;
 }
 
+
+.modal-panel-bg {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  flex-grow: 1;
+  flex-direction: column;
+}
+
+
 .rect-wrap {
   display: flex;
   flex-direction: column;

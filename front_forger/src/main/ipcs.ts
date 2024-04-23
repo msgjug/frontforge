@@ -1,17 +1,205 @@
-import { Menu, MenuItem, dialog, globalShortcut, ipcMain } from "electron/main";
+import { dialog, ipcMain } from "electron/main";
 import fs from 'fs';
-import { ProtocolObjectIPCResponse, ProtocolObjectProjectConfig } from "./protocol_dist";
+import { ProtocolObjectIPCResponse, ProtocolObjectProjectConfig, ProtocolObjectWindowChange } from "../classes/protocol_dist";
 import { execSync } from "child_process";
 import ActionExec from "./action_exec";
 import { ProjectUtils } from "./project_utils";
 import { DirentHandle } from "../classes/dirent_handle";
 import Utils from "./utils";
-import { BrowserWindow, shell } from "electron";
+import { app, BrowserWindow, Menu, MenuItem, MessageChannelMain, shell } from "electron";
+import { join } from "path";
+import icon from "../../resources/icon.png?asset"
+import { is } from "@electron-toolkit/utils";
+import { ProtocolObjectEditorConfig } from "../classes/protocol_dist";
+import { WindowHandle } from "../classes/window_handle";
 
 export class IPCS {
     static mainWindow: BrowserWindow = null!;
-    static Init(mainWindow: BrowserWindow) {
-        IPCS.mainWindow = mainWindow;
+    static codeWindow: BrowserWindow = null!;
+    static windows: WindowHandle[] = [];
+    private static _createWindow(name: string, x: number, y: number, width: number, height: number, ps = "none", box = "none", isModal = false, isChild = false, resizable = false) {
+        // Create the browser window.
+        let parent: BrowserWindow = null!;
+        if (isModal) {
+            parent = IPCS.mainWindow;
+        }
+        if (isChild) {
+            parent = IPCS.mainWindow;
+        }
+        const win = new BrowserWindow({
+            x: x,
+            y: y,
+            width: width,
+            height: height,
+            show: false,
+            frame: false,
+            modal: isModal,
+            resizable: resizable,
+            parent: parent,
+            autoHideMenuBar: true,
+            ...(process.platform === 'linux' ? { icon } : {}),
+            webPreferences: {
+                preload: join(__dirname, '../preload/index.js'),
+                sandbox: false
+            }
+        });
+
+        win.webContents.setWindowOpenHandler((details) => {
+            // const win = IPCS._createWindow(400, 400, "none", details.url);
+            // win.setWindowButtonVisibility(false);
+            // return {
+            //     action: "allow", overrideBrowserWindowOptions: {
+            //         autoHideMenuBar: true,
+            //     }
+            // };
+            shell.openExternal(details.url)
+            return { action: 'deny' }
+        })
+
+        // HMR for renderer base on electron-vite cli.
+        // Load the remote URL for development or the local html file for production.
+        if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+            win.loadURL(process.env['ELECTRON_RENDERER_URL'] + `?ps=${ps}&box=${box}`);
+        } else {
+            win.loadFile(join(__dirname, `../renderer/index.html?ps=${ps}&box=${box}`));
+        }
+
+        let wh = new WindowHandle();
+        wh.name = name;
+        wh.win = win;
+        IPCS.windows.push(wh);
+
+        let msg = new ProtocolObjectWindowChange();
+        msg.open = name;
+        let wcs: Electron.WebContents[] = [];
+        IPCS.windows.forEach(wh => {
+            wcs.push(wh.win.webContents);
+        });
+        IPCS.Broadcast(wcs, msg.toMixed());
+
+        win.once("close", () => {
+            IPCS._onWindowDestroy(wh.name);
+        });
+        if (isModal) {
+            let { x: topX, y: topY, width: topWidth, height: topHeight } = parent.getBounds();
+            let { width: sonWidth, height: sonHeight } = win.getBounds();
+            let x = topX + (topWidth - sonWidth) / 2;
+            let y = topY + (topHeight - sonHeight) / 2;
+            win.setPosition(x, y)
+        }
+        return win;
+    }
+    static _onWindowDestroy(name: string) {
+        // const win = this;
+        let foundInd = IPCS.windows.findIndex(ele => ele.name === name);
+        let wh = IPCS.windows[foundInd];
+
+        if (foundInd !== -1) {
+            IPCS.windows.splice(foundInd, 1);
+        }
+        if (wh) {
+            if (IPCS.codeWindow == wh.win) {
+                IPCS.codeWindow = null!;
+            }
+            if (IPCS.mainWindow === wh.win) {
+                IPCS.mainWindow = null!;
+                app.quit();
+            }
+
+            let msg = new ProtocolObjectWindowChange();
+            msg.close = wh.name;
+            let wcs: Electron.WebContents[] = [];
+            IPCS.windows.forEach(wh => {
+                wcs.push(wh.win.webContents);
+            });
+            IPCS.Broadcast(wcs, msg.toMixed());
+        }
+    }
+    static editorConfig: ProtocolObjectEditorConfig = new ProtocolObjectEditorConfig();
+
+    //更新窗口状态 
+    protected static async _refreshWindowState() {
+        if (IPCS.editorConfig.win_main) {
+            IPCS.mainWindow.show();
+        }
+        else {
+            IPCS.mainWindow.hide();
+        }
+
+        let pos = IPCS.mainWindow.getPosition();
+        if (IPCS.codeWindow) {
+            if (IPCS.editorConfig.win_code) {
+                IPCS.codeWindow.show();
+                IPCS.codeWindow.setPosition(pos[0] + IPCS.editorConfig.win_main_w, pos[1]);
+            }
+            else {
+                IPCS.codeWindow.hide();
+            }
+        }
+        else {
+            if (IPCS.editorConfig.win_code) {
+                IPCS.codeWindow = IPCS._createWindow("code", pos[0] + IPCS.editorConfig.win_main_w, pos[1], IPCS.editorConfig.win_code_w, IPCS.editorConfig.win_code_h, "code", "none", false, true, true);
+                IPCS.codeWindow.once("ready-to-show", () => IPCS.codeWindow.show());
+                IPCS.InitHotKey(IPCS.codeWindow);
+            }
+            else {
+            }
+        }
+    }
+    static async InitHotKey(win: BrowserWindow) {
+        const menu = new Menu()
+        menu.append(new MenuItem({
+            label: 'Hotkey',
+            submenu: [{
+                role: 'help',
+                accelerator: process.platform === 'darwin' ? 'Cmd+S' : 'Control+S',
+                click: () => {
+                    win.webContents.send("hot-key", "save")
+                }
+            }, {
+                role: 'help',
+                accelerator: process.platform === 'darwin' ? 'Cmd+N' : 'Control+N',
+                click: () => {
+                    win.webContents.send("hot-key", "new")
+                }
+            }, {
+                role: 'help',
+                accelerator: 'F5',
+                click: () => {
+                    win.webContents.send("hot-key", "run")
+                }
+            }, {
+                role: 'help',
+                accelerator: 'ESC',
+                click: () => {
+                    win.webContents.send("hot-key", "esc")
+                }
+            }]
+        }))
+        Menu.setApplicationMenu(menu)
+    }
+    static MsgChannel: MessageChannelMain = null!;
+    static async Init() {
+        //读取配置
+        await IPCS._ReadEditorConfig(null);
+        IPCS.mainWindow = IPCS._createWindow("main", 0, 0, IPCS.editorConfig.win_main_w, IPCS.editorConfig.win_main_h, "index");
+        IPCS.mainWindow.center();
+        //CODE窗口跟随MAIN
+        IPCS.mainWindow.on("move", () => {
+            if (IPCS.codeWindow && IPCS.codeWindow.isVisible()) {
+                let pos = IPCS.mainWindow.getPosition();
+                IPCS.codeWindow.setPosition(pos[0] + IPCS.editorConfig.win_main_w, pos[1]);
+            }
+        })
+        IPCS.InitHotKey(IPCS.mainWindow);
+
+        IPCS._refreshWindowState();
+
+
+        //发送消息
+        // 分发消息
+        ipcMain.on("FF:Message", IPCS._OnMessage);
+
         //弹出文件夹选择框，返回路径
         ipcMain.handle("FF:LocatDir", IPCS._LocatDir);
         //遍历文件文件夹，返回DH
@@ -46,15 +234,34 @@ export class IPCS {
         ipcMain.handle("FF:RunProject", IPCS._RunProject);
         ipcMain.handle("FF:StopProject", IPCS._StopProject);
 
-        //控制窗口大小
-        ipcMain.handle("FF:ResizeWindow", IPCS._ResizeWindow);
-
         //外部浏览器打开链接
         ipcMain.handle("FF:OpenURL", IPCS._OpenURL);
+
+
+        //新建窗口
+        ipcMain.handle("FF:CreateWindow", IPCS._CreateWindow);
+
     }
-    protected static _ResizeWindow(_, width: number, height: number) {
-        IPCS.mainWindow.setSize(width, height, true);
+    protected static _OnMessage(_, msg: JSON) {
+        let wcs: Electron.WebContents[] = [];
+        IPCS.windows.forEach(wh => {
+            if (wh.win.webContents != _.sender) {
+                wcs.push(wh.win.webContents);
+            }
+        });
+        IPCS.Broadcast(wcs, msg);
     }
+    //分发
+    protected static Broadcast(wcs: Electron.WebContents[], msg: JSON) {
+        wcs.forEach(wc => {
+            wc.send("FF:Broadcast", msg);
+        });
+    }
+    protected static _CreateWindow(_, name: string, x: number, y: number, width: number, height: number, page: string, box: string, isModal = false) {
+        const win = IPCS._createWindow(name, x, y, width, height, page, box, isModal);
+        win.once("ready-to-show", () => win.show());
+    }
+
     private static __ae: ActionExec = null!;
     protected static async _RunProject(_, projDat: JSON) {
         let projConf = new ProtocolObjectProjectConfig();
@@ -169,7 +376,8 @@ export class IPCS {
     }
     protected static async _ReadProjectConfig(_, path: string) {
         let confPath = path + "/" + "front_forge_project.json";
-        return JSON.parse(await IPCS._ReadStrFile(_, confPath));
+        let json = JSON.parse(await IPCS._ReadStrFile(_, confPath));
+        return json;
     }
     protected static async _SaveProjectConfig(_, config: JSON) {
         let projConf = new ProtocolObjectProjectConfig();
@@ -180,11 +388,14 @@ export class IPCS {
     }
 
     protected static async _ReadEditorConfig(_) {
-        return JSON.parse(await IPCS._ReadStrFile(_, "./resources/editor_config.json"));
+        let json = JSON.parse(await IPCS._ReadStrFile(_, "./resources/editor_config.json"));
+        IPCS.editorConfig.fromMixed(json);
+        return json;
     }
-    protected static async _SaveEditorConfig(_, config: JSON) {
-        // console.log(_, config);
-        return await IPCS._SaveStrFile(_, "./resources/editor_config.json", JSON.stringify(config))
+    protected static async _SaveEditorConfig(_, json: JSON) {
+        IPCS.editorConfig.fromMixed(json);
+        IPCS._refreshWindowState();
+        return await IPCS._SaveStrFile(_, "./resources/editor_config.json", JSON.stringify(json))
     }
 
     protected static async _ReadStrFile(_, path: string) {

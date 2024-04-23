@@ -1,9 +1,8 @@
-import { DirentHandle } from "../../../../../classes/dirent_handle";
 import { AppNode } from "../../../core/app_node";
 import Prefab from "../../../core/prefab";
 import { RegClass } from "../../../core/serialize";
 import EditorEnv, { ACE_THEME } from "../../../env";
-import { ProtocolObjectPrefabConfig } from "../../../protocol_dist";
+import { Protocol, ProtocolObjectDeletePrefab, ProtocolObjectFlagPrefab, ProtocolObjectPrefabConfig, ProtocolObjectSavePrefab, ProtocolObjectSelectPrefab } from "../../../../../classes/protocol_dist";
 import ACEEditor from "./ace_editor";
 import PrefabStr from "./creator_main.prefab.html?raw"
 import { Selector } from "./selector";
@@ -22,8 +21,8 @@ export default class CreatorMain extends AppNode {
     btnWrap: HTMLButtonElement = null;
 
     conf: ProtocolObjectPrefabConfig = null;
-    dhTs: DirentHandle = null;
-    dhDom: DirentHandle = null;
+    tsStr: string = "";
+    domStr: string = "";
 
     onSelectFrontSize(evt) {
         let size = evt.target.value;
@@ -41,8 +40,10 @@ export default class CreatorMain extends AppNode {
     }
     onDispose(): void {
         MsgHub.targetOff(this);
+        EditorEnv.offMessage(this);
     }
     onLoad(): void {
+        EditorEnv.onMessage(this.onMessage, this);
         this.selTheme.setData(ACE_THEME);
         this.selTheme.select(EditorEnv.editorTheme);
 
@@ -63,19 +64,31 @@ export default class CreatorMain extends AppNode {
 
         MsgHub.on("hot-key", this.onHotKey, this);
     }
-    setData(conf: ProtocolObjectPrefabConfig, dhTs: DirentHandle, dhDom: DirentHandle) {
+    onMessage(msg: Protocol) {
+        switch (true) {
+            case msg instanceof ProtocolObjectSelectPrefab:
+                if (!msg.valid) {
+                    this.setData(null, "", "");
+                }
+                else {
+                    this.setData(msg.prefab_conf, msg.ts_str, msg.dom_str);
+                }
+                break;
+        }
+    }
+    setData(conf: ProtocolObjectPrefabConfig, tsStr: string, domStr: string) {
         if (this.conf) {
-            this.onClickSave();
+            this.save(true);
             this.conf = null;
         }
 
         this.conf = conf;
-        this.dhTs = dhTs;
-        this.dhDom = dhDom;
+        this.tsStr = tsStr;
+        this.domStr = domStr;
 
         if (this.conf) {
-            this.aceList[0].setValue(dhTs.dataStr);
-            this.aceList[1].setValue(dhDom.dataStr);
+            this.aceList[0].setValue(this.tsStr);
+            this.aceList[1].setValue(this.domStr);
             this.lbName.innerText = conf.name;
         }
         else {
@@ -99,19 +112,30 @@ export default class CreatorMain extends AppNode {
 
         this.btnWrap.innerText = this.aceList[0].wrapMode ? "WrapMode" : "NoWrap";
     }
-    onClickSave() {
+    save(silent = false) {
         if (!this.conf) {
             return;
         }
-        this.dhTs.dataStr = this.aceList[0].getValue();
-        this.dhDom.dataStr = this.aceList[1].getValue();
-        this.subject.emit("save", this.conf);
+        this.tsStr = this.aceList[0].getValue();
+        this.domStr = this.aceList[1].getValue();
+
+        let msg = new ProtocolObjectSavePrefab();
+        msg.prefab_conf = this.conf;
+        msg.ts_str = this.tsStr;
+        msg.dom_str = this.domStr;
+        msg.silent = silent;
+        EditorEnv.postMessage(msg);
+    }
+    onClickSave() {
+        this.save();
     }
     onClickSetStart() {
         if (!this.conf) {
             return;
         }
-        this.subject.emit("set-start", this.conf);
+        let msg = new ProtocolObjectFlagPrefab();
+        msg.prefab_conf = this.conf;
+        EditorEnv.postMessage(msg);
     }
     async onClickDelete() {
         if (!this.conf) {
@@ -120,7 +144,10 @@ export default class CreatorMain extends AppNode {
         if (!await Utils.app.msgBoxYesNo(`删除${this.conf.name}?`)) {
             return;
         }
-        this.subject.emit("delete", this.conf);
+
+        let msg = new ProtocolObjectDeletePrefab();
+        msg.prefab_conf = this.conf;
+        EditorEnv.postMessage(msg);
     }
     onTabViewSelect() {
         console.log("select:", this.tabView.curInd);

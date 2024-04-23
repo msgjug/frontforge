@@ -1,5 +1,6 @@
 import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+const { ipcRenderer } = require('electron')
 
 // Custom APIs for renderer
 const api = {}
@@ -20,3 +21,17 @@ if (process.contextIsolated) {
   // @ts-ignore (define in dts)
   window.api = api
 }
+
+ipcRenderer.on('port', async e => {
+  console.log("port", e);
+  if (process.contextIsolated) {
+    window.postMessage('port', '*', e.ports)
+    console.log("contextIsolated", e.ports);
+  } else {
+    // 接收到端口，使其全局可用。
+    // @ts-ignore (define in dts)
+    window.msgPort = e.ports[0];
+    // @ts-ignore (define in dts)
+    console.log("windowed", window.msgPort);
+  }
+})

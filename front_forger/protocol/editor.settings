@@ -7,6 +7,19 @@ classes {
     EditorConfig {
         # 历史项目记录
         project_configs "([ProjectConfig])";
+
+        # 窗口状态
+        win_main "(bool)true";
+        win_main_w "(int)300";
+        win_main_h "(int)800";
+
+        win_code "(bool)false";
+        win_code_w "(int)1000";
+        win_code_h "(int)800";
+
+        win_project "(bool)true";
+        win_project_w "(int)400";
+        win_project_h "(int)400";
     };
 
     #  
@@ -29,5 +42,50 @@ classes {
     IPCResponse {
         ret "(int)0";
         msg "(str)";
+    };
+
+
+    # =================port msg 
+    
+    # 窗口变化
+    WindowChange {
+        open "(str)";
+        close "(str)";
+    };
+    # 打开项目
+    OpenProject {
+        project_conf "(ProjectConfig)";  
+    };
+
+    # 关闭项目
+    CloseProject {
+        project_conf "(ProjectConfig)";  
+    };
+    
+    # 选择Prefab
+    SelectPrefab {
+        # 是否有选择文件
+        valid "(bool)false";
+        prefab_conf "(PrefabConfig)";
+        ts_str "(str)";
+        dom_str "(str)";
+    };
+
+    # 保存Prefab
+    SavePrefab {
+        prefab_conf "(PrefabConfig)";
+        ts_str "(str)";
+        dom_str "(str)";
+        # 静默保存，界面没有通知
+        silent "(bool)false"; 
+    };
+    # 删除Prefab
+    DeletePrefab {
+        prefab_conf "(PrefabConfig)";
+    };
+
+    # 设置开始Prefab
+    FlagPrefab {
+        prefab_conf "(PrefabConfig)";
     };
 };

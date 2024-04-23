@@ -1,14 +1,12 @@
-import { AppNode, property } from "../../core/app_node";
+import { AppNode } from "../../core/app_node";
 import Prefab from "../../core/prefab";
 import { RegClass } from "../../core/serialize";
 import PrefabStr from "./page_creator.prefab.html?raw"
-import Utils, { Sync, Syncer } from "../../core/utils";
-import { ProtocolObjectPrefabConfig, ProtocolObjectProjectConfig } from "../../protocol_dist";
-import BoxProject from "../box_project/box_project";
+import Utils, { Sync } from "../../core/utils";
+import { Protocol, ProtocolObjectCloseProject, ProtocolObjectDeletePrefab, ProtocolObjectFlagPrefab, ProtocolObjectOpenProject, ProtocolObjectSavePrefab, ProtocolObjectSelectPrefab, ProtocolObjectWindowChange } from "../../../../classes/protocol_dist";
 import EditorEnv from "../../env";
 import { DirentHandle } from "../../../../classes/dirent_handle";
 import AssetMgr from "./asset_mgr/asset_mgr";
-import CreatorMain from "./creator_main/creator_main";
 import AssetItem from "./asset_mgr/asset_item";
 import MsgHub from "../../core/subject";
 import BoxProjectSetting from "./box_project_setting/box_project_setting";
@@ -22,8 +20,6 @@ export class CallMethod {
 export default class PageCreator extends AppNode {
   direntHandle: DirentHandle = null;
   assetMgr: AssetMgr = null;
-  creatorMain: CreatorMain = null;
-  createMainWrap: HTMLDivElement = null;
   topArea: HTMLDivElement = null;
 
   btnRun: HTMLButtonElement = null;
@@ -32,21 +28,59 @@ export default class PageCreator extends AppNode {
   lbInfo: HTMLDivElement = null;
   pb: HTMLProgressElement = null;
 
+  //代码编辑器开关
+  toggleCode: HTMLButtonElement = null;
+
   waitForIp = false;
   async onLoad() {
-    let panel = Prefab.Instantiate(BoxProject);
-    Utils.scene.addChild(panel);
-    panel.subject.on("open", this.onOpenProject, this);
+    EditorEnv.onMessage(this.onMessage, this);
+
+    window.electron.ipcRenderer.invoke("FF:CreateWindow", "box_project", 0, 0, 400, 400, "none", "BoxProject", true);
 
     this.assetMgr.subject.on("select-item", this.onSelectAssetItem, this);
 
-    this.creatorMain.subject.on("save", this.onClickSave, this);
-    this.creatorMain.subject.on("set-start", this.onClickSetStart, this);
-    this.creatorMain.subject.on("delete", this.onClickDelete, this);
     window.electron.ipcRenderer.on("hot-key", this.onHotkey.bind(this));
     window.electron.ipcRenderer.on("log", this.onIPCLog.bind(this));
 
-    this.refreshSizeMode();
+  }
+  onDispose(): void {
+    EditorEnv.offMessage(this);
+  }
+  async onMessage(msg: Protocol) {
+    switch (true) {
+      case msg instanceof ProtocolObjectOpenProject:
+        this.onOpenProject(msg);
+        break;
+      case msg instanceof ProtocolObjectCloseProject:
+        break;
+
+      case msg instanceof ProtocolObjectSavePrefab:
+        this.onPrefabSave(msg);
+        break;
+      case msg instanceof ProtocolObjectDeletePrefab:
+        this.onPrefabDelete(msg);
+        break;
+      case msg instanceof ProtocolObjectFlagPrefab:
+        this.onFlagPrefab(msg);
+        break;
+      case msg instanceof ProtocolObjectWindowChange:
+        {
+          let conf = await EditorEnv.GetEditorConfig();
+          if (msg.close === "code") {
+            if (conf.win_code) {
+              conf.win_code = false;
+              if (conf.win_code) {
+                this.toggleCode.setAttribute("pressed", "");
+              }
+              else {
+                this.toggleCode.removeAttribute("pressed");
+              }
+              await EditorEnv.SaveEditorConfig();
+            }
+          }
+        }
+        break;
+    }
   }
   onIPCLog(_, deltaStr: string) {
     console.log("-log:", deltaStr);
@@ -64,44 +98,49 @@ export default class PageCreator extends AppNode {
     }
   }
   onSelectAssetItem(item: AssetItem) {
-    if (!item) {
-      this.creatorMain.setData(null, null, null);
-    }
-    else {
+    let msg = new ProtocolObjectSelectPrefab();
+    if (item) {
       let dhTs = this.assetMgr.getDirentHandleByName(item.prefabConfig.name + ".ts");
       let dhDom = this.assetMgr.getDirentHandleByName(item.prefabConfig.name + ".prefab.html");
-      this.creatorMain.setData(item.prefabConfig, dhTs, dhDom);
+      msg.valid = true;
+      msg.ts_str = dhTs.dataStr;
+      msg.dom_str = dhDom.dataStr;
+      msg.prefab_conf = item.prefabConfig;
     }
+    EditorEnv.postMessage(msg);
   }
-  async onClickDelete() {
+  async onPrefabDelete(msg: ProtocolObjectDeletePrefab) {
     let projConf = EditorEnv.GetProjectConfig();
-    let tsPath = projConf.path + "/src/prefabs/" + this.creatorMain.conf.name + ".ts";
-    let domPath = projConf.path + "/src/prefabs/" + this.creatorMain.conf.name + ".prefab.html";
+    let tsPath = projConf.path + "/src/prefabs/" + msg.prefab_conf.name + ".ts";
+    let domPath = projConf.path + "/src/prefabs/" + msg.prefab_conf.name + ".prefab.html";
 
     await window.electron.ipcRenderer.invoke("FF:DeleteFile", tsPath);
     await window.electron.ipcRenderer.invoke("FF:DeleteFile", domPath);
 
-    this.assetMgr.deleteAsset(this.creatorMain.conf);
+    this.assetMgr.deleteAsset(msg.prefab_conf);
   }
-  async onClickSave() {
-    let tsStr = this.creatorMain.aceList[0].getValue();
-    let domStr = this.creatorMain.aceList[1].getValue();
+  async onPrefabSave(msg: ProtocolObjectSavePrefab) {
     let projConf = EditorEnv.GetProjectConfig();
-    let tsPath = projConf.path + "/src/prefabs/" + this.creatorMain.conf.name + ".ts";
-    let domPath = projConf.path + "/src/prefabs/" + this.creatorMain.conf.name + ".prefab.html";
-    await window.electron.ipcRenderer.invoke("FF:SaveStrFile", tsPath, tsStr);
-    await window.electron.ipcRenderer.invoke("FF:SaveStrFile", domPath, domStr);
-  }
-  async onOpenProject(config: ProtocolObjectProjectConfig) {
-    await EditorEnv.InitProjectConfig(config.path);
-    await this.assetMgr.listDir();
+    let tsPath = projConf.path + "/src/prefabs/" + msg.prefab_conf.name + ".ts";
+    let domPath = projConf.path + "/src/prefabs/" + msg.prefab_conf.name + ".prefab.html";
+    await window.electron.ipcRenderer.invoke("FF:SaveStrFile", tsPath, msg.ts_str);
+    await window.electron.ipcRenderer.invoke("FF:SaveStrFile", domPath, msg.dom_str);
+
+    if (!msg.silent) {
+      Utils.scene.toast(`保存成功${Utils.TimestampToTime(Date.now())}`);
+    }
   }
 
-  async onClickSetStart(config: ProtocolObjectPrefabConfig) {
+  async onFlagPrefab(msg: ProtocolObjectFlagPrefab) {
     let projConf = EditorEnv.GetProjectConfig();
-    projConf.entrance_prefab_name = config.name;
+    projConf.entrance_prefab_name = msg.prefab_conf.name;
     EditorEnv.SetProjectConfig(projConf);
-    this.assetMgr.setStartAsset(config);
+    this.assetMgr.setStartAsset(msg.prefab_conf);
+  }
+
+  async onOpenProject(msg: ProtocolObjectOpenProject) {
+    await EditorEnv.InitProjectConfig(msg.project_conf.path);
+    await this.assetMgr.listDir();
   }
 
   async onClickRun() {
@@ -149,30 +188,25 @@ export default class PageCreator extends AppNode {
     await window.electron.ipcRenderer.invoke("FF:OpenDir", projConf.path);
   }
   async onClickCloseProject() {
+    let msg = new ProtocolObjectCloseProject();
+    msg.project_conf = EditorEnv.GetProjectConfig();
+    EditorEnv.postMessage(msg);
+
     EditorEnv.SetProjectConfig(null);
     Utils.scene.replacePage(Prefab.Instantiate(PageCreator));
   }
-  onClickMin() {
-    EditorEnv.sizeMode = "min";
-    this.refreshSizeMode();
-  }
-  onClickNormal() {
-    EditorEnv.sizeMode = "nor";
-    this.refreshSizeMode();
-  }
-  async refreshSizeMode() {
-    switch (EditorEnv.sizeMode) {
-      case "nor":
-        this.createMainWrap.style.display = "";
-        this.topArea.style.flexDirection = "";
-        await window.electron.ipcRenderer.invoke("FF:ResizeWindow", 1000, 800);
-        break;
-      case "min":
-        this.createMainWrap.style.display = "none";
-        this.topArea.style.flexDirection = "column";
-        await window.electron.ipcRenderer.invoke("FF:ResizeWindow", 300, 800);
-        break;
+  async onClickToggleCodeEditor() {
+    let conf = await EditorEnv.GetEditorConfig();
+    conf.win_code = !conf.win_code;
+
+    if (conf.win_code) {
+      this.toggleCode.setAttribute("pressed", "");
     }
+    else {
+      this.toggleCode.removeAttribute("pressed");
+    }
+
+    await window.electron.ipcRenderer.invoke("FF:SaveEditorConfig", conf.toMixed());
   }
   static get PrefabStr(): string {
     return PrefabStr;

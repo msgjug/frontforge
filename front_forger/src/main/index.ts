@@ -1,43 +1,7 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
-import { join } from 'path'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
-import { Menu, MenuItem, dialog, globalShortcut } from 'electron/main'
-import { ProjectUtils } from './project_utils'
+import { app, BrowserWindow } from 'electron'
+import { electronApp, optimizer } from '@electron-toolkit/utils'
+import { Menu, MenuItem } from 'electron/main'
 import { IPCS } from './ipcs'
-
-function createWindow() {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
-    show: false,
-    autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
-    webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
-    }
-  })
-
-  mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
-  })
-
-  mainWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url)
-    return { action: 'deny' }
-  })
-
-  // HMR for renderer base on electron-vite cli.
-  // Load the remote URL for development or the local html file for production.
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
-  } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
-  }
-  return mainWindow;
-}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -53,46 +17,12 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  const mainWindow = createWindow()
-
-  IPCS.Init(mainWindow);
-
-
-  const menu = new Menu()
-  menu.append(new MenuItem({
-    label: 'Hotkey',
-    submenu: [{
-      role: 'help',
-      accelerator: process.platform === 'darwin' ? 'Cmd+S' : 'Control+S',
-      click: () => {
-        mainWindow.webContents.send("hot-key", "save")
-      }
-    }, {
-      role: 'help',
-      accelerator: process.platform === 'darwin' ? 'Cmd+N' : 'Control+N',
-      click: () => {
-        mainWindow.webContents.send("hot-key", "new")
-      }
-    }, {
-      role: 'help',
-      accelerator: 'F5',
-      click: () => {
-        mainWindow.webContents.send("hot-key", "run")
-      }
-    }, {
-      role: 'help',
-      accelerator: 'ESC',
-      click: () => {
-        mainWindow.webContents.send("hot-key", "esc")
-      }
-    }]
-  }))
-  Menu.setApplicationMenu(menu)
+  IPCS.Init();
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    // if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 })
 
@@ -100,9 +30,9 @@ app.whenReady().then(() => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  // if (process.platform !== 'darwin') {
+  //   app.quit()
+  // }
 })
 
 // In this file you can include the rest of your app"s specific main process

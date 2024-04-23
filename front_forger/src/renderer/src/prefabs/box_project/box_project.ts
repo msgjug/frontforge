@@ -1,12 +1,13 @@
 import { RegClass } from "../../core/serialize";
 import PrefabStr from "./box_project.prefab.html?raw"
 import EditorEnv from "../../env";
-import { ProtocolFactory, ProtocolObjectEditorConfig, ProtocolObjectIPCResponse, ProtocolObjectProjectConfig } from "../../protocol_dist";
+import { ProtocolFactory, ProtocolObjectEditorConfig, ProtocolObjectIPCResponse, ProtocolObjectOpenProject, ProtocolObjectProjectConfig } from "../../../../classes/protocol_dist";
 import Prefab from "../../core/prefab";
 import ProjectItem from "./project_item";
 import BoxNewProject from "./box_new_project";
 import Utils from "../../core/utils";
 import { AppNode } from "../../core/app_node";
+import { utimesSync } from "fs";
 @RegClass("BoxProject")
 export default class BoxProject extends AppNode {
     ebSearch: HTMLInputElement = null;
@@ -32,8 +33,12 @@ export default class BoxProject extends AppNode {
         }
     }
     async onClickItemOpen(conf: ProtocolObjectProjectConfig) {
-        this.subject.emit("open", conf);
+        let msg = new ProtocolObjectOpenProject();
+        msg.project_conf = conf;
+        EditorEnv.postMessage(msg);
+
         this.dispose();
+        window.close();
     }
     async onClickItemDel(conf: ProtocolObjectProjectConfig) {
         if (!await Utils.app.msgBoxYesNo("确认删除项目吗？文件不会被删除")) {
@@ -52,8 +57,10 @@ export default class BoxProject extends AppNode {
     onClickNew() {
         let panel = Prefab.Instantiate(BoxNewProject);
         Utils.scene.addChild(panel);
-        panel.subject.on("submit", (conf: ProtocolObjectProjectConfig) => {
-            this.createProject(conf);
+        panel.subject.on("submit", async (conf: ProtocolObjectProjectConfig) => {
+            Utils.app.blocker.ref++;
+            await this.createProject(conf);
+            Utils.app.blocker.ref--;
         }, this);
     }
     async createProject(conf: ProtocolObjectProjectConfig) {

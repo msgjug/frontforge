@@ -1,6 +1,7 @@
 import data from "./core/cache_data";
 import SerializeAble, { RegClass, Serialize } from "./core/serialize";
-import { ProtocolObjectEditorConfig, ProtocolObjectProjectConfig } from "./protocol_dist";
+import { Protocol, ProtocolFactory, ProtocolObjectEditorConfig, ProtocolObjectProjectConfig } from "../../classes/protocol_dist";
+import { Subject } from "./core/subject";
 
 
 @RegClass("ACEConfig")
@@ -13,6 +14,23 @@ export class ACEConfig extends SerializeAble {
 
 export default class EditorEnv {
     protected static _EditorConfig: ProtocolObjectEditorConfig = null;
+    static PortSubject: Subject = new Subject();
+
+    static onIPCMessage(_,dat: JSON) {
+        let msg = ProtocolFactory.CreateFromMixed(dat);
+        this.PortSubject.emit("message", msg);
+    }
+
+    static onMessage(fn: (msg: Protocol) => void, obj: any) {
+        this.PortSubject.on("message", fn, obj);
+    }
+    static offMessage(obj: any) {
+        this.PortSubject.targetOff(obj);
+    }
+
+    static postMessage(msg: Protocol) {
+        window.electron.ipcRenderer.send("FF:Message", msg.toMixed());
+    }
 
     static async GetEditorConfig() {
         if (!this._EditorConfig) {
@@ -59,21 +77,6 @@ export default class EditorEnv {
         data.save();
     }
 
-
-    // -nor 有编辑器的模式 -min 无编辑器的模式; 
-    static get sizeMode() {
-        if (!data.storage.has("size-mode")) {
-            data.storage.rec("size-mode", "normal");
-        }
-        return data.storage.get<string>("size-mode");
-    }
-    static set sizeMode(val: string) {
-        if (!data.storage.has("size-mode")) {
-            data.storage.rec<string>("size-mode", "nor");
-        }
-        data.storage.set("size-mode", val);
-    }
-
     static get editorFontSize() {
         if (!data.storage.has("ace-config")) {
             data.storage.rec("ace-config", new ACEConfig());
@@ -102,7 +105,7 @@ export default class EditorEnv {
         return null;
     }
 };
-
+window["env"] = EditorEnv;
 
 export const ACE_THEME = [
     "ambiance",

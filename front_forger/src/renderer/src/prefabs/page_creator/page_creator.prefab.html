@@ -16,6 +16,7 @@
 
   .top-area {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     padding: 0.5em 0.5em;
     background: rgba(0, 0, 0, 0.8)
@@ -24,32 +25,36 @@
   .top-area button {
     flex-grow: 1;
   }
+
+  .toggle-btn {
+    background: #efefef;
+  }
+
+  .toggle-btn[pressed] {
+      background:#f7922c;
+  }
 </style>
 
 <dom>
   <div class="creator">
     <div $="topArea" class="top-area area-wrap">
       <div class="row">
-        <button $="btnRun" @click="onClickRun">▶Run</button>
-        <button style="display:none;background:#f7922c;" $="btnStop" @click="onClickStop">╳Stop</button>
-        <button @click="onClickBuild">⏱Build</button>
+        <button $="btnRun" @click="onClickRun">▶运行</button>
+        <button style="display:none;background:#f7922c;" $="btnStop" @click="onClickStop">╳停止</button>
+        <button @click="onClickBuild">⏱构建</button>
+        <button @click="onClickSetup">⚙设置</button>
       </div>
       <div class="row">
-        <button @click="onClickMin">最小模式</button>
-        <button @click="onClickNormal">正常模式</button>
+        <button @click="onClickOpenProjectDir">◰项目文件夹</button>
+        <button @click="onClickCloseProject">╳关闭</button>
       </div>
       <div class="row">
-        <button @click="onClickSetup">⚙Setup</button>
-        <button @click="onClickOpenProjectDir">◰Open Project Dir</button>
-        <button @click="onClickCloseProject">╳Close Project</button>
+        <button class="toggle-btn" $="toggleCode" @click="onClickToggleCodeEditor">代码编辑器</button>
       </div>
     </div>
     <div class="row" style="flex-grow: 1;">
       <div class="area-wrap" style="flex-grow: 1;">
         <ref $="assetMgr" ctor="AssetMgr" />
-      </div>
-      <div $="createMainWrap" class="area-wrap col" style="flex-grow: 1;">
-        <ref $="creatorMain" ctor="CreatorMain" />
       </div>
     </div>
     <div class="row" style="background:#1f2e74;border-top:1px solid gray">

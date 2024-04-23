@@ -1,6 +1,6 @@
 import { AppNode } from "../../core/app_node";
 import { RegClass } from "../../core/serialize";
-import { ProtocolObjectProjectConfig } from "../../protocol_dist";
+import { ProtocolObjectProjectConfig } from "../../../../classes/protocol_dist";
 import PrefabStr from "./project_item.prefab.html?raw"
 @RegClass("ProjectItem")
 export default class ProjectItem extends AppNode {

@@ -585,7 +585,7 @@ this.edit_date = gBuf.readInt32 ();
     }
 };
 export class ProtocolObjectEditorConfig extends Protocol {
-    project_configs : ProtocolObjectProjectConfig [] = [];
+    project_configs : ProtocolObjectProjectConfig [] = [];win_main : boolean = true;win_main_w : number = 300;win_main_h : number = 800;win_code : boolean = false;win_code_w : number = 1000;win_code_h : number = 800;win_project : boolean = true;win_project_w : number = 400;win_project_h : number = 400;
 
     getClassName(){
         return "EditorConfig"
@@ -597,6 +597,15 @@ export class ProtocolObjectEditorConfig extends Protocol {
 this.project_configs.forEach(ele => {
     out["project_configs"].push(ele.toMixed());
 });
+out["win_main"] = this.win_main;
+out["win_main_w"] = this.win_main_w;
+out["win_main_h"] = this.win_main_h;
+out["win_code"] = this.win_code;
+out["win_code_w"] = this.win_code_w;
+out["win_code_h"] = this.win_code_h;
+out["win_project"] = this.win_project;
+out["win_project_w"] = this.win_project_w;
+out["win_project_h"] = this.win_project_h;
 
         return out;
     }
@@ -611,6 +620,15 @@ this.project_configs.forEach(ele => {
     this.project_configs.push( ele );
     }
 }
+this.win_main = input.hasOwnProperty("win_main") && input["win_main"] !== null ? input["win_main"] : this.win_main;
+this.win_main_w = input.hasOwnProperty("win_main_w") && input["win_main_w"] !== null ? input["win_main_w"] : this.win_main_w;
+this.win_main_h = input.hasOwnProperty("win_main_h") && input["win_main_h"] !== null ? input["win_main_h"] : this.win_main_h;
+this.win_code = input.hasOwnProperty("win_code") && input["win_code"] !== null ? input["win_code"] : this.win_code;
+this.win_code_w = input.hasOwnProperty("win_code_w") && input["win_code_w"] !== null ? input["win_code_w"] : this.win_code_w;
+this.win_code_h = input.hasOwnProperty("win_code_h") && input["win_code_h"] !== null ? input["win_code_h"] : this.win_code_h;
+this.win_project = input.hasOwnProperty("win_project") && input["win_project"] !== null ? input["win_project"] : this.win_project;
+this.win_project_w = input.hasOwnProperty("win_project_w") && input["win_project_w"] !== null ? input["win_project_w"] : this.win_project_w;
+this.win_project_h = input.hasOwnProperty("win_project_h") && input["win_project_h"] !== null ? input["win_project_h"] : this.win_project_h;
 
     }
     protected _toBinary( gBuf: GrowBuffer) {
@@ -622,6 +640,15 @@ gBuf.writeUint32(__arr_size);
 for (let i = 0; i < __arr_size; i++) {
     gBuf.writeUint8Array(this.project_configs[i].toBinary());
 }
+gBuf.writeBool (this.win_main);
+gBuf.writeInt32 (this.win_main_w);
+gBuf.writeInt32 (this.win_main_h);
+gBuf.writeBool (this.win_code);
+gBuf.writeInt32 (this.win_code_w);
+gBuf.writeInt32 (this.win_code_h);
+gBuf.writeBool (this.win_project);
+gBuf.writeInt32 (this.win_project_w);
+gBuf.writeInt32 (this.win_project_h);
 
     }
     protected _fromBinary( gBuf: GrowBuffer ) {
@@ -633,6 +660,15 @@ for (let i = 0; i < __arr_size; i++) {
 ele.fromBinary(gBuf.readUint8Array());
 this.project_configs.push(ele);
 }
+this.win_main = gBuf.readBool ();
+this.win_main_w = gBuf.readInt32 ();
+this.win_main_h = gBuf.readInt32 ();
+this.win_code = gBuf.readBool ();
+this.win_code_w = gBuf.readInt32 ();
+this.win_code_h = gBuf.readInt32 ();
+this.win_project = gBuf.readBool ();
+this.win_project_w = gBuf.readInt32 ();
+this.win_project_h = gBuf.readInt32 ();
 
     }
 };
@@ -671,6 +707,270 @@ gBuf.writeString (this.msg);
 this.msg = gBuf.readString ();
 
     }
+};
+export class ProtocolObjectWindowChange extends Protocol {
+    open : string = "";close : string = "";
+
+    getClassName(){
+        return "WindowChange"
+    }
+    toMixed() {
+        let out: any = {};
+        out["__cn"] = this.getClassName();
+        out["open"] = this.open;
+out["close"] = this.close;
+
+        return out;
+    }
+    fromMixed(input: any) {
+        
+        this.open = input.hasOwnProperty("open") && input["open"] !== null ? input["open"] : this.open;
+this.close = input.hasOwnProperty("close") && input["close"] !== null ? input["close"] : this.close;
+
+    }
+    protected _toBinary( gBuf: GrowBuffer) {
+        
+        gBuf.writeString(this.getClassName());
+        let __arr_size = 0;
+        gBuf.writeString (this.open);
+gBuf.writeString (this.close);
+
+    }
+    protected _fromBinary( gBuf: GrowBuffer ) {
+        
+        let __arr_size = 0;
+        this.open = gBuf.readString ();
+this.close = gBuf.readString ();
+
+    }
+};
+export class ProtocolObjectOpenProject extends Protocol {
+    project_conf : ProtocolObjectProjectConfig = new ProtocolObjectProjectConfig();
+
+    getClassName(){
+        return "OpenProject"
+    }
+    toMixed() {
+        let out: any = {};
+        out["__cn"] = this.getClassName();
+        out["project_conf"] = this.project_conf.toMixed();
+
+        return out;
+    }
+    fromMixed(input: any) {
+        
+        if( input.hasOwnProperty("project_conf") && input["project_conf"] !== null && input["project_conf"] !== undefined ) {
+        this.project_conf.fromMixed( input["project_conf"] );
+    }
+
+    }
+    protected _toBinary( gBuf: GrowBuffer) {
+        
+        gBuf.writeString(this.getClassName());
+        let __arr_size = 0;
+        gBuf.writeUint8Array(this.project_conf.toBinary());
+
+    }
+    protected _fromBinary( gBuf: GrowBuffer ) {
+        
+        let __arr_size = 0;
+        this.project_conf.fromBinary(gBuf.readUint8Array());
+
+    }
+};
+export class ProtocolObjectCloseProject extends Protocol {
+    project_conf : ProtocolObjectProjectConfig = new ProtocolObjectProjectConfig();
+
+    getClassName(){
+        return "CloseProject"
+    }
+    toMixed() {
+        let out: any = {};
+        out["__cn"] = this.getClassName();
+        out["project_conf"] = this.project_conf.toMixed();
+
+        return out;
+    }
+    fromMixed(input: any) {
+        
+        if( input.hasOwnProperty("project_conf") && input["project_conf"] !== null && input["project_conf"] !== undefined ) {
+        this.project_conf.fromMixed( input["project_conf"] );
+    }
+
+    }
+    protected _toBinary( gBuf: GrowBuffer) {
+        
+        gBuf.writeString(this.getClassName());
+        let __arr_size = 0;
+        gBuf.writeUint8Array(this.project_conf.toBinary());
+
+    }
+    protected _fromBinary( gBuf: GrowBuffer ) {
+        
+        let __arr_size = 0;
+        this.project_conf.fromBinary(gBuf.readUint8Array());
+
+    }
+};
+export class ProtocolObjectSelectPrefab extends Protocol {
+    valid : boolean = false;prefab_conf : ProtocolObjectPrefabConfig = new ProtocolObjectPrefabConfig();ts_str : string = "";dom_str : string = "";
+
+    getClassName(){
+        return "SelectPrefab"
+    }
+    toMixed() {
+        let out: any = {};
+        out["__cn"] = this.getClassName();
+        out["valid"] = this.valid;
+out["prefab_conf"] = this.prefab_conf.toMixed();
+out["ts_str"] = this.ts_str;
+out["dom_str"] = this.dom_str;
+
+        return out;
+    }
+    fromMixed(input: any) {
+        
+        this.valid = input.hasOwnProperty("valid") && input["valid"] !== null ? input["valid"] : this.valid;
+if( input.hasOwnProperty("prefab_conf") && input["prefab_conf"] !== null && input["prefab_conf"] !== undefined ) {
+        this.prefab_conf.fromMixed( input["prefab_conf"] );
+    }
+this.ts_str = input.hasOwnProperty("ts_str") && input["ts_str"] !== null ? input["ts_str"] : this.ts_str;
+this.dom_str = input.hasOwnProperty("dom_str") && input["dom_str"] !== null ? input["dom_str"] : this.dom_str;
+
+    }
+    protected _toBinary( gBuf: GrowBuffer) {
+        
+        gBuf.writeString(this.getClassName());
+        let __arr_size = 0;
+        gBuf.writeBool (this.valid);
+gBuf.writeUint8Array(this.prefab_conf.toBinary());
+gBuf.writeString (this.ts_str);
+gBuf.writeString (this.dom_str);
+
+    }
+    protected _fromBinary( gBuf: GrowBuffer ) {
+        
+        let __arr_size = 0;
+        this.valid = gBuf.readBool ();
+this.prefab_conf.fromBinary(gBuf.readUint8Array());
+this.ts_str = gBuf.readString ();
+this.dom_str = gBuf.readString ();
+
+    }
+};
+export class ProtocolObjectSavePrefab extends Protocol {
+    prefab_conf : ProtocolObjectPrefabConfig = new ProtocolObjectPrefabConfig();ts_str : string = "";dom_str : string = "";silent : boolean = false;
+
+    getClassName(){
+        return "SavePrefab"
+    }
+    toMixed() {
+        let out: any = {};
+        out["__cn"] = this.getClassName();
+        out["prefab_conf"] = this.prefab_conf.toMixed();
+out["ts_str"] = this.ts_str;
+out["dom_str"] = this.dom_str;
+out["silent"] = this.silent;
+
+        return out;
+    }
+    fromMixed(input: any) {
+        
+        if( input.hasOwnProperty("prefab_conf") && input["prefab_conf"] !== null && input["prefab_conf"] !== undefined ) {
+        this.prefab_conf.fromMixed( input["prefab_conf"] );
+    }
+this.ts_str = input.hasOwnProperty("ts_str") && input["ts_str"] !== null ? input["ts_str"] : this.ts_str;
+this.dom_str = input.hasOwnProperty("dom_str") && input["dom_str"] !== null ? input["dom_str"] : this.dom_str;
+this.silent = input.hasOwnProperty("silent") && input["silent"] !== null ? input["silent"] : this.silent;
+
+    }
+    protected _toBinary( gBuf: GrowBuffer) {
+        
+        gBuf.writeString(this.getClassName());
+        let __arr_size = 0;
+        gBuf.writeUint8Array(this.prefab_conf.toBinary());
+gBuf.writeString (this.ts_str);
+gBuf.writeString (this.dom_str);
+gBuf.writeBool (this.silent);
+
+    }
+    protected _fromBinary( gBuf: GrowBuffer ) {
+        
+        let __arr_size = 0;
+        this.prefab_conf.fromBinary(gBuf.readUint8Array());
+this.ts_str = gBuf.readString ();
+this.dom_str = gBuf.readString ();
+this.silent = gBuf.readBool ();
+
+    }
+};
+export class ProtocolObjectDeletePrefab extends Protocol {
+    prefab_conf : ProtocolObjectPrefabConfig = new ProtocolObjectPrefabConfig();
+
+    getClassName(){
+        return "DeletePrefab"
+    }
+    toMixed() {
+        let out: any = {};
+        out["__cn"] = this.getClassName();
+        out["prefab_conf"] = this.prefab_conf.toMixed();
+
+        return out;
+    }
+    fromMixed(input: any) {
+        
+        if( input.hasOwnProperty("prefab_conf") && input["prefab_conf"] !== null && input["prefab_conf"] !== undefined ) {
+        this.prefab_conf.fromMixed( input["prefab_conf"] );
+    }
+
+    }
+    protected _toBinary( gBuf: GrowBuffer) {
+        
+        gBuf.writeString(this.getClassName());
+        let __arr_size = 0;
+        gBuf.writeUint8Array(this.prefab_conf.toBinary());
+
+    }
+    protected _fromBinary( gBuf: GrowBuffer ) {
+        
+        let __arr_size = 0;
+        this.prefab_conf.fromBinary(gBuf.readUint8Array());
+
+    }
+};
+export class ProtocolObjectFlagPrefab extends Protocol {
+    prefab_conf : ProtocolObjectPrefabConfig = new ProtocolObjectPrefabConfig();
+
+    getClassName(){
+        return "FlagPrefab"
+    }
+    toMixed() {
+        let out: any = {};
+        out["__cn"] = this.getClassName();
+        out["prefab_conf"] = this.prefab_conf.toMixed();
+
+        return out;
+    }
+    fromMixed(input: any) {
+        
+        if( input.hasOwnProperty("prefab_conf") && input["prefab_conf"] !== null && input["prefab_conf"] !== undefined ) {
+        this.prefab_conf.fromMixed( input["prefab_conf"] );
+    }
+
+    }
+    protected _toBinary( gBuf: GrowBuffer) {
+        
+        gBuf.writeString(this.getClassName());
+        let __arr_size = 0;
+        gBuf.writeUint8Array(this.prefab_conf.toBinary());
+
+    }
+    protected _fromBinary( gBuf: GrowBuffer ) {
+        
+        let __arr_size = 0;
+        this.prefab_conf.fromBinary(gBuf.readUint8Array());
+
+    }
 };
 
 //消息工厂
@@ -698,6 +998,20 @@ export class ProtocolFactory {
     return new ProtocolObjectEditorConfig();
 }else if( msgName == "IPCResponse") {
     return new ProtocolObjectIPCResponse();
+}else if( msgName == "WindowChange") {
+    return new ProtocolObjectWindowChange();
+}else if( msgName == "OpenProject") {
+    return new ProtocolObjectOpenProject();
+}else if( msgName == "CloseProject") {
+    return new ProtocolObjectCloseProject();
+}else if( msgName == "SelectPrefab") {
+    return new ProtocolObjectSelectPrefab();
+}else if( msgName == "SavePrefab") {
+    return new ProtocolObjectSavePrefab();
+}else if( msgName == "DeletePrefab") {
+    return new ProtocolObjectDeletePrefab();
+}else if( msgName == "FlagPrefab") {
+    return new ProtocolObjectFlagPrefab();
 }
         return null!;
     }
