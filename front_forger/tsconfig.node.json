@@ -1,5 +1,4 @@
 {
-  "extends": "@electron-toolkit/tsconfig/tsconfig.node.json",
   "include": [
     "electron.vite.config.*",
     "src/main/**/*",
@@ -7,9 +6,22 @@
     "src/classes/**/*"
   ],
   "compilerOptions": {
+    "skipLibCheck": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    //修饰器
+    "experimentalDecorators": true,
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
     "composite": true,
     "types": [
       "electron-vite/node"
     ]
-  }
+  },
+  "extends": "@electron-toolkit/tsconfig/tsconfig.node.json",
 }

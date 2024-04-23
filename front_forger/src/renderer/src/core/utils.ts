@@ -105,9 +105,9 @@ export default class Utils {
         };
         Object.assign(dat, msg);
         return HttpRequest.Post("REQ")
-            .setHeader({
-                "Sess-Token": data.sessToken
-            })
+            // .setHeader({
+            //     "Sess-Token": data.sessToken
+            // })
             .setBody(dat);
     }
 
@@ -117,9 +117,9 @@ export default class Utils {
         };
         Object.assign(dat, msg);
         return HttpRequest.Get("REQ")
-            .setHeader({
-                "Sess-Token": data.sessToken
-            })
+            // .setHeader({
+            //     "Sess-Token": data.sessToken
+            // })
             .setParam(dat);
     }
 
