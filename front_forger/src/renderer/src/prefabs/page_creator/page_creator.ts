@@ -40,13 +40,24 @@ export default class PageCreator extends AppNode {
 
     this.assetMgr.subject.on("select-item", this.onSelectAssetItem, this);
 
-    window.electron.ipcRenderer.on("hot-key", this.onHotkey.bind(this));
-    window.electron.ipcRenderer.on("log", this.onIPCLog.bind(this));
-
+    MsgHub.on("hot-key", this.onHotKey, this);
+    MsgHub.on("log", this.onIPCLog, this);
   }
   onDispose(): void {
     EditorEnv.offMessage(this);
+    MsgHub.targetOff(this);
   }
+  onHotKey(tag) {
+    switch (tag) {
+      case "run":
+        this.onClickRun();
+        break;
+    }
+  }
+  onIPCLog(delta) {
+
+  }
+
   async onMessage(msg: Protocol) {
     switch (true) {
       case msg instanceof ProtocolObjectOpenProject:
@@ -87,21 +98,6 @@ export default class PageCreator extends AppNode {
             this.onSelectAssetItem(this.assetMgr.curItem);
           }
         }
-        break;
-    }
-  }
-  onIPCLog(_, deltaStr: string) {
-    console.log("-log:", deltaStr);
-    MsgHub.emit("log", deltaStr);
-
-    if (this.waitForIp) {
-    }
-  }
-  onHotkey(_, tag: string) {
-    MsgHub.emit("hot-key", tag);
-    switch (tag) {
-      case "run":
-        this.onClickRun();
         break;
     }
   }
@@ -163,20 +159,22 @@ export default class PageCreator extends AppNode {
     this.btnStop.style.display = "";
 
     this.lbInfo.innerText = "运行中...";
+
     this.pb.style.display = "";
-    let value = 0;
-    this.pb.value = value * 100;
-    await Sync.DelayTime(0.3);
-    value += 0.3;
-    this.pb.value = value * 100;
-    await Sync.DelayTime(0.3);
-    value += 0.3;
-    this.pb.value = value * 100;
-    await Sync.DelayTime(0.4);
-    value += 0.4;
-    this.pb.value = value * 100;
-    await Sync.DelayTime(0.5);
+    this.pb.value =0;
+    let step = 15;
+    let delayTime = 2;
+    let stepTime = delayTime / 15;
+    while (step > 0) {
+      this.pb.value += 100* (1/15);
+      await Sync.DelayTime(stepTime);
+      step--;
+    }
+
+    this.pb.value = 100;
     this.pb.style.display = "none";
+
+
     this.lbInfo.innerText = `http://localhost:${port}`;
 
     // port
@@ -220,7 +218,8 @@ export default class PageCreator extends AppNode {
     await window.electron.ipcRenderer.invoke("FF:SaveEditorConfig", conf.toMixed());
   }
   async onClickHelp() {
-    window.electron.ipcRenderer.invoke("FF:CreateWindow", "box_help", 0, 0, 400, 400, "none", "BoxHelp");
+
+    window.electron.ipcRenderer.invoke("FF:CreateWindow", "box_help", 0, 0, 400, 400, "none", "BoxHelp", "", "main");
   }
   static get PrefabStr(): string {
     return PrefabStr;

@@ -46,7 +46,8 @@ const ROUTE: { [key: string]: new () => AppNode } = {
     }
 
     window.electron.ipcRenderer.on("FF:Broadcast", EditorEnv.onIPCMessage.bind(EditorEnv));
-
+    window.electron.ipcRenderer.on("hot-key", EditorEnv.onHotkey.bind(this));
+    window.electron.ipcRenderer.on("log", EditorEnv.onIPCLog.bind(this));
     window["app"] = app;
   })
 })();

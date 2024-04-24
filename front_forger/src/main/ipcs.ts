@@ -104,7 +104,6 @@ export class IPCS {
         return win;
     }
     static _onWindowDestroy(name: string) {
-        // const win = this;
         let foundInd = IPCS.windows.findIndex(ele => ele.name === name);
         let wh = IPCS.windows[foundInd];
 
@@ -117,7 +116,7 @@ export class IPCS {
             }
             if (IPCS.mainWindow === wh.win) {
                 IPCS.mainWindow = null!;
-                app.quit();
+                IPCS._Quit(null);
             }
 
             let msg = new ProtocolObjectWindowChange();
@@ -201,8 +200,12 @@ export class IPCS {
         //CODE窗口跟随MAIN
         IPCS.mainWindow.on("move", () => {
             if (IPCS.codeWindow && IPCS.codeWindow.isVisible()) {
+                let srcSize = IPCS.codeWindow.getSize();
                 let pos = IPCS.mainWindow.getPosition();
                 IPCS.codeWindow.setPosition(pos[0] + IPCS.editorConfig.win_main_w, pos[1]);
+
+                // 设置SETPOSITION 后，尺寸变了，是超分辨率的问题。
+                IPCS.codeWindow.setSize(srcSize[0], srcSize[1]);
             }
         })
         IPCS.InitHotKey(IPCS.mainWindow);
@@ -260,6 +263,10 @@ export class IPCS {
     }
 
     protected static _Quit(_) {
+        if (IPCS.__ae) {
+            IPCS.__ae.kill();
+            IPCS.__ae = null;
+        }
         app.quit();
     }
     protected static _OnMessage(_, msg: JSON, exceptSelf = false) {
@@ -476,4 +483,7 @@ export class IPCS {
 
         return "";
     }
+
+
+
 };  

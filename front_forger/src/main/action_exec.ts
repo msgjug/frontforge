@@ -53,18 +53,19 @@ export default class ActionExec {
                     this.onError && this.onError(this.stderr, str);
                 });
                 this.comp.on('close', ok);
+                this.comp.on("exit", ok);
             });
         }
         catch (e) {
             console.log("end error, because:", JSON.stringify(e));
         }
-
+        this.comp = null;
         this.onEnd && this.onEnd(this.stdout);
     }
 
     kill() {
         if (this.comp) {
-            if (!this.comp.kill()) {
+            if (!this.comp.kill('SIGTERM')) {
                 console.error("fail to kill child process!");
             }
             this.comp = null!;

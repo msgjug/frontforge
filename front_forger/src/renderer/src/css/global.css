@@ -87,6 +87,7 @@ button:active {
   justify-content: flex-start;
   align-items: stretch;
   flex-direction: column;
+  box-shadow: 7px 7px 1px rgba(0,0,0,0.8);
 }
 
 .modal-panel {

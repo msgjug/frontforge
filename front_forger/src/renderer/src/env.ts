@@ -1,7 +1,7 @@
 import data from "./core/cache_data";
 import SerializeAble, { RegClass, Serialize } from "./core/serialize";
 import { Protocol, ProtocolFactory, ProtocolObjectEditorConfig, ProtocolObjectProjectConfig } from "../../classes/protocol_dist";
-import { Subject } from "./core/subject";
+import MsgHub, { Subject } from "./core/subject";
 
 
 @RegClass("ACEConfig")
@@ -18,9 +18,16 @@ export default class EditorEnv {
     protected static _EditorConfig: ProtocolObjectEditorConfig = null;
     static PortSubject: Subject = new Subject();
 
-    static onIPCMessage(_,dat: JSON) {
+    static onIPCMessage(_, dat: JSON) {
         let msg = ProtocolFactory.CreateFromMixed(dat);
         this.PortSubject.emit("message", msg);
+    }
+    static onHotkey(_, tag: string) {
+        MsgHub.emit("hot-key", tag);
+    }
+    static onIPCLog(_, deltaStr: string) {
+        console.log("-log:", deltaStr);
+        MsgHub.emit("log", deltaStr);
     }
 
     static onMessage(fn: (msg: Protocol) => void, obj: any) {
@@ -34,7 +41,7 @@ export default class EditorEnv {
         window.electron.ipcRenderer.send("FF:Message", msg.toMixed());
     }
     static postMessageExceptSelf(msg: Protocol) {
-        window.electron.ipcRenderer.send("FF:Message", msg.toMixed(), true );
+        window.electron.ipcRenderer.send("FF:Message", msg.toMixed(), true);
     }
 
     static async GetEditorConfig() {

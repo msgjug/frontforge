@@ -1,7 +1,5 @@
 <style>
     .msgbox {
-        min-width: 50%;
-        max-width: 90%;
         flex-direction: column;
         align-items: center;
         justify-content: space-around;
@@ -19,8 +17,8 @@
             flex-direction: row;
             justify-content: space-evenly;
             width: 100%;">
-                <button @click="onClickNo" >否</button>
-                <button @click="onClickYes" >是</button>
+                <button class="btn" style="background:rgb(116, 7, 7)" @click="onClickNo" >❌否</button>
+                <button class="btn" style="background:rgb(7, 116, 41)" @click="onClickYes" >✔是</button>
             </div>
         </div>
     </div>

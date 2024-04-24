@@ -1,8 +1,6 @@
 <style>
 
     .panel {
-        min-width: 20em;
-        max-width: 90%;
         flex-direction: column;
         align-items: center;
         justify-content: space-around;
@@ -15,7 +13,7 @@
         <div @click="onClickBlockInput" class="panel">
             <b $="lbTitle"></b>
             <span $="lbText"></span>
-            <button @click="onClickOk">ok</button>
+            <button class="btn" style="background:rgb(7, 116, 41)" @click="onClickOk" >确定</button>
         </div>
     </div>
 </dom>

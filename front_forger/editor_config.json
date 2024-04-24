@@ -1,1 +1,11 @@
-{"__cn":"EditorConfig","project_configs":[],"win_main":true,"win_main_w":250,"win_main_h":550,"win_code":true,"win_code_w":700,"win_code_h":550,"project_dir":""}
+{
+    "__cn": "EditorConfig",
+    "project_configs": [],
+    "win_main": true,
+    "win_main_w": 250,
+    "win_main_h": 550,
+    "win_code": true,
+    "win_code_w": 700,
+    "win_code_h": 550,
+    "project_dir": ""
+}
