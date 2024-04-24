@@ -189,6 +189,37 @@ export default class PageCreator extends AppNode {
     this.lbInfo.innerText = `已停止预览`;
   }
   async onClickBuild() {
+    let projConf = EditorEnv.GetProjectConfig();
+    if (!projConf.entrance_prefab_name) {
+      Utils.app.msgBox("请设置入口");
+      return;
+    }
+    let port = await window.electron.ipcRenderer.invoke("FF:BuildProject", projConf.toMixed());
+
+    this.btnRun.style.display = "none";
+    this.btnStop.style.display = "";
+
+    this.lbInfo.innerText = "运行中...";
+
+    this.pb.style.display = "";
+    this.pb.value =0;
+    let step = 15;
+    let delayTime = 2;
+    let stepTime = delayTime / 15;
+    while (step > 0) {
+      this.pb.value += 100* (1/15);
+      await Sync.DelayTime(stepTime);
+      step--;
+    }
+
+    this.pb.value = 100;
+    this.pb.style.display = "none";
+
+
+    this.lbInfo.innerText = `http://localhost:${port}`;
+
+    // port
+    await window.electron.ipcRenderer.invoke("FF:OpenURL", `http://localhost:${port}`);
   }
   async onClickSetup() {
     Utils.scene.addChild(Prefab.Instantiate(BoxProjectSetting));
