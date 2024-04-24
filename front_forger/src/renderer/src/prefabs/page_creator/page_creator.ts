@@ -153,6 +153,10 @@ export default class PageCreator extends AppNode {
 
   async onClickRun() {
     let projConf = EditorEnv.GetProjectConfig();
+    if (!projConf.entrance_prefab_name) {
+      Utils.app.msgBox("请设置入口");
+      return;
+    }
     let port = await window.electron.ipcRenderer.invoke("FF:RunProject", projConf.toMixed());
 
     this.btnRun.style.display = "none";

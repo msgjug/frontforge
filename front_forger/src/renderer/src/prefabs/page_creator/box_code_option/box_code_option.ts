@@ -39,7 +39,6 @@ export default class BoxCodeOption extends AppNode {
         let msg = new ProtocolObjectEditorConfigChange();
         msg.editor_conf = conf;
         EditorEnv.postMessage(msg);
-        this.refresh();
     }
     async onSelectTheme(evt) {
         let conf = await EditorEnv.GetEditorConfig();
@@ -48,7 +47,6 @@ export default class BoxCodeOption extends AppNode {
         let msg = new ProtocolObjectEditorConfigChange();
         msg.editor_conf = conf;
         EditorEnv.postMessage(msg);
-        this.refresh();
     }
     async onSelectFrontSize(evt) {
         let conf = await EditorEnv.GetEditorConfig();
@@ -57,7 +55,6 @@ export default class BoxCodeOption extends AppNode {
         let msg = new ProtocolObjectEditorConfigChange();
         msg.editor_conf = conf;
         EditorEnv.postMessage(msg);
-        this.refresh();
     }
 
     onClickClose() {

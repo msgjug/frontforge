@@ -70,6 +70,10 @@ export default class ACEEditor extends AppNode {
     }
 
     resize() {
+        if (!this.ace) {
+            this._syncCalls.push(["resize", []]);
+            return;
+        }
         this.ace.resize();
     }
 

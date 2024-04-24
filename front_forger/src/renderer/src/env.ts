@@ -33,6 +33,9 @@ export default class EditorEnv {
     static postMessage(msg: Protocol) {
         window.electron.ipcRenderer.send("FF:Message", msg.toMixed());
     }
+    static postMessageExceptSelf(msg: Protocol) {
+        window.electron.ipcRenderer.send("FF:Message", msg.toMixed(), true );
+    }
 
     static async GetEditorConfig() {
         if (!this._EditorConfig) {

@@ -213,6 +213,7 @@ export class IPCS {
         //发送消息
         // 分发消息
         ipcMain.on("FF:Message", IPCS._OnMessage);
+        ipcMain.on("FF:Message", IPCS._OnMessage);
 
         //弹出文件夹选择框，返回路径
         ipcMain.handle("FF:LocatDir", IPCS._LocatDir);
@@ -262,13 +263,20 @@ export class IPCS {
     protected static _Quit(_) {
         app.quit();
     }
-    protected static _OnMessage(_, msg: JSON) {
+    protected static _OnMessage(_, msg: JSON, exceptSelf = false) {
         let wcs: Electron.WebContents[] = [];
-        IPCS.windows.forEach(wh => {
-            if (wh.win.webContents != _.sender) {
+        if (exceptSelf) {
+            IPCS.windows.forEach(wh => {
+                if (wh.win.webContents != _.sender) {
+                    wcs.push(wh.win.webContents);
+                }
+            });
+        }
+        else {
+            IPCS.windows.forEach(wh => {
                 wcs.push(wh.win.webContents);
-            }
-        });
+            });
+        }
         IPCS.Broadcast(wcs, msg);
     }
     //分发
@@ -289,14 +297,11 @@ export class IPCS {
     protected static async _RunProject(_, projDat: JSON) {
         let projConf = new ProtocolObjectProjectConfig();
         projConf.fromMixed(projDat);
-        IPCS.__ae = new ActionExec(projConf.path);
-        let port = (3000 + Math.random() * 9999).toFixed(0);
-        IPCS.__ae.cmd("npx.cmd", ["vite", "--port", port]);
-        IPCS.__ae.onData = (str: string, delta: string) => {
-            IPCS.mainWindow.webContents.send("log", delta);
-        };
 
         let prefabConf = projConf.prefabs_list.find(ele => ele.name === projConf.entrance_prefab_name)!;
+        if (!prefabConf) {
+            return "";
+        }
         let prefabPath = "./prefabs/" + prefabConf.name;
         //覆盖MAIN.ts
         const MAIN_PATH = projConf.path + "/src/main.ts";
@@ -305,6 +310,13 @@ export class IPCS {
             ["{{PATH}}", prefabPath],
             ["{{CLASS_NAME_BIG}}", Utils.SnakeToPascal(prefabConf.name)]
         );
+
+        IPCS.__ae = new ActionExec(projConf.path);
+        let port = (3000 + Math.random() * 9999).toFixed(0);
+        IPCS.__ae.cmd("npx.cmd", ["vite", "--port", port]);
+        IPCS.__ae.onData = (str: string, delta: string) => {
+            IPCS.mainWindow.webContents.send("log", delta);
+        };
         return port;
     }
     protected static async _StopProject(_) {

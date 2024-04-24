@@ -4,7 +4,7 @@ import Prefab from "../../../core/prefab";
 import { RegClass } from "../../../core/serialize";
 import Utils from "../../../core/utils";
 import EditorEnv from "../../../env";
-import { ProtocolObjectPrefabConfig } from "../../../../../classes/protocol_dist";
+import { ProtocolObjectFlagPrefab, ProtocolObjectPrefabConfig } from "../../../../../classes/protocol_dist";
 import AssetGroupItem from "./asset_group_item";
 import AssetItem from "./asset_item";
 import PrefabStr from "./asset_mgr.prefab.html?raw"
@@ -181,7 +181,10 @@ export default class AssetMgr extends AppNode {
     if (!this.curItem) {
       return;
     }
-    this.setStartAsset(this.curItem.prefabConfig);
+    let msg = new ProtocolObjectFlagPrefab();
+    msg.prefab_conf = this.curItem.prefabConfig;
+    EditorEnv.postMessage(msg);
+    
   }
 
   async onClickDelete() {
