@@ -2,7 +2,7 @@ import { AppNode } from "../../../core/app_node";
 import Prefab from "../../../core/prefab";
 import { RegClass } from "../../../core/serialize";
 import EditorEnv, { ACE_THEME } from "../../../env";
-import { Protocol, ProtocolObjectDeletePrefab, ProtocolObjectFlagPrefab, ProtocolObjectPrefabConfig, ProtocolObjectSavePrefab, ProtocolObjectSelectPrefab } from "../../../../../classes/protocol_dist";
+import { Protocol, ProtocolObjectDeletePrefab, ProtocolObjectEditorConfig, ProtocolObjectEditorConfigChange, ProtocolObjectFlagPrefab, ProtocolObjectPrefabConfig, ProtocolObjectSavePrefab, ProtocolObjectSelectPrefab } from "../../../../../classes/protocol_dist";
 import ACEEditor from "./ace_editor";
 import PrefabStr from "./creator_main.prefab.html?raw"
 import { Selector } from "./selector";
@@ -16,41 +16,20 @@ export default class CreatorMain extends AppNode {
     tabView: TabView = null;
     aceWrap: HTMLDivElement = null;
     aceList: ACEEditor[] = [];
-    selTheme: Selector = null;
-    selFontSize: Selector = null;
     btnWrap: HTMLButtonElement = null;
 
     conf: ProtocolObjectPrefabConfig = null;
     tsStr: string = "";
     domStr: string = "";
 
-    onSelectFrontSize(evt) {
-        let size = evt.target.value;
-        EditorEnv.editorFontSize = Number(size);
-        this.aceList.forEach(ace => {
-            ace.setFontSize(EditorEnv.editorFontSize);
-        })
-    }
-    onSelectTheme(evt) {
-        let theme = evt.target.value;
-        EditorEnv.editorTheme = theme;
-        this.aceList.forEach(ace => {
-            ace.setTheme(EditorEnv.editorTheme);
-        })
-    }
     onDispose(): void {
         MsgHub.targetOff(this);
         EditorEnv.offMessage(this);
     }
     onLoad(): void {
         EditorEnv.onMessage(this.onMessage, this);
-        this.selTheme.setData(ACE_THEME);
-        this.selTheme.select(EditorEnv.editorTheme);
 
-        this.selFontSize.setData(["8", "10", "12", "14", "16", "18", "20"]);
-        this.selFontSize.select(EditorEnv.editorFontSize.toFixed(0));
-
-        this.lbName.innerText = "12321312";
+        this.lbName.innerText = "";
         this.tabView.subject.on("select", this.onTabViewSelect, this);
         for (let i = 0; i < 2; i++) {
             let ace = Prefab.Instantiate(ACEEditor);
@@ -74,7 +53,17 @@ export default class CreatorMain extends AppNode {
                     this.setData(msg.prefab_conf, msg.ts_str, msg.dom_str);
                 }
                 break;
+            case msg instanceof ProtocolObjectEditorConfigChange:
+                this.refreshEditors(msg.editor_conf);
+                break;
         }
+    }
+    async refreshEditors(conf: ProtocolObjectEditorConfig) {
+        this.aceList.forEach(ace => {
+            ace.wrapMode = conf.wrap_mode;
+            ace.setTheme(conf.theme);
+            ace.setFontSize(conf.font_size);
+        });
     }
     setData(conf: ProtocolObjectPrefabConfig, tsStr: string, domStr: string) {
         if (this.conf) {
@@ -104,13 +93,6 @@ export default class CreatorMain extends AppNode {
                 this.onClickSave();
                 break;
         }
-    }
-    onToggleWrap() {
-        this.aceList.forEach(ace => {
-            ace.wrapMode = !ace.wrapMode;
-        });
-
-        this.btnWrap.innerText = this.aceList[0].wrapMode ? "WrapMode" : "NoWrap";
     }
     save(silent = false) {
         if (!this.conf) {

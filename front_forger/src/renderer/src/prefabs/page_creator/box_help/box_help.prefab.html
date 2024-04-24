@@ -1,0 +1,60 @@
+<style>
+    .box-help-content {
+        font-size: 0.8em;
+        flex-grow: 1;
+    }
+
+    .dashed {
+        background: linear-gradient(90deg, rgba(0, 0, 0, 0) 70%, gray 30%);
+        background-repeat: repeat-x;
+        background-origin: center;
+        background-size: 8px 2px;
+        height: 0.5em;
+        flex-grow: 1;
+    }
+
+    .doc-list {
+        padding-right: 0.5em;
+        border-right: dashed 1px rgba(255, 255, 255, 0.7);
+    }
+
+    .doc-list div {
+        cursor: pointer;
+    }
+
+    .doc-list div[cur] {
+        color: #ca9c25;
+    }
+
+    .doc-main {
+        padding: 0 0.5em;
+        flex-grow: 1;
+        white-space: pre-wrap;
+    }
+</style>
+
+<dom>
+    <div class="modal-panel-bg">
+        <div class="modal-panel" style="flex-grow: 1;">
+            <div class="panel-contain col box-help-content">
+                <div class="row" style="flex-grow: 1;">
+                    <div class="doc-list">
+                        <div cur>FrontFort可以做什么？</div>
+                        <div>HelloWorld</div>
+                        <div>编辑器文档</div>
+                        <div>代码文档</div>
+                        <div>关于此软件</div>
+                    </div>
+                    <div class="doc-main">使用TypeScript快速开发轻量化网站应用。
+优势：
+  - 快速开发、测试
+  - 无依赖，体积极小
+  - 框架代码开源，可定制
+  - 欢迎补充...
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</dom>

@@ -1,0 +1,57 @@
+<style>
+    .box-code-option-content {}
+
+    .dashed {
+        background: linear-gradient(90deg, rgba(0, 0, 0, 0) 70%, gray 30%);
+        background-repeat: repeat-x;
+        background-origin: center;
+        background-size: 8px 2px;
+        height: 0.5em;
+        flex-grow: 1;
+    }
+
+    .cell {
+        display: flex;
+        flex-direction: row;
+        align-items: baseline;
+    }
+
+    .cell div:first-child {
+        /* text-align: right; */
+        /* flex-grow: 1; */
+    }
+
+    .cell button:last-child {
+        flex-grow: 1;
+    }
+    .cell select {
+        min-width: 15em;
+    }
+</style>
+
+<dom>
+    <div class="modal-panel-bg">
+        <div class="panel" style="flex-grow: 1;">
+            <div class="panel-contain col box-code-option-content">
+                <div class="cell">
+                    <div>换行</div>
+                    <div class="dashed"></div>
+                    <button @click="onToggleWrap" $="btnWrap">NoWrap</button>
+                </div>
+                <div class="cell">
+                    <div>编辑器主题</div>
+                    <div class="dashed"></div>
+                    <select $="selTheme" @change="onSelectTheme" ctor="Selector">
+                    </select>
+                </div>
+                <div class="cell">
+                    <div>文字大小</div>
+                    <div class="dashed"></div>
+                    <select $="selFontSize" @change="onSelectFrontSize" ctor="Selector">
+                    </select>
+                </div>
+                <button @click="onClickClose">关闭</button>
+            </div>
+        </div>
+    </div>
+</dom>

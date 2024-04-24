@@ -27,29 +27,38 @@
   }
 
   .toggle-btn {
-    background: #efefef;
+    border: 1px solid transparent;
   }
 
   .toggle-btn[pressed] {
-      background:#f7922c;
+    border: 1px solid #f7922c;
+  }
+
+  .emoji-btn {
+    font-size: 1.2em;
+  }
+
+  .emoji-btn span {
+    font-size: 0.8em;
   }
 </style>
 
 <dom>
   <div class="creator">
     <div $="topArea" class="top-area area-wrap">
-      <div class="row">
-        <button $="btnRun" @click="onClickRun">▶运行</button>
-        <button style="display:none;background:#f7922c;" $="btnStop" @click="onClickStop">╳停止</button>
-        <button @click="onClickBuild">⏱构建</button>
-        <button @click="onClickSetup">⚙设置</button>
-      </div>
-      <div class="row">
-        <button @click="onClickOpenProjectDir">◰项目文件夹</button>
-        <button @click="onClickCloseProject">╳关闭</button>
-      </div>
-      <div class="row">
-        <button class="toggle-btn" $="toggleCode" @click="onClickToggleCodeEditor">代码编辑器</button>
+      <div class="row" style="color:white;">
+        <button class="emoji-btn" style="color:white;background:#1359bc;border-radius: 0.5em;" $="btnRun"
+          @click="onClickRun">▶<span>预览</span></button>
+        <button class="emoji-btn" style="color:white;background:#651308;border-radius: 0.5em; display:none;" $="btnStop"
+          @click="onClickStop">🚫<span>停止预览</span></button>
+        <button class="emoji-btn" @click="onClickBuild">⏱<span>构建项目</span></button>
+        <button class="emoji-btn" style="color:white;background:#bc2713;border-radius: 0.5em;"
+          @click="onClickSetup">⚙<span>设置项目</span></button>
+        <button class="emoji-btn" @click="onClickOpenProjectDir">📂<span>打开项目文件夹</span></button>
+        <button class="emoji-btn toggle-btn" $="toggleCode"
+          @click="onClickToggleCodeEditor">⌨️<span>代码编辑器</span></button>
+        <button class="emoji-btn toggle-btn" @click="onClickHelp">❓<span>帮助</span></button>
+        <button class="emoji-btn" @click="onClickCloseProject">❌<span>关闭项目</span></button>
       </div>
     </div>
     <div class="row" style="flex-grow: 1;">

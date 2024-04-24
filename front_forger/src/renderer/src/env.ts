@@ -10,6 +10,8 @@ export class ACEConfig extends SerializeAble {
     fontSize = 12;
     @Serialize()
     theme = "ambiance";
+    @Serialize()
+    wrapMode = false;
 };
 
 export default class EditorEnv {
@@ -61,44 +63,15 @@ export default class EditorEnv {
             window.electron.ipcRenderer.invoke('FF:SaveProjectConfig', this._ProjectConfig.toMixed());
         }
     }
-    static get editorTheme() {
-        if (!data.storage.has("ace-config")) {
-            data.storage.rec("ace-config", new ACEConfig());
-        }
-        let conf = data.storage.get<ACEConfig>("ace-config");
-        return conf.theme;
-    }
-    static set editorTheme(val) {
-        if (!data.storage.has("ace-config")) {
-            data.storage.rec("ace-config", new ACEConfig());
-        }
-        let conf = data.storage.get<ACEConfig>("ace-config");
-        conf.theme = val;
-        data.save();
-    }
-
-    static get editorFontSize() {
-        if (!data.storage.has("ace-config")) {
-            data.storage.rec("ace-config", new ACEConfig());
-        }
-        let conf = data.storage.get<ACEConfig>("ace-config");
-        return conf.fontSize;
-    }
-    static set editorFontSize(val) {
-        if (!data.storage.has("ace-config")) {
-            data.storage.rec("ace-config", new ACEConfig());
-        }
-        let conf = data.storage.get<ACEConfig>("ace-config");
-        conf.fontSize = val;
-        data.save();
-    }
-    static CreateEditor(ele: Element) {
+    static async CreateEditor(ele: Element) {
         //@ts-ignore
         if (ace) {
+            let conf = await this.GetEditorConfig();
             //@ts-ignore
             let editor = ace.edit(ele);
-            editor.setTheme(`ace/theme/${EditorEnv.editorTheme}`);
-            editor.setFontSize(`${EditorEnv.editorFontSize}px`);
+            editor.setTheme(`ace/theme/${conf.theme}`);
+            editor.setFontSize(`${conf.font_size}px`);
+            editor.getSession().setUseWrapMode(conf.wrap_mode);
 
             return editor;
         }

@@ -1,3 +1,5 @@
+import path from "path";
+
 export default class Utils {
     static SnakeToPascal(str: string) {
         // 将字符串分割成数组，使用下划线作为分隔符

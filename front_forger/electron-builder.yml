@@ -1,9 +1,11 @@
-appId: com.electron.app
-productName: front_forger
+appId: com.frontforger.app
+productName: FrontForger
 directories:
   buildResources: build
 files:
   - '!**/.vscode/*'
+  - '!DOCS/*'
+  - '!protocol/*'
   - '!src/*'
   - '!electron.vite.config.{js,ts,mjs,cjs}'
   - '!{.eslintignore,.eslintrc.js,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
@@ -11,8 +13,10 @@ files:
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
 asarUnpack:
   - resources/**
+extraResources:
+  - template
 win:
-  executableName: front_forger
+  executableName: FrontForger
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
@@ -40,4 +44,4 @@ appImage:
 npmRebuild: false
 publish:
   provider: generic
-  url: https://example.com/auto-updates
+  url: https://naogua.ren

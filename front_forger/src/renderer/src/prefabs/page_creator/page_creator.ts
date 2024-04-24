@@ -35,7 +35,8 @@ export default class PageCreator extends AppNode {
   async onLoad() {
     EditorEnv.onMessage(this.onMessage, this);
 
-    window.electron.ipcRenderer.invoke("FF:CreateWindow", "box_project", 0, 0, 400, 400, "none", "BoxProject", true);
+    Utils.app.blocker.ref++;
+    window.electron.ipcRenderer.invoke("FF:CreateWindow", "box_project", 0, 0, 400, 400, "none", "BoxProject", "main");
 
     this.assetMgr.subject.on("select-item", this.onSelectAssetItem, this);
 
@@ -49,9 +50,11 @@ export default class PageCreator extends AppNode {
   async onMessage(msg: Protocol) {
     switch (true) {
       case msg instanceof ProtocolObjectOpenProject:
+        Utils.app.blocker.ref--;
         this.onOpenProject(msg);
         break;
       case msg instanceof ProtocolObjectCloseProject:
+        Utils.app.blocker.ref++;
         break;
 
       case msg instanceof ProtocolObjectSavePrefab:
@@ -77,6 +80,11 @@ export default class PageCreator extends AppNode {
               }
               await EditorEnv.SaveEditorConfig();
             }
+          }
+          if (msg.open === "code") {
+            //当前选择的prefab数据，
+            await Sync.DelayTime(0.25);
+            this.onSelectAssetItem(this.assetMgr.curItem);
           }
         }
         break;
@@ -205,10 +213,14 @@ export default class PageCreator extends AppNode {
     else {
       this.toggleCode.removeAttribute("pressed");
     }
-
     await window.electron.ipcRenderer.invoke("FF:SaveEditorConfig", conf.toMixed());
+  }
+  async onClickHelp() {
+    window.electron.ipcRenderer.invoke("FF:CreateWindow", "box_help", 0, 0, 400, 400, "none", "BoxHelp");
   }
   static get PrefabStr(): string {
     return PrefabStr;
   }
+
+
 };

@@ -1,23 +1,44 @@
 import { AppNode } from "../../../core/app_node";
 import { RegClass } from "../../../core/serialize";
+import { Syncer } from "../../../core/utils";
 import EditorEnv from "../../../env";
 import PrefabStr from "./ace_editor.prefab.html?raw"
 
 @RegClass("ACEEditor")
 export default class ACEEditor extends AppNode {
     ace: any = null;
+    _syncCalls: [string, any[]][] = [];
 
-    onLoad(): void {
-        this.ace = EditorEnv.CreateEditor(this.ele);
+    async onLoad() {
+        this.ace = await EditorEnv.CreateEditor(this.ele);
+
+        if (this._syncCalls) {
+            this._syncCalls.forEach(c => {
+                this[c[0]](...c[1]);
+            });
+        }
+        this._syncCalls = [];
     }
     setTheme(theme: string) {
+        if (!this.ace) {
+            this._syncCalls.push(["setTheme", [theme]]);
+            return;
+        }
         this.ace.setTheme(`ace/theme/${theme}`);
     }
     setFontSize(size: number) {
+        if (!this.ace) {
+            this._syncCalls.push(["setFontSize", [size]]);
+            return;
+        }
         this.ace.setFontSize(`${size}px`);
     }
 
     setMode(mode: string) {
+        if (!this.ace) {
+            this._syncCalls.push(["setMode", [mode]]);
+            return;
+        }
         this.ace.session.setMode(`ace/mode/${mode}`);
     }
 
@@ -25,13 +46,13 @@ export default class ACEEditor extends AppNode {
     get wrapMode() {
         return this._wrapMode;
     }
-
-    getValue() {
-        return this.ace.getValue();
-}
     set wrapMode(val) {
         this._wrapMode = val;
         this.ace.getSession().setUseWrapMode(this._wrapMode);
+    }
+
+    getValue() {
+        return this.ace.getValue();
     }
 
     setValue(val) {

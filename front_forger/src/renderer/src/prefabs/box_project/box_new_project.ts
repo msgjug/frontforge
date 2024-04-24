@@ -1,13 +1,16 @@
 import Panel from "../../core/prefabs/panel";
 import { RegClass } from "../../core/serialize";
-import { ProtocolObjectEditorConfig, ProtocolObjectProjectConfig } from "../../../../classes/protocol_dist";
+import { ProtocolObjectProjectConfig } from "../../../../classes/protocol_dist";
 import PrefabStr from "./box_new_project.prefab.html?raw"
+import EditorEnv from "../../env";
 @RegClass("BoxNewProject")
 export default class BoxNewProject extends Panel {
     ebName: HTMLInputElement = null;
     ebPath: HTMLInputElement = null;
     async onLoad() {
         super.onLoad && super.onLoad();
+
+        this.ebPath.value = (await EditorEnv.GetEditorConfig()).project_dir;
     }
     onClickSubmit() {
         if (!this.ebName.value) {

@@ -7,24 +7,35 @@ import { ProjectUtils } from "./project_utils";
 import { DirentHandle } from "../classes/dirent_handle";
 import Utils from "./utils";
 import { app, BrowserWindow, Menu, MenuItem, MessageChannelMain, shell } from "electron";
-import { join } from "path";
+import path, { join } from "path";
 import icon from "../../resources/icon.png?asset"
 import { is } from "@electron-toolkit/utils";
 import { ProtocolObjectEditorConfig } from "../classes/protocol_dist";
 import { WindowHandle } from "../classes/window_handle";
 
+
+const EDITOR_CONFIG_PATH = path.join(process.cwd(), "resources/editor_config.json");
+const TEMPLATE_MAIN_TS = path.join(process.cwd(), "template/template-main.ts");
+
+
+export function RegIPCInvoke() {
+    return (target: Object, property: string): void => {
+        console.log("RegIPCInvoke:", target, property);
+    };
+}
+
 export class IPCS {
     static mainWindow: BrowserWindow = null!;
     static codeWindow: BrowserWindow = null!;
     static windows: WindowHandle[] = [];
-    private static _createWindow(name: string, x: number, y: number, width: number, height: number, ps = "none", box = "none", isModal = false, isChild = false, resizable = false) {
+    private static _createWindow(name: string, x: number, y: number, width: number, height: number, ps = "none", box = "none", modal = "", child = "", resizable = false) {
         // Create the browser window.
         let parent: BrowserWindow = null!;
-        if (isModal) {
-            parent = IPCS.mainWindow;
+        if (modal !== "") {
+            parent = IPCS.windows.find(ele => ele.name === modal).win;
         }
-        if (isChild) {
-            parent = IPCS.mainWindow;
+        if (child !== "") {
+            parent = IPCS.windows.find(ele => ele.name === child).win;
         }
         const win = new BrowserWindow({
             x: x,
@@ -33,14 +44,15 @@ export class IPCS {
             height: height,
             show: false,
             frame: false,
-            modal: isModal,
+            modal: modal !== "",
             resizable: resizable,
             parent: parent,
             autoHideMenuBar: true,
             ...(process.platform === 'linux' ? { icon } : {}),
             webPreferences: {
                 preload: join(__dirname, '../preload/index.js'),
-                sandbox: false
+                sandbox: false,
+                // webSecurity: false,
             }
         });
 
@@ -61,7 +73,9 @@ export class IPCS {
         if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
             win.loadURL(process.env['ELECTRON_RENDERER_URL'] + `?ps=${ps}&box=${box}`);
         } else {
-            win.loadFile(join(__dirname, `../renderer/index.html?ps=${ps}&box=${box}`));
+            win.loadFile(join(__dirname, `../renderer/index.html`), {
+                query: { ps, box }
+            });
         }
 
         let wh = new WindowHandle();
@@ -80,7 +94,7 @@ export class IPCS {
         win.once("close", () => {
             IPCS._onWindowDestroy(wh.name);
         });
-        if (isModal) {
+        if (modal !== "") {
             let { x: topX, y: topY, width: topWidth, height: topHeight } = parent.getBounds();
             let { width: sonWidth, height: sonHeight } = win.getBounds();
             let x = topX + (topWidth - sonWidth) / 2;
@@ -138,7 +152,7 @@ export class IPCS {
         }
         else {
             if (IPCS.editorConfig.win_code) {
-                IPCS.codeWindow = IPCS._createWindow("code", pos[0] + IPCS.editorConfig.win_main_w, pos[1], IPCS.editorConfig.win_code_w, IPCS.editorConfig.win_code_h, "code", "none", false, true, true);
+                IPCS.codeWindow = IPCS._createWindow("code", pos[0] + IPCS.editorConfig.win_main_w, pos[1], IPCS.editorConfig.win_code_w, IPCS.editorConfig.win_code_h, "code", "none", "", "main", true);
                 IPCS.codeWindow.once("ready-to-show", () => IPCS.codeWindow.show());
                 IPCS.InitHotKey(IPCS.codeWindow);
             }
@@ -237,10 +251,16 @@ export class IPCS {
         //外部浏览器打开链接
         ipcMain.handle("FF:OpenURL", IPCS._OpenURL);
 
-
         //新建窗口
         ipcMain.handle("FF:CreateWindow", IPCS._CreateWindow);
 
+        //退出
+        ipcMain.handle("FF:Quit", IPCS._Quit);
+
+    }
+
+    protected static _Quit(_) {
+        app.quit();
     }
     protected static _OnMessage(_, msg: JSON) {
         let wcs: Electron.WebContents[] = [];
@@ -257,8 +277,11 @@ export class IPCS {
             wc.send("FF:Broadcast", msg);
         });
     }
-    protected static _CreateWindow(_, name: string, x: number, y: number, width: number, height: number, page: string, box: string, isModal = false) {
-        const win = IPCS._createWindow(name, x, y, width, height, page, box, isModal);
+    protected static _CreateWindow(_, name: string, x: number, y: number, width: number, height: number, page: string, box: string, modal = "", child = "") {
+        if (IPCS.windows.find(ele => ele.name === name)) {
+            return;
+        }
+        const win = IPCS._createWindow(name, x, y, width, height, page, box, modal, child);
         win.once("ready-to-show", () => win.show());
     }
 
@@ -276,9 +299,8 @@ export class IPCS {
         let prefabConf = projConf.prefabs_list.find(ele => ele.name === projConf.entrance_prefab_name)!;
         let prefabPath = "./prefabs/" + prefabConf.name;
         //覆盖MAIN.ts
-        const TEMPLATE_PATH = "./resources/template-main.ts";
         const MAIN_PATH = projConf.path + "/src/main.ts";
-        await IPCS.__CopyFile(`"${TEMPLATE_PATH}"`, `"${MAIN_PATH}"`);
+        await IPCS.__CopyFile(`"${TEMPLATE_MAIN_TS}"`, `"${MAIN_PATH}"`);
         await IPCS.__FileContentReplaceKey(`${MAIN_PATH}`,
             ["{{PATH}}", prefabPath],
             ["{{CLASS_NAME_BIG}}", Utils.SnakeToPascal(prefabConf.name)]
@@ -297,19 +319,23 @@ export class IPCS {
         let copyStatment = `echo f| xcopy /y /c /s /h /r ` + `${p1} ${p2} `.replaceAll("./", "").replaceAll("/", "\\");
         await execSync(copyStatment);
     }
-    private static async __FileContentReplaceKey(path: string, ...pairs: [string, string][]) {
-        let str = await fs.readFileSync(path).toString();
+    private static __StrReplace(str: string, ...pairs: [string, string][]) {
         for (let i = 0; i < pairs.length; i++) {
             let pair = pairs[i];
             str = str.replaceAll(pair[0], pair[1]);
         }
+        return str;
+    }
+    private static async __FileContentReplaceKey(path: string, ...pairs: [string, string][]) {
+        let str = await fs.readFileSync(path).toString();
+        str = IPCS.__StrReplace(str, ...pairs);
         await fs.writeFileSync(path, str);
     }
     protected static async _NewPrefabAsset(_, name: string, projDat: JSON) {
         let projConf = new ProtocolObjectProjectConfig();
         projConf.fromMixed(projDat);
         // 新建文件
-        const TEMPLATE_DIR = "./resources/template-prefab/";
+        const TEMPLATE_DIR = path.join(process.cwd(), "/template/template-prefab/");
         const DST_DIR = projConf.path + `src\\prefabs\\`;
 
         let rtn = new ProtocolObjectIPCResponse();
@@ -364,7 +390,7 @@ export class IPCS {
         }
         fs.mkdirSync(projConf.path);
 
-        const TEMPLATE_DIR = "./resources/template-project-default/";
+        const TEMPLATE_DIR = path.join(process.cwd(), "/template/template-project-default/");
         const PROJ_DIR = projConf.path;
 
         await IPCS.__CopyFile(`"${TEMPLATE_DIR}*.*"`, `"${PROJ_DIR}\\"`);
@@ -388,14 +414,24 @@ export class IPCS {
     }
 
     protected static async _ReadEditorConfig(_) {
-        let json = JSON.parse(await IPCS._ReadStrFile(_, "./resources/editor_config.json"));
+        let json = null;
+        while (1) {
+            try {
+                json = JSON.parse(await IPCS._ReadStrFile(_, EDITOR_CONFIG_PATH));
+                break;
+            }
+            catch (e) {
+                //没有找到配置文件。
+                await IPCS._SaveStrFile(_, EDITOR_CONFIG_PATH, JSON.stringify(IPCS.editorConfig.toMixed()));
+            }
+        }
         IPCS.editorConfig.fromMixed(json);
         return json;
     }
     protected static async _SaveEditorConfig(_, json: JSON) {
         IPCS.editorConfig.fromMixed(json);
         IPCS._refreshWindowState();
-        return await IPCS._SaveStrFile(_, "./resources/editor_config.json", JSON.stringify(json))
+        return await IPCS._SaveStrFile(_, EDITOR_CONFIG_PATH, JSON.stringify(json))
     }
 
     protected static async _ReadStrFile(_, path: string) {

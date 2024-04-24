@@ -17,6 +17,8 @@ export default class AssetMgr extends AppNode {
   direntHandle: DirentHandle = null;
   curItem: AssetItem = null;
 
+  assetCtrl: HTMLDivElement = null;
+
   async listDir() {
     let projConf = EditorEnv.GetProjectConfig();
     this.direntHandle = await window.electron.ipcRenderer.invoke("FF:ListDir", projConf.path);
@@ -85,10 +87,13 @@ export default class AssetMgr extends AppNode {
       this.curItem.subject.targetOff(this);
       this.curItem.blur();
       this.curItem = null;
+
+      this.assetCtrl.style.display = "none";
     }
 
     this.curItem = item;
     if (this.curItem) {
+      this.assetCtrl.style.display = "";
       this.curItem.subject.on("dispose", this.onCurItemDispose, this);
       this.curItem.focus();
     }
@@ -140,6 +145,7 @@ export default class AssetMgr extends AppNode {
     projConf.prefabs_list = newList;
     await EditorEnv.SetProjectConfig(projConf);
     this.refresh();
+    this.setCurItem(null);
   }
   async onNewPrefabAsset(conf: ProtocolObjectPrefabConfig) {
     let projConf = EditorEnv.GetProjectConfig();
@@ -170,6 +176,24 @@ export default class AssetMgr extends AppNode {
       }
     }
   }
+
+  onClickSetStart() {
+    if (!this.curItem) {
+      return;
+    }
+    this.setStartAsset(this.curItem.prefabConfig);
+  }
+
+  async onClickDelete() {
+    if (!this.curItem) {
+      return;
+    }
+    if (!await Utils.app.msgBoxYesNo(`删除${this.curItem.prefabConfig.name}?`)) {
+      return;
+    }
+    this.deleteAsset(this.curItem.prefabConfig);
+  }
+
   setStartAsset(prefabConfig: ProtocolObjectPrefabConfig) {
     this.refreshSetStart(prefabConfig.name);
   }

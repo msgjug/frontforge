@@ -40,22 +40,15 @@
         background: rgba(0,0,0,0.5);">
             <div $="lbName">__</div>
             <div class="row">
-                <button @click="onClickSave" class="emoji-btn">💾</button>
-                <button @click="onClickSetStart" class="emoji-btn">🚩</button>
-                <button @click="onClickDelete" class="emoji-btn">🗑️</button>
+                <button @click="onClickSave" class="emoji-btn">💾<span>保存</span></button>
+                <!-- <button @click="onClickSetStart" class="emoji-btn">🚩<span>设置入口</span></button> -->
+                <button @click="onClickDelete" class="emoji-btn">🗑️<span>删除资源</span></button>
             </div>
             <div $="tabView" class="row" ctor="TabView">
                 <button class="tap" cur>TypeScript</button>
                 <button class="tap">Dom</button>
                 <button class="tap">Union</button>
                 <button class="tap">Column</button>
-            </div>
-            <div class="row">
-                <button @click="onToggleWrap" $="btnWrap">NoWrap</button>
-                <select $="selTheme" @change="onSelectTheme" ctor="Selector">
-                </select>
-                <select $="selFontSize" @change="onSelectFrontSize" ctor="Selector">
-                </select>
             </div>
         </div>
         <div $="aceWrap" class="main-ace-wrap" style="flex-grow: 1;">

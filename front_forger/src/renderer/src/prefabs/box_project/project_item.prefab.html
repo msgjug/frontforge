@@ -9,6 +9,10 @@
         justify-content: space-between;
     }
 
+    .project-item[blur] {
+        filter: blur(1em);
+    }
+
     .project-item:hover {
         background: gray;
     }
@@ -16,11 +20,12 @@
 
 <dom>
     <div class="project-item">
-        <div style="border-radius: 10px; background: #0095ff; color: black; padding: 0.5em;" $="lbVersion">  edtior_version</div>
+        <div style="border-radius: 10px; background: #0095ff; color: black; padding: 0.5em;" $="lbVersion">
+            edtior_version</div>
         <div $="lbName">name</div>
-            <div class="row">
-                <button class="emoji-btn" @click="onClickDel">🗑️</button>
-                <button class="emoji-btn" @click="onClickOpen">▶</button>
-            </div>
+        <div class="row">
+            <button class="emoji-btn" @click="onClickDel">🗑️</button>
+            <button class="emoji-btn" style="color:white;background:#1359bc;border-radius: 0.5em;" @click="onClickOpen">▶</button>
+        </div>
     </div>
 </dom>

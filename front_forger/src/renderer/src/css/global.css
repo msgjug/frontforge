@@ -33,13 +33,14 @@ a {
   color: #64afff;
   text-decoration: inherit;
 }
+
 a:hover {
   color: #64afff;
 }
 
 body {
   font-size: 0.9em;
-  background: #323e41;
+  background: #48545d;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -87,6 +88,16 @@ button:active {
   align-items: stretch;
   flex-direction: column;
 }
+
+.modal-panel {
+  background: #1b1d21;
+  color: #bcbcbc;
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  flex-direction: column;
+}
+
 .panel-contain {
   padding: 1em;
 }
@@ -100,24 +111,39 @@ button:active {
 
 .emoji-btn:hover {
   transform: scale(1.1);
+  filter: brightness(1.5);
 }
 
 .emoji-btn:active {
   transform: scale(0.9);
-  filter: brightness(2);
+  filter: brightness(0.5);
 }
+
+.emoji-btn span {
+  display: none;
+  color: white;
+  font-size: 0.6em;
+  font-weight: lighter;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 0.2em;
+}
+
+.emoji-btn:hover span {
+  display: inherit;
+}
+
 
 .btn {
   padding: 0.5em 0.7em;
   font-weight: bold;
 }
 
-.nav {
+.nav {}
 
-}
 .nav .btn {
   background: gray;
-  color:black;
+  color: black;
   text-align: center;
   padding: 0 0.25em;
   cursor: pointer;
@@ -154,24 +180,27 @@ button:active {
   border: 1px solid black;
   margin: 0.5em;
 }
+
 .row {
-  display:flex;
+  display: flex;
   flex-direction: row;
+  justify-content: center;
 }
+
 .col {
-  display:flex;
+  display: flex;
   flex-direction: column;
 }
 
 .input-style {
-  padding:0.5em;
+  padding: 0.5em;
   border-radius: 5px;
   background: #bfbfbf;
 }
 
 .title {
-    background: black;
-    color: white;
-    font-weight: bold;
-    padding: 0.5em;
+  background: black;
+  color: white;
+  font-weight: bold;
+  padding: 0.5em;
 }

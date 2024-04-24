@@ -2,10 +2,13 @@
     .asset-area {
         /* min-width: 15em; */
         flex-grow: 1;
+        margin: 0.2em;
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 1em;
     }
 
     .asset-btns {
-        background: rgba(0, 0, 0, 0.5);
+        /* background: rgba(0, 0, 0, 0.5); */
     }
 
     .asset-btns .btn {
@@ -17,12 +20,18 @@
     <div class="asset-area">
         <!-- <div class="title">asset</div> -->
         <div class="asset-btns row ">
-            <button @click="onClickNewPrefab" class="btn">New</button>
-            <button @click="onClickFold" class="btn">Fold All</button>
-            <button @click="onClickUnfold" class="btn">Unflod All</button>
-            <button @click="onClickRefresh" class="btn">Refresh</button>
+            <button @click="onClickNewPrefab" class="emoji-btn">➕<span>新建资源</span></button>
+            <button @click="onClickFold" class="emoji-btn">⏫<span>Fold All</span></button>
+            <button @click="onClickUnfold" class="emoji-btn">⏬<span>Unflod All</span></button>
+            <button @click="onClickRefresh" class="emoji-btn">🔃<span>刷新</span></button>
+            <div $="assetCtrl" class="row" style="display: none;">
+            <button @click="onClickSetStart" class="emoji-btn">🚩<span>设置入口</span></button>
+            <button @click="onClickDelete" class="emoji-btn">🗑️<span>删除资源</span></button>
+            </div>
         </div>
-        <div class="area-contain" style="display:flex;flex-direction: column;">
+        <div class="row">
+        </div>
+        <div class="area-contain" style="display:flex;flex-direction: column;padding-top:0">
             <div $="contain">
             </div>
         </div>

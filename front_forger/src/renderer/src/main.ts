@@ -12,12 +12,16 @@ import PageCode from './prefabs/page_code/page_code'
 import EditorEnv from './env'
 import BoxProject from './prefabs/box_project/box_project'
 import Nav from './prefabs/title/nav'
+import BoxCodeOption from './prefabs/page_creator/box_code_option/box_code_option'
+import BoxHelp from './prefabs/page_creator/box_help/box_help'
 
 const ROUTE: { [key: string]: new () => AppNode } = {
   "index": PageCreator,
   "code": PageCode,
 
   "BoxProject": BoxProject,
+  "BoxCodeOption": BoxCodeOption,
+  "BoxHelp": BoxHelp,
 };
 
 (() => {

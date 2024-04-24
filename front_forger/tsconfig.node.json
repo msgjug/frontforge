@@ -11,7 +11,7 @@
     "strictNullChecks": false,
     //修饰器
     "experimentalDecorators": true,
-    "allowImportingTsExtensions": true,
+    "allowImportingTsExtensions": false,
     "resolveJsonModule": true,
     "noEmit": true,
     "strict": false,

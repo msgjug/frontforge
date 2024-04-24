@@ -89,6 +89,14 @@ export default class BoxProject extends AppNode {
     }
     onEditSearch() {
         console.log("val:", this.ebSearch.value);
+        for (let key in this.itemCol) {
+            if( key.match(this.ebSearch.value) ){
+                this.itemCol[key].unblur();
+            }
+            else {
+                this.itemCol[key].blur();
+            }
+        }
     }
     static get PrefabStr() {
         return PrefabStr;

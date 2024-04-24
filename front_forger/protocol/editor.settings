@@ -10,16 +10,20 @@ classes {
 
         # 窗口状态
         win_main "(bool)true";
-        win_main_w "(int)300";
-        win_main_h "(int)800";
+        win_main_w "(int)250";
+        win_main_h "(int)550";
 
         win_code "(bool)false";
-        win_code_w "(int)1000";
-        win_code_h "(int)800";
+        win_code_w "(int)700";
+        win_code_h "(int)550";
 
-        win_project "(bool)true";
-        win_project_w "(int)400";
-        win_project_h "(int)400";
+        # 编辑器配置
+        wrap_mode "(bool)false";
+        theme "(str)chaos";
+        font_size "(int)12";
+        
+        # 新建项目的路径记忆
+        project_dir "(str)";
     };
 
     #  
@@ -87,5 +91,10 @@ classes {
     # 设置开始Prefab
     FlagPrefab {
         prefab_conf "(PrefabConfig)";
+    };
+
+    # 编辑器配置改变
+    EditorConfigChange {
+        editor_conf "(EditorConfig)";
     };
 };

@@ -585,7 +585,7 @@ this.edit_date = gBuf.readInt32 ();
     }
 };
 export class ProtocolObjectEditorConfig extends Protocol {
-    project_configs : ProtocolObjectProjectConfig [] = [];win_main : boolean = true;win_main_w : number = 300;win_main_h : number = 800;win_code : boolean = false;win_code_w : number = 1000;win_code_h : number = 800;win_project : boolean = true;win_project_w : number = 400;win_project_h : number = 400;
+    project_configs : ProtocolObjectProjectConfig [] = [];win_main : boolean = true;win_main_w : number = 250;win_main_h : number = 550;win_code : boolean = false;win_code_w : number = 700;win_code_h : number = 550;wrap_mode : boolean = false;theme : string = "chaos";font_size : number = 12;project_dir : string = "";
 
     getClassName(){
         return "EditorConfig"
@@ -603,9 +603,10 @@ out["win_main_h"] = this.win_main_h;
 out["win_code"] = this.win_code;
 out["win_code_w"] = this.win_code_w;
 out["win_code_h"] = this.win_code_h;
-out["win_project"] = this.win_project;
-out["win_project_w"] = this.win_project_w;
-out["win_project_h"] = this.win_project_h;
+out["wrap_mode"] = this.wrap_mode;
+out["theme"] = this.theme;
+out["font_size"] = this.font_size;
+out["project_dir"] = this.project_dir;
 
         return out;
     }
@@ -626,9 +627,10 @@ this.win_main_h = input.hasOwnProperty("win_main_h") && input["win_main_h"] !== 
 this.win_code = input.hasOwnProperty("win_code") && input["win_code"] !== null ? input["win_code"] : this.win_code;
 this.win_code_w = input.hasOwnProperty("win_code_w") && input["win_code_w"] !== null ? input["win_code_w"] : this.win_code_w;
 this.win_code_h = input.hasOwnProperty("win_code_h") && input["win_code_h"] !== null ? input["win_code_h"] : this.win_code_h;
-this.win_project = input.hasOwnProperty("win_project") && input["win_project"] !== null ? input["win_project"] : this.win_project;
-this.win_project_w = input.hasOwnProperty("win_project_w") && input["win_project_w"] !== null ? input["win_project_w"] : this.win_project_w;
-this.win_project_h = input.hasOwnProperty("win_project_h") && input["win_project_h"] !== null ? input["win_project_h"] : this.win_project_h;
+this.wrap_mode = input.hasOwnProperty("wrap_mode") && input["wrap_mode"] !== null ? input["wrap_mode"] : this.wrap_mode;
+this.theme = input.hasOwnProperty("theme") && input["theme"] !== null ? input["theme"] : this.theme;
+this.font_size = input.hasOwnProperty("font_size") && input["font_size"] !== null ? input["font_size"] : this.font_size;
+this.project_dir = input.hasOwnProperty("project_dir") && input["project_dir"] !== null ? input["project_dir"] : this.project_dir;
 
     }
     protected _toBinary( gBuf: GrowBuffer) {
@@ -646,9 +648,10 @@ gBuf.writeInt32 (this.win_main_h);
 gBuf.writeBool (this.win_code);
 gBuf.writeInt32 (this.win_code_w);
 gBuf.writeInt32 (this.win_code_h);
-gBuf.writeBool (this.win_project);
-gBuf.writeInt32 (this.win_project_w);
-gBuf.writeInt32 (this.win_project_h);
+gBuf.writeBool (this.wrap_mode);
+gBuf.writeString (this.theme);
+gBuf.writeInt32 (this.font_size);
+gBuf.writeString (this.project_dir);
 
     }
     protected _fromBinary( gBuf: GrowBuffer ) {
@@ -666,9 +669,10 @@ this.win_main_h = gBuf.readInt32 ();
 this.win_code = gBuf.readBool ();
 this.win_code_w = gBuf.readInt32 ();
 this.win_code_h = gBuf.readInt32 ();
-this.win_project = gBuf.readBool ();
-this.win_project_w = gBuf.readInt32 ();
-this.win_project_h = gBuf.readInt32 ();
+this.wrap_mode = gBuf.readBool ();
+this.theme = gBuf.readString ();
+this.font_size = gBuf.readInt32 ();
+this.project_dir = gBuf.readString ();
 
     }
 };
@@ -971,6 +975,68 @@ export class ProtocolObjectFlagPrefab extends Protocol {
         this.prefab_conf.fromBinary(gBuf.readUint8Array());
 
     }
+};
+export class ProtocolObjectEditorConfigChange extends Protocol {
+    editor_conf : ProtocolObjectEditorConfig = new ProtocolObjectEditorConfig();
+
+    getClassName(){
+        return "EditorConfigChange"
+    }
+    toMixed() {
+        let out: any = {};
+        out["__cn"] = this.getClassName();
+        out["editor_conf"] = this.editor_conf.toMixed();
+
+        return out;
+    }
+    fromMixed(input: any) {
+        
+        if( input.hasOwnProperty("editor_conf") && input["editor_conf"] !== null && input["editor_conf"] !== undefined ) {
+        this.editor_conf.fromMixed( input["editor_conf"] );
+    }
+
+    }
+    protected _toBinary( gBuf: GrowBuffer) {
+        
+        gBuf.writeString(this.getClassName());
+        let __arr_size = 0;
+        gBuf.writeUint8Array(this.editor_conf.toBinary());
+
+    }
+    protected _fromBinary( gBuf: GrowBuffer ) {
+        
+        let __arr_size = 0;
+        this.editor_conf.fromBinary(gBuf.readUint8Array());
+
+    }
+};
+export class ProtocolObjectEditorCacheDataConfigChange extends Protocol {
+    
+
+    getClassName(){
+        return "EditorCacheDataConfigChange"
+    }
+    toMixed() {
+        let out: any = {};
+        out["__cn"] = this.getClassName();
+        
+        return out;
+    }
+    fromMixed(input: any) {
+        
+        
+    }
+    protected _toBinary( gBuf: GrowBuffer) {
+        
+        gBuf.writeString(this.getClassName());
+        let __arr_size = 0;
+        
+    }
+    protected _fromBinary( gBuf: GrowBuffer ) {
+        
+        let __arr_size = 0;
+        
+    }
 };
 
 //消息工厂
@@ -1012,6 +1078,10 @@ export class ProtocolFactory {
     return new ProtocolObjectDeletePrefab();
 }else if( msgName == "FlagPrefab") {
     return new ProtocolObjectFlagPrefab();
+}else if( msgName == "EditorConfigChange") {
+    return new ProtocolObjectEditorConfigChange();
+}else if( msgName == "EditorCacheDataConfigChange") {
+    return new ProtocolObjectEditorCacheDataConfigChange();
 }
         return null!;
     }
