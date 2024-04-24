@@ -115,7 +115,7 @@ export default class PageCreator extends AppNode {
       msg.dom_str = dhDom.dataStr;
       msg.prefab_conf = item.prefabConfig;
     }
-    EditorEnv.postMessage(msg);
+    EditorEnv.postMessageExceptSelf(msg);
   }
   async onPrefabDelete(msg: ProtocolObjectDeletePrefab) {
     let projConf = EditorEnv.GetProjectConfig();
@@ -202,7 +202,7 @@ export default class PageCreator extends AppNode {
   async onClickCloseProject() {
     let msg = new ProtocolObjectCloseProject();
     msg.project_conf = EditorEnv.GetProjectConfig();
-    EditorEnv.postMessage(msg);
+    EditorEnv.postMessageExceptSelf(msg);
 
     EditorEnv.SetProjectConfig(null);
     Utils.scene.replacePage(Prefab.Instantiate(PageCreator));

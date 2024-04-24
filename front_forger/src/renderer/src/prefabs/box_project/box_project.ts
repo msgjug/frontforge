@@ -35,7 +35,7 @@ export default class BoxProject extends AppNode {
     async onClickItemOpen(conf: ProtocolObjectProjectConfig) {
         let msg = new ProtocolObjectOpenProject();
         msg.project_conf = conf;
-        EditorEnv.postMessage(msg);
+        EditorEnv.postMessageExceptSelf(msg);
 
         this.dispose();
         window.close();

@@ -213,7 +213,6 @@ export class IPCS {
         //发送消息
         // 分发消息
         ipcMain.on("FF:Message", IPCS._OnMessage);
-        ipcMain.on("FF:Message", IPCS._OnMessage);
 
         //弹出文件夹选择框，返回路径
         ipcMain.handle("FF:LocatDir", IPCS._LocatDir);

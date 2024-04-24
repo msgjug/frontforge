@@ -106,7 +106,7 @@ export default class CreatorMain extends AppNode {
         msg.ts_str = this.tsStr;
         msg.dom_str = this.domStr;
         msg.silent = silent;
-        EditorEnv.postMessage(msg);
+        EditorEnv.postMessageExceptSelf(msg);
     }
     onClickSave() {
         this.save();
@@ -117,7 +117,7 @@ export default class CreatorMain extends AppNode {
         }
         let msg = new ProtocolObjectFlagPrefab();
         msg.prefab_conf = this.conf;
-        EditorEnv.postMessage(msg);
+        EditorEnv.postMessageExceptSelf(msg);
     }
     async onClickDelete() {
         if (!this.conf) {
@@ -129,7 +129,7 @@ export default class CreatorMain extends AppNode {
 
         let msg = new ProtocolObjectDeletePrefab();
         msg.prefab_conf = this.conf;
-        EditorEnv.postMessage(msg);
+        EditorEnv.postMessageExceptSelf(msg);
     }
     onTabViewSelect() {
         console.log("select:", this.tabView.curInd);
