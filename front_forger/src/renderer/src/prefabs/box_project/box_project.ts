@@ -77,6 +77,9 @@ export default class BoxProject extends AppNode {
     }
     async onClickLoad() {
         let path = await window.electron.ipcRenderer.invoke('FF:LocatDir');
+        if (!path) {
+            return;
+        }
         console.log("load", path);
         let conf = new ProtocolObjectProjectConfig();
         let confJson = await window.electron.ipcRenderer.invoke('FF:LoadProjectDir', path);

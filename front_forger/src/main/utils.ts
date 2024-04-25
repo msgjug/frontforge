@@ -1,4 +1,4 @@
-import { app } from "electron";
+import { app, dialog } from "electron";
 import path from "path";
 
 export default class Utils {
@@ -14,14 +14,13 @@ export default class Utils {
     }
 
     static GetResourcePath(resourceName) {
-        // 检查是否为生产模式（asar打包）
-        if( app.isPackaged){
+        // // 检查是否为生产模式（asar打包）
+        if (app.isPackaged) {
             // 生产模式下，使用 app.asar.unpacked 路径
-            const appAsarUnpackedPath = path.join(process.resourcesPath, 'app.asar.unpacked');
-            return path.join(appAsarUnpackedPath, resourceName);
+            return path.join(process.cwd(), "resources", "app", "resources", resourceName);
         } else {
             // 开发模式下，直接使用项目目录
-            return path.join(__dirname, resourceName);
+            return path.join(process.cwd(), "resources", resourceName);
         }
     }
 

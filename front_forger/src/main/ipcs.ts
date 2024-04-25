@@ -1,6 +1,6 @@
 import { dialog, ipcMain } from "electron/main";
 import fs from 'fs';
-import { ProtocolObjectIPCResponse, ProtocolObjectProjectConfig, ProtocolObjectWindowChange } from "../classes/protocol_dist";
+import { ProtocolObjectIPCResponse, ProtocolObjectPrefabConfig, ProtocolObjectProjectConfig, ProtocolObjectWindowChange } from "../classes/protocol_dist";
 import { execSync } from "child_process";
 import ActionExec from "./action_exec";
 import { ProjectUtils } from "./project_utils";
@@ -12,8 +12,7 @@ import icon from "../../resources/icon.png?asset"
 import { is } from "@electron-toolkit/utils";
 import { ProtocolObjectEditorConfig } from "../classes/protocol_dist";
 import { WindowHandle } from "../classes/window_handle";
-
-
+import compressing from 'compressing'
 
 // 假设你需要获取一个名为 "myUnpackedResource" 的文件
 const TEMPLATE_MAIN_TS = Utils.GetResourcePath('template/template-main.ts');
@@ -582,8 +581,14 @@ export class IPCS {
         let rsp = new ProtocolObjectIPCResponse();
         let projConf = new ProtocolObjectProjectConfig();
         projConf.fromMixed(projDat);
-        // console.log(`创建新项目${projConf.app_name}在文件夹${projConf.path}`);
-
+        
+        //默认给一个page_home资源，组名pages，并设置入口
+        let prefab = new ProtocolObjectPrefabConfig();
+        prefab.group="pages";
+        prefab.name = "page_home";
+        projConf.prefabs_list.push(prefab);
+        projConf.entrance_prefab_name="page_home";
+        
         if (fs.existsSync(projConf.path)) {
             rsp.ret = 1;
             rsp.msg = "文件夹已存在";
@@ -591,11 +596,17 @@ export class IPCS {
         fs.mkdirSync(projConf.path);
 
         const TEMPLATE_DIR = Utils.GetResourcePath("template/template-project-default/");
+        const NODE_MODULES_PACK = Utils.GetResourcePath("template/node_modules_pack.zip");
         const PROJ_DIR = projConf.path;
 
         await IPCS.__CopyFile(`"${TEMPLATE_DIR}*.*"`, `"${PROJ_DIR}\\"`);
         await fs.writeFileSync(`${PROJ_DIR}/front_forge_project.json`, JSON.stringify(projConf.toField()));
         await IPCS.__FileContentReplaceKey(`${PROJ_DIR}/src/core/macro.ts`, ["{{APP_NAME}}", projConf.app_name]);
+
+        //解压本地的node_modules_pack.zip包
+        await compressing.zip.uncompress(NODE_MODULES_PACK, PROJ_DIR);
+
+        // npm install 
         // let ae = new ActionExec(`${PROJ_DIR}`);
         // await ae.cmd("npm.cmd", ["install"]);
         return rsp.toMixed();
