@@ -41,10 +41,10 @@ export default class BoxHelp extends AppNode {
                 docStr = Doc3;
                 break;
             case 4:
-                docStr = DocTS;
+                docStr = DocDom;
                 break;
             case 5:
-                docStr = DocDom;
+                docStr = DocTS;
                 break;
             case 6:
                 docStr = DocAbout;

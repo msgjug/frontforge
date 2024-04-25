@@ -1,6 +1,6 @@
 {
   "name": "front_forger",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A minimal Electron application with TypeScript",
   "main": "./out/main/index.mjs",
   "author": "example.com",
