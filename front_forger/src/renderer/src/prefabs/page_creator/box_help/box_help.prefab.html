@@ -16,6 +16,7 @@
     .doc-list {
         padding-right: 0.5em;
         border-right: dashed 1px rgba(255, 255, 255, 0.7);
+        min-width: 11em;
     }
 
     .doc-list div {
@@ -30,6 +31,14 @@
         padding: 0 0.5em;
         flex-grow: 1;
         white-space: pre-wrap;
+        overflow-y: auto;
+        max-height: 360px;
+    }
+
+    .doc-main p {}
+
+    .doc-main img {
+        width: 100%;
     }
 </style>
 
@@ -39,20 +48,14 @@
             <div class="panel-contain col box-help-content">
                 <div class="row" style="flex-grow: 1;">
                     <div class="doc-list">
-                        <div cur>FrontFort可以做什么？</div>
-                        <div>HelloWorld</div>
-                        <div>编辑器文档</div>
-                        <div>代码文档</div>
-                        <div>关于此软件</div>
+                        <div $="docTitles" @click="onClickDoc(1)" cur>FrontFort可以做什么？</div>
+                        <div $="docTitles" @click="onClickDoc(2)">HelloWorld</div>
+                        <div $="docTitles" @click="onClickDoc(3)">编辑器文档</div>
+                        <div $="docTitles" @click="onClickDoc(4)">HTML编写</div>
+                        <div $="docTitles" @click="onClickDoc(5)">TS编写</div>
+                        <div $="docTitles" @click="onClickDoc(6)">关于此软件</div>
                     </div>
-                    <div class="doc-main">使用TypeScript快速开发轻量化网站应用。
-优势：
-  - 快速开发、测试
-  - 无依赖，体积极小
-  - 框架代码开源，可定制
-  - 欢迎补充...
-
-                    </div>
+                    <div $="main" class="doc-main"> </div>
                 </div>
             </div>
         </div>

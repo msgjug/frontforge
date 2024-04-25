@@ -16,6 +16,7 @@ asarUnpack:
 extraResources:
   - template
 win:
+  icon: DOCS/icon.png
   executableName: FrontForger
 nsis:
   artifactName: ${name}-${version}-setup.${ext}

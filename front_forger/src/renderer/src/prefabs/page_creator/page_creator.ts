@@ -143,6 +143,11 @@ export default class PageCreator extends AppNode {
   }
 
   async onOpenProject(msg: ProtocolObjectOpenProject) {
+    if ((await window.electron.ipcRenderer.invoke("FF:CheckProjectDir", msg.project_conf.path)).ret === 1) {
+      window.electron.ipcRenderer.invoke("FF:MsgBox", "项目文件夹无效");
+      this.exit();
+      return;
+    }
     await EditorEnv.InitProjectConfig(msg.project_conf.path);
     await this.assetMgr.listDir();
   }
@@ -161,12 +166,13 @@ export default class PageCreator extends AppNode {
     this.lbInfo.innerText = "运行中...";
 
     this.pb.style.display = "";
-    this.pb.value =0;
+    this.pb.max = 100;
+    this.pb.value = 0;
     let step = 15;
     let delayTime = 2;
     let stepTime = delayTime / 15;
     while (step > 0) {
-      this.pb.value += 100* (1/15);
+      this.pb.value += 100 * (1 / 15);
       await Sync.DelayTime(stepTime);
       step--;
     }
@@ -188,38 +194,29 @@ export default class PageCreator extends AppNode {
 
     this.lbInfo.innerText = `已停止预览`;
   }
+  isBuilding = false;
   async onClickBuild() {
+    if (this.isBuilding) {
+      Utils.app.msgBox("正在构建");
+      return;
+    }
     let projConf = EditorEnv.GetProjectConfig();
     if (!projConf.entrance_prefab_name) {
       Utils.app.msgBox("请设置入口");
       return;
     }
-    let port = await window.electron.ipcRenderer.invoke("FF:BuildProject", projConf.toMixed());
-
-    this.btnRun.style.display = "none";
-    this.btnStop.style.display = "";
-
-    this.lbInfo.innerText = "运行中...";
+    this.isBuilding = true;
+    this.lbInfo.innerText = "构建中...";
 
     this.pb.style.display = "";
-    this.pb.value =0;
-    let step = 15;
-    let delayTime = 2;
-    let stepTime = delayTime / 15;
-    while (step > 0) {
-      this.pb.value += 100* (1/15);
-      await Sync.DelayTime(stepTime);
-      step--;
-    }
+    this.pb.value = 0;
+    this.pb.max = 0;
+    await window.electron.ipcRenderer.invoke("FF:BuildProject", projConf.toMixed());
 
-    this.pb.value = 100;
     this.pb.style.display = "none";
-
-
-    this.lbInfo.innerText = `http://localhost:${port}`;
-
-    // port
-    await window.electron.ipcRenderer.invoke("FF:OpenURL", `http://localhost:${port}`);
+    this.lbInfo.innerText = `构建完毕`;
+    this.isBuilding = false;
+    await window.electron.ipcRenderer.invoke("FF:OpenDir", projConf.path + "dist");
   }
   async onClickSetup() {
     Utils.scene.addChild(Prefab.Instantiate(BoxProjectSetting));
@@ -233,6 +230,9 @@ export default class PageCreator extends AppNode {
     msg.project_conf = EditorEnv.GetProjectConfig();
     EditorEnv.postMessageExceptSelf(msg);
 
+    this.exit();
+  }
+  exit(){
     EditorEnv.SetProjectConfig(null);
     Utils.scene.replacePage(Prefab.Instantiate(PageCreator));
   }

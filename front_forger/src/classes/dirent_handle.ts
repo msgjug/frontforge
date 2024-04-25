@@ -1,4 +1,6 @@
-// 文件类
+/**
+ * 文件类
+ */
 export class DirentHandle {
     isDir = false;
     path = "";

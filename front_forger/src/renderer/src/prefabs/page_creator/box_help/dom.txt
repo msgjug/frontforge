@@ -1,0 +1,24 @@
+HTML编写
+FrontForge制作的网页，由Prefab构成，一个Prefab部件拥有2个文件，分别写Typescript和HTML
+
+在HTML中：
+  <style>
+    写 CSS。与一般的css写法一致。当此Prefab创建实例，css会加载进网页中。如果此Prefab的所有实例都被销毁，则css会从页面移除。
+  </style> 
+  <dom>
+    写 HTML。有且只有一个 element，例如 <dom> <div></div> </dom>
+  </dom>
+
+FrontForge 中定义了几个特别的元素属性 
+  回调( @ ) 
+  现支持的回调有：@click(onclick),@input(oninput),@change(onchange)。
+  注意：如果对应的TS中找不到相应的方法，绑定会失败，在控制台中报警。
+  例： 
+    - <div @click="onClick"></div>
+    - <button @click="onClickOk" >ok</button>
+    - <input @input="onInput" />
+    - <input @change="onChange" />
+  成员( $ ) 
+  注意：对应的TS中要声明成员，如无声明，绑定会失败，控制台中报警。
+  例： 
+    - <button $="btnOk">Ok</button>

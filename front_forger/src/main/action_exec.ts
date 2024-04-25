@@ -4,23 +4,26 @@ import iconv from "iconv-lite";
 //执行任务
 export default class ActionExec {
     cwd = ""; //工作目录。
-    args: { [key: string]: string } = {};
-    comp: cp.ChildProcessWithoutNullStreams = null!;
-    _stdout = "";
+    comp: cp.ChildProcessWithoutNullStreams = null!; //cp.spawn返回对象
+    _stdout = ""; //输出
     get stdout() {
         return this._stdout;
     }
     set stdout(str: string) {
         this._stdout = str;
     }
-    stderr = "";
-    constructor(cwd: string, args: { [key: string]: string } = {}) {
-        this.args = args;
+    stderr = "";//输出(error)
+    constructor(cwd: string) {
         this.cwd = cwd;
     }
-    onEnd: (str: string) => void = null!;
-    onData: (str: string, delta: string) => void = null!;
-    onError: (str: string, delta: string) => void = null!;
+    onEnd: (str: string) => void = null!; //CMD执行结束回调
+    onData: (str: string, delta: string) => void = null!; //控制台输出回调
+    onError: (str: string, delta: string) => void = null!; //控制台输出回调(error)
+    /**
+     * 执行命令
+     * @param cmd 命令，有一些需要加  xxxx.cmd
+     * @param args 命令的参数。
+     */
     async cmd(cmd: string, args: string[] = []) {
         try {
             await new Promise<number>((ok) => {
@@ -62,7 +65,9 @@ export default class ActionExec {
         this.comp = null;
         this.onEnd && this.onEnd(this.stdout);
     }
-
+    /**
+     * 杀死进程
+     */
     kill() {
         if (this.comp) {
             if (!this.comp.kill('SIGTERM')) {

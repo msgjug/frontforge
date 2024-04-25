@@ -47,13 +47,4 @@ export class ProjectUtils {
 
         return dh;
     }
-    //检查项目完整性
-    static async CheckProject(path: string) {
-        // let dh = new DirentHandle();
-        // dh.isDir = true;
-        // dh.path = path;
-        // dh.name = path.substring(path.lastIndexOf("/") + 1);
-        // await ProjectUtils.ListDir(path + "/", dh);
-        // return dh;
-    }
 };

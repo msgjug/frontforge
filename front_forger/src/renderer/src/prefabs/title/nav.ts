@@ -19,7 +19,7 @@ export default class Nav extends AppNode {
                 BoxHelp:"帮助"
             }[BoxStamp]
             || {
-                index: "🔨" + Macro.APP_NAME,
+                index: Macro.APP_NAME,
                 code: "代码编辑器"
             }[PageStamp];
     }

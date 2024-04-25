@@ -79,7 +79,12 @@ export default class BoxProject extends AppNode {
         let path = await window.electron.ipcRenderer.invoke('FF:LocatDir');
         console.log("load", path);
         let conf = new ProtocolObjectProjectConfig();
-        conf.fromMixed(await window.electron.ipcRenderer.invoke('FF:LoadProjectDir', path));
+        let confJson = await window.electron.ipcRenderer.invoke('FF:LoadProjectDir', path);
+        if (!confJson) {
+            Utils.app.msgBox("找不到项目配置（front_forge_project.json），请确保项目路径正确");
+            return;
+        }
+        conf.fromMixed(confJson);
 
         //记录数据
         this.editorConfig.project_configs.push(conf);
@@ -90,7 +95,7 @@ export default class BoxProject extends AppNode {
     onEditSearch() {
         console.log("val:", this.ebSearch.value);
         for (let key in this.itemCol) {
-            if( key.match(this.ebSearch.value) ){
+            if (key.match(this.ebSearch.value)) {
                 this.itemCol[key].unblur();
             }
             else {

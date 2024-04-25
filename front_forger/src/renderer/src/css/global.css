@@ -103,6 +103,36 @@ button:active {
   padding: 1em;
 }
 
+.img-btn {
+  background-size: 100%;
+  border: none;
+  transition: transform 0.15s ease-out, filter 0.15s ease-out;
+}
+.img-btn:hover {
+  transform: scale(1.1);
+  filter: brightness(1.5);
+}
+
+.img-btn:active {
+  transform: scale(0.9);
+  filter: brightness(0.5);
+}
+
+.img-btn span {
+  display: none;
+  color: white;
+  /* font-size: 0.6em; */
+  font-weight: lighter;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 0.2em;
+}
+
+.img-btn:hover span {
+  display: inherit;
+}
+
+
 .emoji-btn {
   background: none;
   border: none;

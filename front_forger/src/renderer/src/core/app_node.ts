@@ -126,6 +126,22 @@ export class AppNode {
         if (ele.hasAttribute("$")) {
             let varKey = ele.getAttribute("$");
             if (AppNode.HasOwnPropertyRec(this, varKey)) {
+                if (this[varKey] instanceof Array) {
+                    this[varKey].push(appNode || ele);
+                }
+                else {
+                    this[varKey] = appNode || ele;
+                }
+                ele.removeAttribute("$");
+            }
+            else {
+                console.warn(`$ ${this.constructor.name}, 代码中没有找到 ${varKey}成员`);
+            }
+        }
+        //#
+        if (ele.hasAttribute("$")) {
+            let varKey = ele.getAttribute("$");
+            if (AppNode.HasOwnPropertyRec(this, varKey)) {
                 this[varKey] = appNode || ele;
                 ele.removeAttribute("$");
             }
@@ -136,13 +152,17 @@ export class AppNode {
         //@
         for (let key in AT_KEYS) {
             if (ele.hasAttribute(key)) {
-                let varKey = ele.getAttribute(key);
-                if (AppNode.HasOwnPropertyRec(this, varKey)) {
-                    ele[AT_KEYS[key]] = this[varKey].bind(this);
+                let method = ele.getAttribute(key);
+                let ma = null;
+                if (method) {
+                    ma = AppNode.__parseMethodCall(method);
+                }
+                if (AppNode.HasOwnPropertyRec(this, ma.method)) {
+                    ele[AT_KEYS[key]] = this[ma.method].bind(this, ...ma.args);
                     ele.removeAttribute(key);
                 }
                 else {
-                    console.warn(`${this.constructor.name}, ${key} 代码中没有找到 ${varKey}成员`);
+                    console.warn(`${this.constructor.name}, ${key} 代码中没有找到 ${method}成员`);
                 }
             }
         }
@@ -172,6 +192,34 @@ export class AppNode {
             }
         }
     }
+    static __parseMethodCall(str) {
+        const regex = /^(\w+)\(([^)]*)\)$/;
+        const match = str.match(regex);
+        if (match) {
+            const method = match[1];
+            const args = match[2].split(',').map(arg => arg.trim());
+
+            // 尝试转换参数为数字
+            const numArgs = args.map(arg => {
+                if (!isNaN(arg)) {
+                    return parseFloat(arg);
+                }
+                return arg;
+            });
+
+            // 尝试转换参数为布尔值
+            const boolArgs = numArgs.map(arg => {
+                if (arg === 'true' || arg === 'false') {
+                    return arg === 'true';
+                }
+                return arg;
+            });
+
+            return { method, args: boolArgs };
+        }
+        return { method: str, args: [] };
+    }
+
     static HasOwnPropertyRec(obj: Object, propName: string) {
         if (obj.hasOwnProperty(propName)) {
             return true;
