@@ -92,8 +92,6 @@ export class IPCS {
         ipcMain.handle("FF:OpenURL", IPCS._OpenURL);
         //新建窗口
         ipcMain.handle("FF:CreateWindow", IPCS._CreateWindow);
-        //日志
-        ipcMain.handle("FF:Log", IPCS._Log);
         //退出
         ipcMain.handle("FF:Quit", IPCS._Quit);
 
@@ -103,9 +101,6 @@ export class IPCS {
                 IPCS._createWindow("box_logger", 0, 0, IPCS.editorConfig.win_main_w, IPCS.editorConfig.win_main_h, "", "BoxLogger", "", "", true);
                 break;
         }
-    }
-    protected static _Log(_, str: string) {
-        IPCS.Log(str);
     }
     static Log(str: string) {
         let msg = new ProtocolObjectLog();
