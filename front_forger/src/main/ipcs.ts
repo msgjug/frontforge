@@ -308,9 +308,13 @@ export class IPCS {
      * @returns {ProtocolObjectIPCResponse}
      */
     protected static _CheckProjectDir(_, path: string) {
+        IPCS.Log("--- 检查项目");
         let rtn = new ProtocolObjectIPCResponse();
         //检查是否有front_forge_project.json
-        rtn.ret = fs.existsSync(path + "/" + "front_forge_project.json") ? 0 : 1;
+        let confPath = path + "/" + "front_forge_project.json";
+        IPCS.Log(`项目配置文件路径：${confPath}`);
+        rtn.ret = fs.existsSync(confPath) ? 0 : 1;
+        IPCS.Log(rtn.ret === 1 ? "找不到配置" : "已找到配置")
         return rtn;
     }
     //text内容，parentName 父窗口名字
@@ -414,11 +418,13 @@ export class IPCS {
             ["{{CLASS_NAME_BIG}}", Utils.SnakeToPascal(prefabConf.name)]
         );
 
-        IPCS.__ae = new ActionExec(projConf.path);
         let port = (3000 + Math.random() * 9999).toFixed(0);
+        
+        IPCS.Log(`执行命令：npx vite --port ${port}`);
+        IPCS.__ae = new ActionExec(projConf.path);
         IPCS.__ae.cmd("npx.cmd", ["vite", "--port", port]);
         IPCS.__ae.onData = (str: string, delta: string) => {
-            IPCS.mainWindow.webContents.send("log", delta);
+            IPCS.Log(delta);
         };
         return port;
     }
@@ -427,11 +433,11 @@ export class IPCS {
      * @param _ 
      */
     protected static async _StopProject(_) {
-        // let projConf = new ProtocolObjectProjectConfig();
-        // projConf.fromMixed(projDat);
+        IPCS.Log("--- 停止预览");
         if (IPCS.__ae) {
             IPCS.__ae.kill();
             IPCS.__ae = null!;
+            IPCS.Log("成功");
         }
     }
     /**
@@ -441,26 +447,31 @@ export class IPCS {
      * @returns 
      */
     protected static async _BuildProject(_, projDat: JSON) {
+        IPCS.Log("--- 构建项目");
         let projConf = new ProtocolObjectProjectConfig();
         projConf.fromMixed(projDat);
 
         let prefabConf = projConf.prefabs_list.find(ele => ele.name === projConf.entrance_prefab_name)!;
         if (!prefabConf) {
+            IPCS.Log("错误，找不到入口。");
             return "";
         }
         let prefabPath = "./prefabs/" + prefabConf.name;
         //覆盖MAIN.ts
         const MAIN_PATH = projConf.path + "/src/main.ts";
+        IPCS.Log(`生成Main文件：${MAIN_PATH}`);
         await IPCS.__CopyFile(`"${TEMPLATE_MAIN_TS}"`, `"${MAIN_PATH}"`);
         await IPCS.__FileContentReplaceKey(`${MAIN_PATH}`,
-            ["{{PATH}}", prefabPath],
-            ["{{CLASS_NAME_BIG}}", Utils.SnakeToPascal(prefabConf.name)]
+        ["{{PATH}}", prefabPath],
+        ["{{CLASS_NAME_BIG}}", Utils.SnakeToPascal(prefabConf.name)]
         );
+        IPCS.Log("生成Main文件，OK");
 
+        IPCS.Log(`执行命令：npx vite build`);
         IPCS.__ae = new ActionExec(projConf.path);
-        let port = (3000 + Math.random() * 9999).toFixed(0);
         IPCS.__ae.cmd("npx.cmd", ["vite", "build"]);
         IPCS.__ae.onData = (str: string, delta: string) => {
+            IPCS.Log(delta);
         };
         return new Promise(ok => IPCS.__ae.onEnd = ok);
     }
@@ -500,6 +511,7 @@ export class IPCS {
      * @returns 
      */
     protected static async _NewPrefabAsset(_, name: string, projDat: JSON) {
+        IPCS.Log("--- 新建Prefab");
         let projConf = new ProtocolObjectProjectConfig();
         projConf.fromMixed(projDat);
         // 新建文件
@@ -508,13 +520,18 @@ export class IPCS {
 
         let rtn = new ProtocolObjectIPCResponse();
         try {
+            IPCS.Log(`复制TS模板"${TEMPLATE_DIR}_.ts" -> "${DST_DIR}${name}.ts"`);
             await IPCS.__CopyFile(`"${TEMPLATE_DIR}_.ts"`, `"${DST_DIR}${name}.ts"`);
+            IPCS.Log(`复制HTML模板"${TEMPLATE_DIR}_.prefab.html" -> "${DST_DIR}${name}.prefab.html"`);
             await IPCS.__CopyFile(`"${TEMPLATE_DIR}_.prefab.html"`, `"${DST_DIR}${name}.prefab.html"`);
+            IPCS.Log(`修改TS文件`);
             await IPCS.__FileContentReplaceKey(`${DST_DIR}${name}.ts`, ["{{CLASS_NAME}}", name], ["{{CLASS_NAME_BIG}}", Utils.SnakeToPascal(name)]);
+            IPCS.Log(`成功`);
         }
         catch (e) {
             rtn.ret = 1;
             rtn.msg = "新建文件失败";
+            IPCS.Log(`错误：${e}`);
         }
         return rtn;
     }
@@ -565,13 +582,17 @@ export class IPCS {
      * @returns 
      */
     protected static async _LoadProjectDir(_, path: string) {
+        IPCS.Log("--- 载入项目");
         let projConf = new ProtocolObjectProjectConfig();
         let confPath = path + "/" + "front_forge_project.json";
+        IPCS.Log(`配置文件路径：${confPath}`);
         if (!fs.existsSync(confPath)) {
+            IPCS.Log(`错误：找不到配置文件。`);
             return null;
         }
         else {
             projConf.fromMixed(JSON.parse(fs.readFileSync(confPath).toString()));
+            IPCS.Log(`成功`);
             return projConf;
         }
     }
@@ -582,6 +603,7 @@ export class IPCS {
      * @returns 
      */
     protected static async _CreateNewProjectDir(_, projDat: JSON) {
+        IPCS.Log("--- 新建项目");
         let rsp = new ProtocolObjectIPCResponse();
         let projConf = new ProtocolObjectProjectConfig();
         projConf.fromMixed(projDat);
@@ -596,23 +618,28 @@ export class IPCS {
         if (fs.existsSync(projConf.path)) {
             rsp.ret = 1;
             rsp.msg = "文件夹已存在";
+            IPCS.Log("失败： 文件夹已存在。");
         }
-        fs.mkdirSync(projConf.path);
-
-        const TEMPLATE_DIR = Utils.GetResourcePath("template/template-project-default/");
-        const NODE_MODULES_PACK = Utils.GetResourcePath("template/node_modules_pack.zip");
-        const PROJ_DIR = projConf.path;
-
-        await IPCS.__CopyFile(`"${TEMPLATE_DIR}*.*"`, `"${PROJ_DIR}\\"`);
-        await fs.writeFileSync(`${PROJ_DIR}/front_forge_project.json`, JSON.stringify(projConf.toField()));
-        await IPCS.__FileContentReplaceKey(`${PROJ_DIR}/src/core/macro.ts`, ["{{APP_NAME}}", projConf.app_name]);
-
-        //解压本地的node_modules_pack.zip包
-        await compressing.zip.uncompress(NODE_MODULES_PACK, PROJ_DIR);
-
-        // npm install 
-        // let ae = new ActionExec(`${PROJ_DIR}`);
-        // await ae.cmd("npm.cmd", ["install"]);
+        else {
+            fs.mkdirSync(projConf.path);
+            IPCS.Log("创建文件夹，OK");
+            const TEMPLATE_DIR = Utils.GetResourcePath("template/template-project-default/");
+            const NODE_MODULES_PACK = Utils.GetResourcePath("template/node_modules_pack.zip");
+            const PROJ_DIR = projConf.path;
+            await IPCS.__CopyFile(`"${TEMPLATE_DIR}*.*"`, `"${PROJ_DIR}\\"`);
+            IPCS.Log("复制项目文件，OK");
+            await fs.writeFileSync(`${PROJ_DIR}/front_forge_project.json`, JSON.stringify(projConf.toField()));
+            IPCS.Log("创建项目配置文件，OK");
+            await IPCS.__FileContentReplaceKey(`${PROJ_DIR}/src/core/macro.ts`, ["{{APP_NAME}}", projConf.app_name]);
+            IPCS.Log("创建项目常量文件，OK");
+            //解压本地的node_modules_pack.zip包
+            await compressing.zip.uncompress(NODE_MODULES_PACK, PROJ_DIR);
+            IPCS.Log("解压node_modules，OK");
+            // npm install 
+            // let ae = new ActionExec(`${PROJ_DIR}`);
+            // await ae.cmd("npm.cmd", ["install"]);
+            IPCS.Log(`成功`);
+        }
         return rsp.toMixed();
     }
     /**
