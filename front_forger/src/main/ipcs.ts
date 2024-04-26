@@ -1,6 +1,6 @@
 import { dialog, ipcMain } from "electron/main";
 import fs from 'fs';
-import { ProtocolObjectIPCResponse, ProtocolObjectPrefabConfig, ProtocolObjectProjectConfig, ProtocolObjectWindowChange } from "../classes/protocol_dist";
+import { ProtocolObjectIPCResponse, ProtocolObjectLog, ProtocolObjectPrefabConfig, ProtocolObjectProjectConfig, ProtocolObjectWindowChange } from "../classes/protocol_dist";
 import { execSync } from "child_process";
 import ActionExec from "./action_exec";
 import { ProjectUtils } from "./project_utils";
@@ -27,6 +27,96 @@ export class IPCS {
     static codeWindow: BrowserWindow = null!;
     //所有窗口集合 handle{ name: win: }
     static windows: WindowHandle[] = [];
+
+    static async Init() {
+        //读取EDITOR配置
+        await IPCS._ReadEditorConfig(null);
+        //创建MAIN窗口，并居中，加入快捷键
+        IPCS.mainWindow = IPCS._createWindow("main", 0, 0, IPCS.editorConfig.win_main_w, IPCS.editorConfig.win_main_h, "index");
+        IPCS.mainWindow.center();
+        IPCS.InitHotKey(IPCS.mainWindow);
+        //CODE窗口跟随MAIN
+        IPCS.mainWindow.on("move", () => {
+            if (IPCS.codeWindow && IPCS.codeWindow.isVisible()) {
+                let srcSize = IPCS.codeWindow.getSize();
+                let pos = IPCS.mainWindow.getPosition();
+                IPCS.codeWindow.setPosition(pos[0] + IPCS.editorConfig.win_main_w, pos[1]);
+
+                // 设置SETPOSITION 后，尺寸变了，是超分辨率的问题。
+                IPCS.codeWindow.setSize(srcSize[0], srcSize[1]);
+            }
+        })
+        //刷新窗口
+        IPCS._refreshWindowState();
+
+        //发送消息
+        // 分发消息
+        ipcMain.on("FF:Message", IPCS._OnMessage);
+
+        //检查文件/文件夹是否存在
+        ipcMain.handle("FF:FileExist", IPCS._FileExist);
+        ipcMain.handle("FF:MsgBox", IPCS._MsgBox);
+        //检查项目文件夹是否健康，是否有缺少东西
+        ipcMain.handle("FF:CheckProjectDir", IPCS._CheckProjectDir);
+        //弹出文件夹选择框，返回路径
+        ipcMain.handle("FF:LocatDir", IPCS._LocatDir);
+        //遍历文件文件夹，返回DH
+        ipcMain.handle("FF:ListDir", IPCS._ListDir);
+        //资源管理器打开文件夹
+        ipcMain.handle("FF:OpenDir", IPCS._OpenDir);
+        //获取某个文件的DH
+        ipcMain.handle("FF:GetDirentHandle", IPCS._GetDirentHandle);
+        //新建prefab资源
+        ipcMain.handle("FF:NewPrefabAsset", IPCS._NewPrefabAsset);
+        //创建新项目
+        ipcMain.handle("FF:CreateNewProjectDir", IPCS._CreateNewProjectDir);
+        //载入项目
+        ipcMain.handle("FF:LoadProjectDir", IPCS._LoadProjectDir);
+        //编辑器数据
+        ipcMain.handle("FF:ReadEditorConfig", IPCS._ReadEditorConfig);
+        ipcMain.handle("FF:SaveEditorConfig", IPCS._SaveEditorConfig);
+        //项目数据
+        ipcMain.handle("FF:ReadProjectConfig", IPCS._ReadProjectConfig);
+        ipcMain.handle("FF:SaveProjectConfig", IPCS._SaveProjectConfig);
+        //读取，保存文件
+        ipcMain.handle("FF:ReadStrFile", IPCS._ReadStrFile);
+        ipcMain.handle("FF:SaveStrFile", IPCS._SaveStrFile);
+        //删除文件
+        ipcMain.handle("FF:DeleteFile", IPCS._DeleteFile);
+        //运行
+        ipcMain.handle("FF:RunProject", IPCS._RunProject);
+        ipcMain.handle("FF:StopProject", IPCS._StopProject);
+        //构建
+        ipcMain.handle("FF:BuildProject", IPCS._BuildProject);
+        //外部浏览器打开链接
+        ipcMain.handle("FF:OpenURL", IPCS._OpenURL);
+        //新建窗口
+        ipcMain.handle("FF:CreateWindow", IPCS._CreateWindow);
+        //日志
+        ipcMain.handle("FF:Log", IPCS._Log);
+        //退出
+        ipcMain.handle("FF:Quit", IPCS._Quit);
+
+        let tag = process.argv[1];
+        switch (tag) {
+            case "log":
+                IPCS._createWindow("box_logger", 0, 0, IPCS.editorConfig.win_main_w, IPCS.editorConfig.win_main_h, "", "BoxLogger", "", "", true);
+                break;
+        }
+    }
+    protected static _Log(_, str: string) {
+        IPCS.Log(str);
+    }
+    static Log(str: string) {
+        let msg = new ProtocolObjectLog();
+        msg.str = str;
+        let wcs: Electron.WebContents[] = [];
+        IPCS.windows.forEach(wh => {
+            wcs.push(wh.win.webContents);
+        });
+        IPCS.Broadcast(wcs, msg.toMixed());
+    }
+
     //创建窗口。
     /**
      * 
@@ -207,86 +297,6 @@ export class IPCS {
         }))
         Menu.setApplicationMenu(menu)
     }
-    static async Init() {
-        //读取EDITOR配置
-        await IPCS._ReadEditorConfig(null);
-        //创建MAIN窗口，并居中，加入快捷键
-        IPCS.mainWindow = IPCS._createWindow("main", 0, 0, IPCS.editorConfig.win_main_w, IPCS.editorConfig.win_main_h, "index");
-        IPCS.mainWindow.center();
-        IPCS.InitHotKey(IPCS.mainWindow);
-        //CODE窗口跟随MAIN
-        IPCS.mainWindow.on("move", () => {
-            if (IPCS.codeWindow && IPCS.codeWindow.isVisible()) {
-                let srcSize = IPCS.codeWindow.getSize();
-                let pos = IPCS.mainWindow.getPosition();
-                IPCS.codeWindow.setPosition(pos[0] + IPCS.editorConfig.win_main_w, pos[1]);
-
-                // 设置SETPOSITION 后，尺寸变了，是超分辨率的问题。
-                IPCS.codeWindow.setSize(srcSize[0], srcSize[1]);
-            }
-        })
-
-        //刷新窗口
-        IPCS._refreshWindowState();
-
-
-        //发送消息
-        // 分发消息
-        ipcMain.on("FF:Message", IPCS._OnMessage);
-
-        //检查文件/文件夹是否存在
-        ipcMain.handle("FF:FileExist", IPCS._FileExist);
-
-        ipcMain.handle("FF:MsgBox", IPCS._MsgBox);
-        //检查项目文件夹是否健康，是否有缺少东西
-        ipcMain.handle("FF:CheckProjectDir", IPCS._CheckProjectDir);
-        //弹出文件夹选择框，返回路径
-        ipcMain.handle("FF:LocatDir", IPCS._LocatDir);
-        //遍历文件文件夹，返回DH
-        ipcMain.handle("FF:ListDir", IPCS._ListDir);
-        //资源管理器打开文件夹
-        ipcMain.handle("FF:OpenDir", IPCS._OpenDir);
-        //获取某个文件的DH
-        ipcMain.handle("FF:GetDirentHandle", IPCS._GetDirentHandle);
-
-        //新建prefab资源
-        ipcMain.handle("FF:NewPrefabAsset", IPCS._NewPrefabAsset);
-        //创建新项目
-        ipcMain.handle("FF:CreateNewProjectDir", IPCS._CreateNewProjectDir);
-        //载入项目
-        ipcMain.handle("FF:LoadProjectDir", IPCS._LoadProjectDir);
-
-        //编辑器数据
-        ipcMain.handle("FF:ReadEditorConfig", IPCS._ReadEditorConfig);
-        ipcMain.handle("FF:SaveEditorConfig", IPCS._SaveEditorConfig);
-
-        //项目数据
-        ipcMain.handle("FF:ReadProjectConfig", IPCS._ReadProjectConfig);
-        ipcMain.handle("FF:SaveProjectConfig", IPCS._SaveProjectConfig);
-
-        //读取，保存文件
-        ipcMain.handle("FF:ReadStrFile", IPCS._ReadStrFile);
-        ipcMain.handle("FF:SaveStrFile", IPCS._SaveStrFile);
-        //删除文件
-        ipcMain.handle("FF:DeleteFile", IPCS._DeleteFile);
-
-        //运行
-        ipcMain.handle("FF:RunProject", IPCS._RunProject);
-        ipcMain.handle("FF:StopProject", IPCS._StopProject);
-
-        //构建
-        ipcMain.handle("FF:BuildProject", IPCS._BuildProject);
-
-        //外部浏览器打开链接
-        ipcMain.handle("FF:OpenURL", IPCS._OpenURL);
-
-        //新建窗口
-        ipcMain.handle("FF:CreateWindow", IPCS._CreateWindow);
-
-        //退出
-        ipcMain.handle("FF:Quit", IPCS._Quit);
-
-    }
     // 退出程序
     protected static _Quit(_) {
         if (IPCS.__ae) {
@@ -374,13 +384,14 @@ export class IPCS {
      * @param box 
      * @param modal 
      * @param child 
+     * @param resizable 
      * @returns 
      */
-    protected static _CreateWindow(_, name: string, x: number, y: number, width: number, height: number, page: string, box: string, modal = "", child = "") {
+    protected static _CreateWindow(_, name: string, x: number, y: number, width: number, height: number, page: string, box: string, modal = "", child = "", resizable = false) {
         if (IPCS.windows.find(ele => ele.name === name)) {
             return;
         }
-        const win = IPCS._createWindow(name, x, y, width, height, page, box, modal, child);
+        const win = IPCS._createWindow(name, x, y, width, height, page, box, modal, child, resizable);
         win.once("ready-to-show", () => win.show());
     }
     /** 执行命令行对象 */
@@ -455,8 +466,6 @@ export class IPCS {
         let port = (3000 + Math.random() * 9999).toFixed(0);
         IPCS.__ae.cmd("npx.cmd", ["vite", "build"]);
         IPCS.__ae.onData = (str: string, delta: string) => {
-            IPCS.mainWindow.webContents.send("log", delta);
-            console.log(delta);
         };
         return new Promise(ok => IPCS.__ae.onEnd = ok);
     }
@@ -581,14 +590,14 @@ export class IPCS {
         let rsp = new ProtocolObjectIPCResponse();
         let projConf = new ProtocolObjectProjectConfig();
         projConf.fromMixed(projDat);
-        
+
         //默认给一个page_home资源，组名pages，并设置入口
         let prefab = new ProtocolObjectPrefabConfig();
-        prefab.group="pages";
+        prefab.group = "pages";
         prefab.name = "page_home";
         projConf.prefabs_list.push(prefab);
-        projConf.entrance_prefab_name="page_home";
-        
+        projConf.entrance_prefab_name = "page_home";
+
         if (fs.existsSync(projConf.path)) {
             rsp.ret = 1;
             rsp.msg = "文件夹已存在";

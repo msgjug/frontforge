@@ -25,10 +25,6 @@ export default class EditorEnv {
     static onHotkey(_, tag: string) {
         MsgHub.emit("hot-key", tag);
     }
-    static onIPCLog(_, deltaStr: string) {
-        console.log("-log:", deltaStr);
-        MsgHub.emit("log", deltaStr);
-    }
 
     static onMessage(fn: (msg: Protocol) => void, obj: any) {
         this.PortSubject.on("message", fn, obj);

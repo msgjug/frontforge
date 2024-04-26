@@ -712,6 +712,38 @@ this.msg = gBuf.readString ();
 
     }
 };
+export class ProtocolObjectLog extends Protocol {
+    str : string = "";
+
+    getClassName(){
+        return "Log"
+    }
+    toMixed() {
+        let out: any = {};
+        out["__cn"] = this.getClassName();
+        out["str"] = this.str;
+
+        return out;
+    }
+    fromMixed(input: any) {
+        
+        this.str = input.hasOwnProperty("str") && input["str"] !== null ? input["str"] : this.str;
+
+    }
+    protected _toBinary( gBuf: GrowBuffer) {
+        
+        gBuf.writeString(this.getClassName());
+        let __arr_size = 0;
+        gBuf.writeString (this.str);
+
+    }
+    protected _fromBinary( gBuf: GrowBuffer ) {
+        
+        let __arr_size = 0;
+        this.str = gBuf.readString ();
+
+    }
+};
 export class ProtocolObjectWindowChange extends Protocol {
     open : string = "";close : string = "";
 
@@ -1009,34 +1041,6 @@ export class ProtocolObjectEditorConfigChange extends Protocol {
         this.editor_conf.fromBinary(gBuf.readUint8Array());
 
     }
-};
-export class ProtocolObjectEditorCacheDataConfigChange extends Protocol {
-    
-
-    getClassName(){
-        return "EditorCacheDataConfigChange"
-    }
-    toMixed() {
-        let out: any = {};
-        out["__cn"] = this.getClassName();
-        
-        return out;
-    }
-    fromMixed(input: any) {
-        
-        
-    }
-    protected _toBinary( gBuf: GrowBuffer) {
-        
-        gBuf.writeString(this.getClassName());
-        let __arr_size = 0;
-        
-    }
-    protected _fromBinary( gBuf: GrowBuffer ) {
-        
-        let __arr_size = 0;
-        
-    }
 };
 
 //消息工厂
@@ -1064,6 +1068,8 @@ export class ProtocolFactory {
     return new ProtocolObjectEditorConfig();
 }else if( msgName == "IPCResponse") {
     return new ProtocolObjectIPCResponse();
+}else if( msgName == "Log") {
+    return new ProtocolObjectLog();
 }else if( msgName == "WindowChange") {
     return new ProtocolObjectWindowChange();
 }else if( msgName == "OpenProject") {
@@ -1080,8 +1086,6 @@ export class ProtocolFactory {
     return new ProtocolObjectFlagPrefab();
 }else if( msgName == "EditorConfigChange") {
     return new ProtocolObjectEditorConfigChange();
-}else if( msgName == "EditorCacheDataConfigChange") {
-    return new ProtocolObjectEditorCacheDataConfigChange();
 }
         return null!;
     }

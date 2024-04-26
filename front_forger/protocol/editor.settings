@@ -50,6 +50,10 @@ classes {
 
 
     # =================port msg 
+    # 发送LOG
+    Log {
+        str "(str)";
+    };
     
     # 窗口变化
     WindowChange {

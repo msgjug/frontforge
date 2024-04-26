@@ -41,7 +41,6 @@ export default class PageCreator extends AppNode {
     this.assetMgr.subject.on("select-item", this.onSelectAssetItem, this);
 
     MsgHub.on("hot-key", this.onHotKey, this);
-    MsgHub.on("log", this.onIPCLog, this);
   }
   onDispose(): void {
     EditorEnv.offMessage(this);
@@ -53,9 +52,6 @@ export default class PageCreator extends AppNode {
         this.onClickRun();
         break;
     }
-  }
-  onIPCLog(delta) {
-
   }
 
   async onMessage(msg: Protocol) {

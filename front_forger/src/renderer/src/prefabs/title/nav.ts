@@ -8,6 +8,7 @@ import PrefabStr from "./nav.prefab.html?raw";
 export default class Nav extends AppNode {
     lbTitle: HTMLDivElement = null;
     btnOption: HTMLButtonElement = null;
+    btnLog: HTMLButtonElement = null;
     onLoad(): void {
         Nav.__ins = this;
         const PageStamp = Utils.parseUrlParam(false).ps || "none";
@@ -15,8 +16,9 @@ export default class Nav extends AppNode {
         this.lbTitle.innerText =
             {
                 BoxProject: "项目",
-                BoxCodeOption:"代码编辑器设置",
-                BoxHelp:"帮助"
+                BoxCodeOption: "代码编辑器设置",
+                BoxHelp: "帮助",
+                BoxLogger: "日志"
             }[BoxStamp]
             || {
                 index: Macro.APP_NAME,
@@ -48,6 +50,9 @@ export default class Nav extends AppNode {
         return this.__ins;
     }
 
+    onClickLog() {
+        window.electron.ipcRenderer.invoke("FF:CreateWindow", "box_log", 0, 0, 400, 140, "none", "BoxLogger", "", "", true );
+    }
     onClickOption() {
         MsgHub.emit("option");
     }

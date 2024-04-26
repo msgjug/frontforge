@@ -1,0 +1,30 @@
+<style>
+    .box-logger {
+        color: #cccccc;
+        flex-grow: 1;
+    }
+
+    .log-item {
+        word-wrap: break-word;
+    }
+
+    .log-item:nth-child(odd) {
+        background: rgba(255, 255, 255, 0.05);
+    }
+</style>
+
+<dom>
+    <div class="modal-panel-bg">
+        <div class="box-logger modal-panel">
+            <div class="panel-contain">
+                <div class="row" style="justify-content: left;">
+                    <button class="emoji-btn"
+                        style="margin-left:0.5em;width:2em;background:#00a6ed;color:white;border-radius:0.4em;"
+                        @click="onClickClean">🚫<span>清除</span></button>
+                </div>
+                <div $="contain" style="max-height:100vh; overflow-y:auto;">
+                </div>
+            </div>
+        </div>
+    </div>
+</dom>

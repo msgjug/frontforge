@@ -8,6 +8,7 @@
     }
     .logo {
         height: 1.5em;
+        pointer-events: none;
     }
 </style>
 
@@ -18,6 +19,7 @@
             <div $="lbTitle">标题</div>
         </div>
         <div class="row">
+            <button $="btnLog" @click="onClickLog">📒</button>
             <button $="btnOption" @click="onClickOption" style="display:none;">⚙</button>
             <button @click="onClickClose">╳</button>
         </div>
