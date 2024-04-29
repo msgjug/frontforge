@@ -48,12 +48,13 @@
             <div class="panel-contain col box-help-content">
                 <div class="row" style="flex-grow: 1;">
                     <div class="doc-list">
-                        <div $="docTitles" @click="onClickDoc(1)" cur>FrontFort可以做什么？</div>
-                        <div $="docTitles" @click="onClickDoc(2)">HelloWorld</div>
-                        <div $="docTitles" @click="onClickDoc(3)">编辑器文档</div>
-                        <div $="docTitles" @click="onClickDoc(4)">HTML编写</div>
-                        <div $="docTitles" @click="onClickDoc(5)">TS编写</div>
-                        <div $="docTitles" @click="onClickDoc(6)">关于此软件</div>
+                        <div $="docTitles" @click="onClickDoc" doc="first" cur>FrontFort可以做什么？</div>
+                        <div $="docTitles" @click="onClickDoc" doc="hello_world">HelloWorld</div>
+                        <div $="docTitles" @click="onClickDoc" doc="ui">编辑器文档</div>
+                        <div $="docTitles" @click="onClickDoc" doc="html">HTML编写</div>
+                        <div $="docTitles" @click="onClickDoc" doc="ts">TS编写</div>
+                        <div $="docTitles" @click="onClickDoc" doc="about">关于此软件</div>
+                        <div $="docTitles" @click="onClickDoc" doc="upgrade">更新</div>
                     </div>
                     <div $="main" class="doc-main"> </div>
                 </div>

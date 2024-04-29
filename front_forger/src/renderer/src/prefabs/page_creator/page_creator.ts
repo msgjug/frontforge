@@ -126,6 +126,10 @@ export default class PageCreator extends AppNode {
     await window.electron.ipcRenderer.invoke("FF:SaveStrFile", tsPath, msg.ts_str);
     await window.electron.ipcRenderer.invoke("FF:SaveStrFile", domPath, msg.dom_str);
 
+    ///更新资源管理器里的资源
+
+    this.assetMgr.updateAsset(msg.prefab_conf.name, msg.ts_str, msg.dom_str);
+
     if (!msg.silent) {
       Utils.scene.toast(`保存成功${Utils.TimestampToTime(Date.now())}`);
     }
@@ -228,7 +232,7 @@ export default class PageCreator extends AppNode {
 
     this.exit();
   }
-  exit(){
+  exit() {
     EditorEnv.SetProjectConfig(null);
     Utils.scene.replacePage(Prefab.Instantiate(PageCreator));
   }

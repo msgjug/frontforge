@@ -184,7 +184,7 @@ export default class AssetMgr extends AppNode {
     let msg = new ProtocolObjectFlagPrefab();
     msg.prefab_conf = this.curItem.prefabConfig;
     EditorEnv.postMessage(msg);
-    
+
   }
 
   async onClickDelete() {
@@ -219,7 +219,10 @@ export default class AssetMgr extends AppNode {
     EditorEnv.SetProjectConfig(projConf);
     EditorEnv.SaveEditorConfig();
   }
-
+  updateAsset(prerfabName: string, tsStr: string, domStr: string) {
+    this.getDirentHandleByName(prerfabName + ".ts").dataStr = tsStr;
+    this.getDirentHandleByName(prerfabName + ".prefab.html").dataStr = domStr;
+  }
   static get PrefabStr(): string {
     return PrefabStr;
   }

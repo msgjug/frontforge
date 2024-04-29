@@ -32,7 +32,7 @@ export default class Toast extends AppNode {
         )
             .start();
     }
-    static get PrefabStr(){
+    static get __BindPrefab__(){
         return PrefabStr;
     }
 };

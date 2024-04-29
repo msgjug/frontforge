@@ -1,7 +1,52 @@
 import fs from 'fs'
+import path from 'path'
 import { DirentHandle } from "../classes/dirent_handle"
+import { ProtocolObjectProjectConfig } from '../classes/protocol_dist';
+import { IPCS } from './ipcs';
+import Utils from './utils';
 
+const TEMPLATE_MAIN_TS = Utils.GetResourcePath('template/template-main.ts');
 export class ProjectUtils {
+
+    static async BuildProject(projConf: ProtocolObjectProjectConfig) {
+        let prefabConf = projConf.prefabs_list.find(ele => ele.name === projConf.entrance_prefab_name)!;
+        if (!prefabConf) {
+            IPCS.Log("错误，找不到入口。");
+            return false;
+        }
+
+        //删除MAIN.TS 删除 RES_INDEX.TS
+        const MAIN_PATH = path.join(projConf.path, "src/main.ts");
+        const RES_INDEX_PATH = path.join(projConf.path, "/src/res_index.ts");
+        await ProjectUtils.DeleteFile(MAIN_PATH);
+        await ProjectUtils.DeleteFile(RES_INDEX_PATH);
+
+        let prefabPath = "./prefabs/" + prefabConf.name;
+        //覆盖MAIN.ts
+        IPCS.Log(`生成Main文件：${MAIN_PATH}`);
+        await IPCS.CopyFile(`"${TEMPLATE_MAIN_TS}"`, `"${MAIN_PATH}"`);
+        await IPCS.FileContentReplaceKey(`${MAIN_PATH}`,
+            ["{{PATH}}", prefabPath],
+            ["{{CLASS_NAME_BIG}}", Utils.SnakeToPascal(prefabConf.name)]
+        );
+        IPCS.Log("生成Main文件，OK");
+
+        //准备RES_INDEX
+        IPCS.Log(`生成Res_Index文件：${RES_INDEX_PATH}`);
+        let res_index_str = "";
+        projConf.prefabs_list.forEach(conf => {
+            let PascalName = Utils.SnakeToPascal(conf.name);
+            res_index_str += `import ${PascalName} from "./prefabs/${conf.name}"\n`;
+            res_index_str += `import ${PascalName}Prefab from "./prefabs/${conf.name}.prefab.html?raw"\n`;
+            res_index_str += `${PascalName}["__BindPrefab__"] = ${PascalName}Prefab;\n`;
+            res_index_str += `\n`;
+        });
+        ProjectUtils.WriteStrFile(RES_INDEX_PATH, res_index_str);
+
+        IPCS.Log("生成Res_Index文件，OK");
+
+        return true;
+    }
     static GetNameByPath(path: string) {
         let i1 = path.lastIndexOf("/");
         let i2 = path.lastIndexOf("\\");
@@ -46,5 +91,26 @@ export class ProjectUtils {
         }
 
         return dh;
+    }
+
+    static async WriteStrFile(path: string, dat: string) {
+        await fs.writeFileSync(path, dat);
+        return true;
+    }
+
+    static async ReadStrFile(path: string) {
+        if (!await fs.existsSync(path)) {
+            return "";
+        }
+        else {
+            return fs.readFileSync(path).toString();
+        }
+    }
+    static async DeleteFile(path: string) {
+        if (await fs.existsSync(path)) {
+            await fs.rmSync(path);
+            return true;
+        }
+        return false;
     }
 };

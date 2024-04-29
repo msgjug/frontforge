@@ -15,7 +15,7 @@ export default class Prefab {
                 console.error(`Instantiate, error: 空构造`);
                 return null;
             }
-            prefabStr = ctor["PrefabStr"];
+            prefabStr = ctor["__BindPrefab__"];
         }
 
         let ele = document.createElement("prefab");

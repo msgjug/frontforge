@@ -15,6 +15,7 @@ export class ClassSerializeInfo {
     ctor: Function = null!; //类构造
     memberList: string[] = []; //成员名 
     memberCtorList: string[] = []; //成员类名，如果是基础属性，则为空字符串
+    initExtends = false; //是否已经包含了继承节点的CSI数据。
 
     constructor(ctor) {
         this.ctor = ctor;
@@ -37,7 +38,21 @@ export function Name2Class(cn: string) {
     return NameClassMap.get(cn);
 }
 export function GetCSIByClass(ctor: any) { //类 -> 序列化结构
-    return ClassSerializeInfoMap.get(ctor);
+    let parent = Object.getPrototypeOf(ctor);
+    let csi = ClassSerializeInfoMap.get(ctor);
+    if (!csi.initExtends) {
+        while (parent.name !== "SerializeAble") {
+            let pcsi = ClassSerializeInfoMap.get(parent);
+            parent = Object.getPrototypeOf(parent);
+            if (pcsi) {
+                csi.memberCtorList = csi.memberCtorList.concat(pcsi.memberCtorList);
+                csi.memberList = csi.memberList.concat(pcsi.memberList);
+            }
+        }
+        csi.initExtends = true;
+    }
+    // console.log(`CSI<${ctor.name}> `, csi);
+    return csi;
 };
 export function GetCSI(cn: string) { //类名 -> 序列化结构
     return GetCSIByClass(n2c(cn));
@@ -58,7 +73,7 @@ export function Serialize<T>(cls?: new () => T) {
 }
 export function RegClass(regClassName: string) {
     return function (ctor: any): void {
-        console.log("REG CLASS:", regClassName);
+        // console.log("REG CLASS:", regClassName);
         ctor.__cn = regClassName;
         NameClassMap.set(ctor.__cn, ctor);
         ClassNameMap.set(ctor, ctor.__cn);

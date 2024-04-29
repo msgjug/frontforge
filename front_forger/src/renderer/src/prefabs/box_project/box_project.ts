@@ -93,7 +93,6 @@ export default class BoxProject extends AppNode {
         this.editorConfig.project_configs.push(conf);
         this.refresh();
         EditorEnv.SaveEditorConfig();
-
     }
     onEditSearch() {
         console.log("val:", this.ebSearch.value);

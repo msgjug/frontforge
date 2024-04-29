@@ -40,10 +40,17 @@ export class IPCS {
             if (IPCS.codeWindow && IPCS.codeWindow.isVisible()) {
                 let srcSize = IPCS.codeWindow.getSize();
                 let pos = IPCS.mainWindow.getPosition();
-                IPCS.codeWindow.setPosition(pos[0] + IPCS.editorConfig.win_main_w, pos[1]);
 
+                IPCS.codeWindow.setBounds({
+                    x: pos[0] + IPCS.editorConfig.win_main_w,
+                    y: pos[1],
+                    width: srcSize[0],
+                    height: srcSize[1]
+                });
+
+                // IPCS.codeWindow.setPosition(pos[0] + IPCS.editorConfig.win_main_w, pos[1]);
                 // 设置SETPOSITION 后，尺寸变了，是超分辨率的问题。
-                IPCS.codeWindow.setSize(srcSize[0], srcSize[1]);
+                // IPCS.codeWindow.setSize(srcSize[0], srcSize[1]);
             }
         })
         //刷新窗口
@@ -404,23 +411,11 @@ export class IPCS {
     protected static async _RunProject(_, projDat: JSON) {
         let projConf = new ProtocolObjectProjectConfig();
         projConf.fromMixed(projDat);
-
-        let prefabConf = projConf.prefabs_list.find(ele => ele.name === projConf.entrance_prefab_name)!;
-        if (!prefabConf) {
-            return "";
+        if (!ProjectUtils.BuildProject(projConf)) {
+            return null;
         }
-        let prefabPath = "./prefabs/" + prefabConf.name;
-        //覆盖MAIN.ts
-        const MAIN_PATH = projConf.path + "/src/main.ts";
-        await IPCS.__CopyFile(`"${TEMPLATE_MAIN_TS}"`, `"${MAIN_PATH}"`);
-        await IPCS.__FileContentReplaceKey(`${MAIN_PATH}`,
-            ["{{PATH}}", prefabPath],
-            ["{{CLASS_NAME_BIG}}", Utils.SnakeToPascal(prefabConf.name)]
-        );
-
         let port = (3000 + Math.random() * 9999).toFixed(0);
-        
-        IPCS.Log(`执行命令：npx vite --port ${port}`);
+        IPCS.Log(`执行命令：npx vite--port ${port}`);
         IPCS.__ae = new ActionExec(projConf.path);
         IPCS.__ae.cmd("npx.cmd", ["vite", "--port", port]);
         IPCS.__ae.onData = (str: string, delta: string) => {
@@ -451,21 +446,9 @@ export class IPCS {
         let projConf = new ProtocolObjectProjectConfig();
         projConf.fromMixed(projDat);
 
-        let prefabConf = projConf.prefabs_list.find(ele => ele.name === projConf.entrance_prefab_name)!;
-        if (!prefabConf) {
-            IPCS.Log("错误，找不到入口。");
-            return "";
+        if (!ProjectUtils.BuildProject(projConf)) {
+            return null;
         }
-        let prefabPath = "./prefabs/" + prefabConf.name;
-        //覆盖MAIN.ts
-        const MAIN_PATH = projConf.path + "/src/main.ts";
-        IPCS.Log(`生成Main文件：${MAIN_PATH}`);
-        await IPCS.__CopyFile(`"${TEMPLATE_MAIN_TS}"`, `"${MAIN_PATH}"`);
-        await IPCS.__FileContentReplaceKey(`${MAIN_PATH}`,
-        ["{{PATH}}", prefabPath],
-        ["{{CLASS_NAME_BIG}}", Utils.SnakeToPascal(prefabConf.name)]
-        );
-        IPCS.Log("生成Main文件，OK");
 
         IPCS.Log(`执行命令：npx vite build`);
         IPCS.__ae = new ActionExec(projConf.path);
@@ -476,8 +459,8 @@ export class IPCS {
         return new Promise(ok => IPCS.__ae.onEnd = ok);
     }
     /** 复制文件/文件夹 */
-    private static async __CopyFile(p1, p2) {
-        let copyStatment = `echo f| xcopy /y /c /s /h /r ` + `${p1} ${p2} `.replaceAll("./", "").replaceAll("/", "\\");
+    static async CopyFile(p1, p2) {
+        let copyStatment = `echo f| xcopy /y /c /s /h /r ` + `${p1} ${p2}`.replaceAll("./", "").replaceAll("/", "\\");
         await execSync(copyStatment);
     }
     /**
@@ -498,7 +481,7 @@ export class IPCS {
      * @param path 文件路径
      * @param pairs [查找文字，替换文字][查找文字，替换文字][查找文字，替换文字]
      */
-    private static async __FileContentReplaceKey(path: string, ...pairs: [string, string][]) {
+    static async FileContentReplaceKey(path: string, ...pairs: [string, string][]) {
         let str = await fs.readFileSync(path).toString();
         str = IPCS.__StrReplace(str, ...pairs);
         await fs.writeFileSync(path, str);
@@ -521,11 +504,11 @@ export class IPCS {
         let rtn = new ProtocolObjectIPCResponse();
         try {
             IPCS.Log(`复制TS模板"${TEMPLATE_DIR}_.ts" -> "${DST_DIR}${name}.ts"`);
-            await IPCS.__CopyFile(`"${TEMPLATE_DIR}_.ts"`, `"${DST_DIR}${name}.ts"`);
+            await IPCS.CopyFile(`"${TEMPLATE_DIR}_.ts"`, `"${DST_DIR}${name}.ts"`);
             IPCS.Log(`复制HTML模板"${TEMPLATE_DIR}_.prefab.html" -> "${DST_DIR}${name}.prefab.html"`);
-            await IPCS.__CopyFile(`"${TEMPLATE_DIR}_.prefab.html"`, `"${DST_DIR}${name}.prefab.html"`);
+            await IPCS.CopyFile(`"${TEMPLATE_DIR}_.prefab.html"`, `"${DST_DIR}${name}.prefab.html"`);
             IPCS.Log(`修改TS文件`);
-            await IPCS.__FileContentReplaceKey(`${DST_DIR}${name}.ts`, ["{{CLASS_NAME}}", name], ["{{CLASS_NAME_BIG}}", Utils.SnakeToPascal(name)]);
+            await IPCS.FileContentReplaceKey(`${DST_DIR}${name}.ts`, ["{{CLASS_NAME}}", name], ["{{CLASS_NAME_BIG}}", Utils.SnakeToPascal(name)]);
             IPCS.Log(`成功`);
         }
         catch (e) {
@@ -626,11 +609,11 @@ export class IPCS {
             const TEMPLATE_DIR = Utils.GetResourcePath("template/template-project-default/");
             const NODE_MODULES_PACK = Utils.GetResourcePath("template/node_modules_pack.zip");
             const PROJ_DIR = projConf.path;
-            await IPCS.__CopyFile(`"${TEMPLATE_DIR}*.*"`, `"${PROJ_DIR}\\"`);
+            await IPCS.CopyFile(`"${TEMPLATE_DIR}*.*"`, `"${PROJ_DIR}\\"`);
             IPCS.Log("复制项目文件，OK");
             await fs.writeFileSync(`${PROJ_DIR}/front_forge_project.json`, JSON.stringify(projConf.toField()));
             IPCS.Log("创建项目配置文件，OK");
-            await IPCS.__FileContentReplaceKey(`${PROJ_DIR}/src/core/macro.ts`, ["{{APP_NAME}}", projConf.app_name]);
+            await IPCS.FileContentReplaceKey(`${PROJ_DIR}/src/core/macro.ts`, ["{{APP_NAME}}", projConf.app_name]);
             IPCS.Log("创建项目常量文件，OK");
             //解压本地的node_modules_pack.zip包
             await compressing.zip.uncompress(NODE_MODULES_PACK, PROJ_DIR);
@@ -708,12 +691,7 @@ export class IPCS {
      * @returns 
      */
     protected static async _ReadStrFile(_, path: string) {
-        if (!fs.existsSync(path)) {
-            return "";
-        }
-        else {
-            return fs.readFileSync(path).toString();
-        }
+        return await ProjectUtils.ReadStrFile(path);
     }
     /**
      * 保存文本文件
@@ -723,8 +701,7 @@ export class IPCS {
      * @returns 
      */
     protected static async _SaveStrFile(_, path: string, dat: string) {
-        fs.writeFileSync(path, dat);
-        return true;
+        return await ProjectUtils.WriteStrFile(path, dat);
     }
 
     /**
@@ -734,11 +711,7 @@ export class IPCS {
      * @returns 
      */
     protected static async _DeleteFile(_, path: string) {
-        if (fs.existsSync(path)) {
-            fs.rmSync(path);
-            return true;
-        }
-        return false;
+        return await ProjectUtils.DeleteFile(path);
     }
 
     /**
@@ -753,10 +726,6 @@ export class IPCS {
         if (!canceled) {
             return filePaths[0];
         }
-
         return "";
     }
-
-
-
-};  
+};

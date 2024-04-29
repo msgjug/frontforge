@@ -61,15 +61,6 @@ export class HttpRequest {
 };
 
 export class Http {
-    static getRemoveAppVersionPath() {
-        return this.getH5Path() + Macro.HTTP.APIS.REMOTE_APP_VERSION + "?time=" + Date.now();
-    }
-    static getRemoveVersionPath() {
-        return this.getH5Path() + Macro.HTTP.APIS.REMOTE_VERSION + "?time=" + Date.now();
-    }
-    static getRemoteBundlePath() {
-        return this.getH5Path() + Macro.HTTP.APIS.REMOTE_BUNDLE_PATH;
-    }
     static getFullPathByKey(key: string) {
         return Http.getFullPath(Macro.HTTP.APIS[key]);
     }

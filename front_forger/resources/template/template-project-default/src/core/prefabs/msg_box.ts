@@ -20,7 +20,7 @@ export default class MsgBox extends Panel {
     onClickOk() {
         this.dispose();
     }
-    static get PrefabStr():string {
+    static get __BindPrefab__():string {
         return PrefabMsgBox;
     }
 };

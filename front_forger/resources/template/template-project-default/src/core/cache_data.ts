@@ -1,3 +1,4 @@
+import { Col } from "./data_ext";
 import Macro from "./macro";
 import SerializeAble, { RegClass, Serialize } from "./serialize";
 import { Subject } from "./subject";
@@ -6,8 +7,6 @@ export const NATIVE_PATHS = {
     CACHE_DATA: "CacheData", //CacheData 文件
     DIR_SCREEN_SHOTS: "ScreenShots" //ScreenShots 文件夹
 };
-
-type Col<T> = { [key: string]: T };
 
 @RegClass("CacheRecord")
 export class CacheRecord<T> extends SerializeAble {

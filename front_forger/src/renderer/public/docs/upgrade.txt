@@ -1,0 +1,7 @@
+- FrontForger 1.0.3(2024.4.30)
+  - 修BUG
+  - WEB框架2.1
+    - 由编辑器自动生成资源关联，替代PrefabStr。
+- FrontForger 1.0.2(2024.4.25)
+  - 编辑器基础功能
+  - WEB框架2.0

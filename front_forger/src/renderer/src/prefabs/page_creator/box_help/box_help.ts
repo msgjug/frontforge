@@ -2,54 +2,42 @@ import { AppNode } from "../../../core/app_node";
 import { RegClass } from "../../../core/serialize";
 import PrefabStr from "./box_help.prefab.html?raw"
 
-import Doc1 from "./1.txt?raw";
-import Doc2 from "./2.txt?raw";
-import Doc3 from "./3.txt?raw";
-import DocTS from "./ts.txt?raw";
-import DocDom from "./dom.txt?raw";
-import DocAbout from "./about.txt?raw";
 
 @RegClass("BoxHelp")
 export default class BoxHelp extends AppNode {
     docTitles: HTMLDivElement[] = [];
     main: HTMLDivElement = null;
-    onClickDoc(id) {
-        this.showDoc(id);
+    onClickDoc(evt) {
+        let tag = evt.target.getAttribute("doc");
+        this.showDoc(tag);
     }
+    async fetchTextFile(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const content = await response.text();
+            return content; // 返回文本文件的内容
+        } catch (error) {
+            console.error('There was a problem with the fetch operation:', error);
+            throw error; // 抛出错误，让调用者知道发生了问题
+        }
+    }
+
     onLoad(): void {
-        this.showDoc(1);
+        this.showDoc("first");
     }
-    showDoc(id) {
+    async showDoc(tag) {
         this.docTitles.forEach((ele, ind) => {
-            if (ind + 1 == id) {
+            if (ele.getAttribute("doc") === tag) {
                 ele.setAttribute("cur", "");
             }
             else {
                 ele.removeAttribute("cur");
             }
         })
-
-        let docStr = "";
-        switch (id) {
-            case 1:
-                docStr = Doc1;
-                break;
-            case 2:
-                docStr = Doc2;
-                break;
-            case 3:
-                docStr = Doc3;
-                break;
-            case 4:
-                docStr = DocDom;
-                break;
-            case 5:
-                docStr = DocTS;
-                break;
-            case 6:
-                docStr = DocAbout;
-                break;
-        }
+        let docStr = await this.fetchTextFile(`./docs/${tag}.txt`);
         this.main.innerHTML = "";
 
         let lines = docStr.replace("\r", "").trim().split("\n");

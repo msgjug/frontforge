@@ -25,7 +25,7 @@ export default class Blocker extends AppNode {
     onClickBlockInput(event) {
         event.stopPropagation();
     }
-    static get PrefabStr(){
+    static get __BindPrefab__(){
         return PrefabStr;
     }
 };
