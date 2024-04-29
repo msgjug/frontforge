@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, screen } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { Menu, MenuItem } from 'electron/main'
 import { IPCS } from './ipcs'
@@ -7,6 +7,7 @@ import { IPCS } from './ipcs'
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 

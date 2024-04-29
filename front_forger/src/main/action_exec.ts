@@ -24,11 +24,17 @@ export default class ActionExec {
      * @param cmd 命令，有一些需要加  xxxx.cmd
      * @param args 命令的参数。
      */
+    input( str: string ) {
+        this.comp.stdin.write(str);
+        // this.comp.stdin.end();
+    }
     async cmd(cmd: string, args: string[] = []) {
         try {
             await new Promise<number>((ok) => {
                 this.comp = cp.spawn(cmd, args, {
-                    cwd: this.cwd
+                    cwd: this.cwd,
+                    stdio: ['pipe', 'pipe', 'inherit', 'ipc'],
+                    windowsHide:true 
                 });
 
                 this.comp.stdout.on('data', (data) => {
@@ -43,18 +49,18 @@ export default class ActionExec {
                     this.onData && this.onData(this.stdout, str);
                 });
 
-                this.comp.stderr.on('data', (data) => {
-                    let str = "";
-                    if (process.platform === "win32") {
-                        str = iconv.decode(data, "gbk");
-                    }
-                    else {
-                        str = iconv.decode(data, "utf8");
-                    }
+                // this.comp.stderr.on('data', (data) => {
+                //     let str = "";
+                //     if (process.platform === "win32") {
+                //         str = iconv.decode(data, "gbk");
+                //     }
+                //     else {
+                //         str = iconv.decode(data, "utf8");
+                //     }
 
-                    this.stderr += data;
-                    this.onError && this.onError(this.stderr, str);
-                });
+                //     this.stderr += data;
+                //     this.onError && this.onError(this.stderr, str);
+                // });
                 this.comp.on('close', ok);
                 this.comp.on("exit", ok);
             });

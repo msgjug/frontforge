@@ -1,12 +1,12 @@
 import { dialog, ipcMain } from "electron/main";
 import fs from 'fs';
 import { ProtocolObjectIPCResponse, ProtocolObjectLog, ProtocolObjectPrefabConfig, ProtocolObjectProjectConfig, ProtocolObjectWindowChange } from "../classes/protocol_dist";
-import { execSync } from "child_process";
+import { exec, execSync } from "child_process";
 import ActionExec from "./action_exec";
 import { ProjectUtils } from "./project_utils";
 import { DirentHandle } from "../classes/dirent_handle";
 import Utils from "./utils";
-import { app, BrowserWindow, Menu, MenuItem, shell } from "electron";
+import { app, BrowserWindow, Menu, MenuItem, screen, shell } from "electron";
 import path, { join } from "path";
 import icon from "../../resources/icon.png?asset"
 import { is } from "@electron-toolkit/utils";
@@ -28,7 +28,10 @@ export class IPCS {
     //所有窗口集合 handle{ name: win: }
     static windows: WindowHandle[] = [];
 
+    static screenScaleFactor = 1; //系统的屏幕缩放因子，一般是100%
     static async Init() {
+        let pScreen = screen.getPrimaryDisplay();
+        IPCS.screenScaleFactor = pScreen.scaleFactor;
         //读取EDITOR配置
         await IPCS._ReadEditorConfig(null);
         //创建MAIN窗口，并居中，加入快捷键
@@ -37,6 +40,10 @@ export class IPCS {
         IPCS.InitHotKey(IPCS.mainWindow);
         //CODE窗口跟随MAIN
         IPCS.mainWindow.on("move", () => {
+            //缩放因子不为1时，不跟踪，因为ELECTRON 有BUG。
+            if (IPCS.screenScaleFactor !== 1) {
+                return;
+            }
             if (IPCS.codeWindow && IPCS.codeWindow.isVisible()) {
                 let srcSize = IPCS.codeWindow.getSize();
                 let pos = IPCS.mainWindow.getPosition();
@@ -47,10 +54,6 @@ export class IPCS {
                     width: srcSize[0],
                     height: srcSize[1]
                 });
-
-                // IPCS.codeWindow.setPosition(pos[0] + IPCS.editorConfig.win_main_w, pos[1]);
-                // 设置SETPOSITION 后，尺寸变了，是超分辨率的问题。
-                // IPCS.codeWindow.setSize(srcSize[0], srcSize[1]);
             }
         })
         //刷新窗口
@@ -303,6 +306,8 @@ export class IPCS {
     protected static _Quit(_) {
         if (IPCS.__ae) {
             IPCS.__ae.kill();
+            IPCS.killChildVite();
+            IPCS.__runProjectPort = "";
             IPCS.__ae = null;
         }
         app.quit();
@@ -402,6 +407,7 @@ export class IPCS {
     }
     /** 执行命令行对象 */
     private static __ae: ActionExec = null!;
+    private static __runProjectPort = "";
     /**
      * 运行项目， (npx vite)
      * @param _ 
@@ -415,6 +421,7 @@ export class IPCS {
             return null;
         }
         let port = (3000 + Math.random() * 9999).toFixed(0);
+        IPCS.__runProjectPort = port;
         IPCS.Log(`执行命令：npx vite--port ${port}`);
         IPCS.__ae = new ActionExec(projConf.path);
         IPCS.__ae.cmd("npx.cmd", ["vite", "--port", port]);
@@ -431,10 +438,58 @@ export class IPCS {
         IPCS.Log("--- 停止预览");
         if (IPCS.__ae) {
             IPCS.__ae.kill();
+            IPCS.killChildVite();
+            IPCS.__runProjectPort = "";
             IPCS.__ae = null!;
             IPCS.Log("成功");
         }
     }
+    static killChildVite() {
+
+        // 构建查找窗口标题的命令
+        const findProcessCommand = `TASKLIST /FI "WINDOWTITLE eq npm exec vite --port ${IPCS.__runProjectPort}"`;
+
+        // 执行命令获取进程信息
+        exec(findProcessCommand, (err, stdout, stderr) => {
+            if (err) {
+                console.error(`错误: ${err.message}`);
+                return;
+            }
+            if (stderr) {
+                console.error(`标准错误输出: ${stderr}`);
+                return;
+            }
+
+            // 解析进程信息
+            const lines = stdout.trim().split('\n');
+            lines.forEach((line) => {
+                const parts = line.trim().split(/\s+/);
+                if (parts.length >= 2) {
+                    const pid = parts[1];
+                    if (isNaN(Number(pid))) {
+                        return;
+                    }
+                    console.log(`找到进程 PID: ${pid}`);
+
+                    // 构建杀死进程的命令
+                    const killProcessCommand = `taskkill /PID ${pid}`;
+                    // 执行命令杀死进程
+                    exec(killProcessCommand, (err, stdout, stderr) => {
+                        if (err) {
+                            console.error(`杀死进程时出错: ${err.message}`);
+                            return;
+                        }
+                        if (stderr) {
+                            console.error(`标准错误输出: ${stderr}`);
+                            return;
+                        }
+                        console.log(`进程已成功杀死`);
+                    });
+                }
+            });
+        });
+    }
+
     /**
      * 构建项目 (npx vite build)
      * @param _ 

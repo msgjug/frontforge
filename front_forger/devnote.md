@@ -19,11 +19,11 @@
 - cache_Data.ts
 
 # done:
-  - BUG: 代码保存后点击资源界面，代码会被复原。
-  - 做一个资源列表，自动加载。优化PrefabStr 膏药代码
+  - 优化：替代膏药代码，与PrefabStr说再见 
+  - 修BUG: 代码保存后点击资源界面，代码会被复原。
+  - 修BUG: 预览的进程无法杀死，常驻在系统。
+  - 修BUG：窗口的setPosition 会改变窗口大小（在系统UI为100% 以上时触发这个BUG）
 
 # todo: 
-  - BUG: 预览的进程无法杀死，常驻在系统。
   - persist 属性，开头加载。常驻。
   - 设计器，编辑CSS，MAIN。
-  - BUG：窗口的setPosition 会改变窗口大小（在系统UI为100% 以上时触发这个BUG）
