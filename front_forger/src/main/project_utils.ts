@@ -25,10 +25,22 @@ export class ProjectUtils {
         //覆盖MAIN.ts
         IPCS.Log(`生成Main文件：${MAIN_PATH}`);
         await IPCS.CopyFile(`"${TEMPLATE_MAIN_TS}"`, `"${MAIN_PATH}"`);
-        await IPCS.FileContentReplaceKey(`${MAIN_PATH}`,
+        let mainStr = await ProjectUtils.ReadStrFile(MAIN_PATH);
+
+        //添加PERSIST
+        projConf.prefabs_list.forEach(conf => {
+            if (conf.is_persist) {
+                mainStr += `
+                import ${Utils.SnakeToPascal(conf.name)} from './prefabs/${conf.name}'
+                app.root.addChild(Prefab.Instantiate(${Utils.SnakeToPascal(conf.name)}));
+                `;
+            }
+        });
+        mainStr = IPCS.StrReplace(mainStr,
             ["{{PATH}}", prefabPath],
             ["{{CLASS_NAME_BIG}}", Utils.SnakeToPascal(prefabConf.name)]
         );
+        ProjectUtils.WriteStrFile(MAIN_PATH, mainStr);
         IPCS.Log("生成Main文件，OK");
 
         //准备RES_INDEX

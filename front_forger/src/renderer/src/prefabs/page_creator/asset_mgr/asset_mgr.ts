@@ -4,7 +4,7 @@ import Prefab from "../../../core/prefab";
 import { RegClass } from "../../../core/serialize";
 import Utils from "../../../core/utils";
 import EditorEnv from "../../../env";
-import { ProtocolObjectFlagPrefab, ProtocolObjectPrefabConfig } from "../../../../../classes/protocol_dist";
+import { Protocol, ProtocolObjectFlagPrefab, ProtocolObjectPersistPrefab, ProtocolObjectPrefabConfig } from "../../../../../classes/protocol_dist";
 import AssetGroupItem from "./asset_group_item";
 import AssetItem from "./asset_item";
 import PrefabStr from "./asset_mgr.prefab.html?raw"
@@ -18,6 +18,34 @@ export default class AssetMgr extends AppNode {
   curItem: AssetItem = null;
 
   assetCtrl: HTMLDivElement = null;
+
+  onLoad(): void {
+    EditorEnv.onMessage(this.onMessage, this);
+  }
+  onDispose(): void {
+    EditorEnv.offMessage(this);
+  }
+  async onMessage(msg: Protocol) {
+    switch (true) {
+      case msg instanceof ProtocolObjectPersistPrefab:
+        let item = this.findAssetItemByAssetConfig(msg.prefab_conf);
+        if (item) {
+          item.setData(msg.prefab_conf);
+        }
+        break;
+    }
+  }
+
+  findAssetItemByAssetConfig(conf: ProtocolObjectPrefabConfig) {
+    for (let key in this.groupCol) {
+      let group = this.groupCol[key];
+      let item = group.itemCol[conf.name];
+      if (item) {
+        return item;
+      }
+    }
+    return null;
+  }
 
   async listDir() {
     let projConf = EditorEnv.GetProjectConfig();
@@ -177,6 +205,18 @@ export default class AssetMgr extends AppNode {
     }
   }
 
+  onClickSetPersist() {
+    if (!this.curItem) {
+      return;
+    }
+    this.curItem.prefabConfig.is_persist = !this.curItem.prefabConfig.is_persist;
+    let projConf = EditorEnv.GetProjectConfig();
+    EditorEnv.SetProjectConfig(projConf);
+
+    let msg = new ProtocolObjectPersistPrefab();
+    msg.prefab_conf = this.curItem.prefabConfig;
+    EditorEnv.postMessage(msg);
+  }
   onClickSetStart() {
     if (!this.curItem) {
       return;

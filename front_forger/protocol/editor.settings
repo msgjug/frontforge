@@ -40,6 +40,7 @@ classes {
     PrefabConfig {
         name "(str)";
         group "(str)";
+        is_persist "(bool)false"; # 是否在Main加载（与Scene同级)
     };
 
     #
@@ -94,6 +95,11 @@ classes {
 
     # 设置开始Prefab
     FlagPrefab {
+        prefab_conf "(PrefabConfig)";
+    };
+
+    # 设置常驻Prefab
+    PersistPrefab {
         prefab_conf "(PrefabConfig)";
     };
 

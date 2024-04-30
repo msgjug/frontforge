@@ -9,6 +9,7 @@ export default class AssetItem extends AppNode {
     lbName: HTMLDivElement = null;
     btnRoot: HTMLDivElement = null;
     iconStart: HTMLDivElement = null;
+    iconPersist: HTMLDivElement = null;
     prefabConfig: ProtocolObjectPrefabConfig = null;
     onLoad(): void {
         this.ele.ondragstart = (ev) => {
@@ -29,6 +30,7 @@ export default class AssetItem extends AppNode {
     setData(prefabConfig: ProtocolObjectPrefabConfig) {
         this.prefabConfig = prefabConfig;
         this.lbName.innerText = this.prefabConfig.name;
+        this.iconPersist.style.display = this.prefabConfig.is_persist ? "" : "none"
     }
     blur() {
         this.ele.removeAttribute("cur");

@@ -524,7 +524,7 @@ export class IPCS {
      * @param pairs [查找文字，替换文字][查找文字，替换文字][查找文字，替换文字]
      * @returns 
      */
-    private static __StrReplace(str: string, ...pairs: [string, string][]) {
+    static StrReplace(str: string, ...pairs: [string, string][]) {
         for (let i = 0; i < pairs.length; i++) {
             let pair = pairs[i];
             str = str.replaceAll(pair[0], pair[1]);
@@ -538,7 +538,7 @@ export class IPCS {
      */
     static async FileContentReplaceKey(path: string, ...pairs: [string, string][]) {
         let str = await fs.readFileSync(path).toString();
-        str = IPCS.__StrReplace(str, ...pairs);
+        str = IPCS.StrReplace(str, ...pairs);
         await fs.writeFileSync(path, str);
     }
     /**
