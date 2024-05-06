@@ -1,6 +1,6 @@
 var Macro = {
     APP_NAME: "FrontForger",
-    APP_VERSION: "1.0",
+    APP_VERSION: "1.1.2",
     APP_VERSION_TIMESTAMP: "1687504057046",
     DEBUG: 0,
     EVENTS: {

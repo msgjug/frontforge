@@ -1,3 +1,4 @@
+import { ProtocolObjectIPCResponse } from "../../../../classes/protocol_dist";
 import { AppNode } from "../../core/app_node";
 import Macro from "../../core/macro";
 import { RegClass } from "../../core/serialize";
@@ -9,7 +10,16 @@ export default class Nav extends AppNode {
     lbTitle: HTMLDivElement = null;
     btnOption: HTMLButtonElement = null;
     btnLog: HTMLButtonElement = null;
-    onLoad(): void {
+    static ELECTRON_APP_VERSION = "";
+    async onLoad() {
+        let res: ProtocolObjectIPCResponse = await window.electron.ipcRenderer.invoke("FF:AppVersion");
+        if (!res.ret) {
+            Nav.ELECTRON_APP_VERSION = res.msg;
+        }
+        else {
+            console.warn("获取APP版本错误:", res.msg);
+        }
+
         Nav.__ins = this;
         const PageStamp = Utils.parseUrlParam(false).ps || "none";
         const BoxStamp = Utils.parseUrlParam(false).box || "none";
@@ -21,7 +31,7 @@ export default class Nav extends AppNode {
                 BoxLogger: "日志"
             }[BoxStamp]
             || {
-                index: Macro.APP_NAME,
+                index: Macro.APP_NAME + Nav.ELECTRON_APP_VERSION,
                 code: "代码编辑器"
             }[PageStamp];
     }
@@ -51,7 +61,7 @@ export default class Nav extends AppNode {
     }
 
     onClickLog() {
-        window.electron.ipcRenderer.invoke("FF:CreateWindow", "box_log", 0, 0, 400, 140, "none", "BoxLogger", "", "", true );
+        window.electron.ipcRenderer.invoke("FF:CreateWindow", "box_log", 0, 0, 400, 140, "none", "BoxLogger", "", "", true);
     }
     onClickOption() {
         MsgHub.emit("option");

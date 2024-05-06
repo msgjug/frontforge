@@ -105,6 +105,9 @@ export class IPCS {
         //退出
         ipcMain.handle("FF:Quit", IPCS._Quit);
 
+        //获取当前APP版本。
+        ipcMain.handle("FF:AppVersion", IPCS._AppVersion);
+
         let tag = process.argv[1];
         switch (tag) {
             case "log":
@@ -312,6 +315,21 @@ export class IPCS {
         }
         app.quit();
     }
+
+    //获取APP版本
+    protected static async _AppVersion(_) {
+        let res = new ProtocolObjectIPCResponse();
+        try {
+            let projectJson = JSON.parse(await ProjectUtils.ReadStrFile(Utils.GetPackageJsonPath()));
+            res.msg = projectJson.version;
+        }
+        catch (e) {
+            res.ret = 1;
+            res.msg = e;
+        }
+        return res;
+    }
+
     // 检查项目文件夹 是否健康，
     /**
      * 

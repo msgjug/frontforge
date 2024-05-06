@@ -26,4 +26,5 @@
   - persist 属性，开头加载。常驻。
 
 # todo: 
+  - 修BUG：不缓存TS STR 和 DOM STR，每次访问都从文件读取。
   - 设计器，编辑CSS，MAIN。

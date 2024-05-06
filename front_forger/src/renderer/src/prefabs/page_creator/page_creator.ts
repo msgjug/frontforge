@@ -97,11 +97,16 @@ export default class PageCreator extends AppNode {
         break;
     }
   }
-  onSelectAssetItem(item: AssetItem) {
+  async onSelectAssetItem(item: AssetItem) {
     let msg = new ProtocolObjectSelectPrefab();
     if (item) {
-      let dhTs = this.assetMgr.getDirentHandleByName(item.prefabConfig.name + ".ts");
-      let dhDom = this.assetMgr.getDirentHandleByName(item.prefabConfig.name + ".prefab.html");
+      let projConf = EditorEnv.GetProjectConfig();
+
+      //获取dh
+      let tsPath = projConf.path + "/src/prefabs/" + item.prefabConfig.name + ".ts";
+      let domPath = projConf.path + "/src/prefabs/" + item.prefabConfig.name + ".prefab.html";
+      let dhTs = await window.electron.ipcRenderer.invoke("FF:GetDirentHandle", tsPath);
+      let dhDom = await window.electron.ipcRenderer.invoke("FF:GetDirentHandle", domPath);
       msg.valid = true;
       msg.ts_str = dhTs.dataStr;
       msg.dom_str = dhDom.dataStr;

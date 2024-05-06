@@ -24,6 +24,17 @@ export default class Utils {
         }
     }
 
+    static GetPackageJsonPath() {
+        // // 检查是否为生产模式（asar打包）
+        if (app.isPackaged) {
+            // 生产模式下，使用 app.asar.unpacked 路径
+            return path.join(process.cwd(), "resources", "app", "package.json");
+        } else {
+            // 开发模式下，直接使用项目目录
+            return path.join(process.cwd(), "package.json");
+        }
+    }
+
     //     // 使用方法
     //     const resourcePath = getResourcePath('path/to/your/resource');
 
