@@ -14,6 +14,23 @@
     .asset-btns .btn {
         flex-grow: 1;
     }
+
+    .spec-asset-item {
+        border-bottom: 1px gray dashed;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: space-between;
+        cursor: default;
+    }
+    .spec-asset-item:hover {
+        background: rgba(255, 255, 255, 0.5);
+    }
+    .spec-asset-item[cur] {
+        background: #f7922c;
+    }
+
 </style>
 
 <dom>
@@ -21,18 +38,20 @@
         <!-- <div class="title">asset</div> -->
         <div class="asset-btns row ">
             <button @click="onClickNewPrefab" class="emoji-btn">➕<span>新建资源</span></button>
-            <button @click="onClickFold" class="emoji-btn">⏫<span>Fold All</span></button>
-            <button @click="onClickUnfold" class="emoji-btn">⏬<span>Unflod All</span></button>
+            <button @click="onClickFold" class="emoji-btn">⏫<span>折叠</span></button>
+            <button @click="onClickUnfold" class="emoji-btn">⏬<span>展开</span></button>
             <button @click="onClickRefresh" class="emoji-btn">🔃<span>刷新</span></button>
             <div $="assetCtrl" class="row" style="display: none;">
-            <button @click="onClickSetPersist" class="emoji-btn">📌<span>设置常驻</span></button>
-            <button @click="onClickSetStart" class="emoji-btn">🚩<span>设置入口</span></button>
-            <button @click="onClickDelete" class="emoji-btn">🗑️<span>删除资源</span></button>
+                <button @click="onClickSetPersist" class="emoji-btn">📌<span>设置常驻</span></button>
+                <button @click="onClickSetStart" class="emoji-btn">🚩<span>设置入口</span></button>
+                <button @click="onClickDelete" class="emoji-btn">🗑️<span>删除资源</span></button>
             </div>
         </div>
         <div class="row">
         </div>
-        <div class="area-contain" style="display:flex;flex-direction: column;padding-top:0">
+        <div class="area-contain" style="display:flex;flex-direction: column;padding-top:0;
+        max-height: 77vh;
+        overflow-y: auto;">
             <div $="contain">
             </div>
         </div>

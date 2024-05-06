@@ -11,3 +11,4 @@ import './web_application'
 
 import './prefabs/panel'
 import './prefabs/msg_box'
+import './prefabs/msg_box_yes_no'

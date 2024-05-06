@@ -5,7 +5,7 @@ import WebApplication from './core/web_application'
 import Utils from './core/utils'
 
 //assets
-import Scene from './core/scene'
+import Scene from './core/prefabs/scene'
 var app = new WebApplication();
 app.init();
 //contain

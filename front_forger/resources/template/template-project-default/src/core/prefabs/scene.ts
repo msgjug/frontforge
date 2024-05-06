@@ -1,8 +1,8 @@
-import { AppNode } from "./app_node";
-import { RegClass } from "./serialize";
-import PrefabStr from "./prefabs/scene.prefab.html?raw"
-import Prefab from "./prefab";
-import Toast from "./prefabs/toast";
+import { AppNode } from "../app_node";
+import { RegClass } from "../serialize";
+import PrefabStr from "./scene.prefab.html?raw"
+import Prefab from "../prefab";
+import Toast from "./toast";
 @RegClass("Scene")
 export default class Scene extends AppNode {
     curPage: AppNode = null;

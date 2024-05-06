@@ -5,6 +5,12 @@
         background: rgba(0, 0, 0, 0.5);
         margin-top: 0.5em;
     }
+    .asset-group[internal] {
+        border: 1px solid white;
+        border-radius: 0.5em;
+        background: rgba(0, 0, 100, 0.5);
+        margin-top: 0.5em;
+    }
 
     .asset-group[drag-over]{
         /* background:red; */
@@ -32,9 +38,12 @@
     <div class="asset-group" @drop="onItemDrop">
         <div class="row" style="justify-content: space-between;" @click="onToggleFold">
             <div $="lbName" class="asset-group-title" style="flex-grow: 1;">group_name</div>
-            <button class="asset-group-btn-fold" $="btnFold">-</button>
+            <div class="row" style="align-items: baseline;">
+                <div $="lbItemCount" style="font-size:0.8em">0</div>
+                <button class="asset-group-btn-fold" $="btnFold">-</button>
+            </div>
         </div>
-        <div $="contain" style="padding: 0 0 0.5em 0;">
+        <div $="contain" style="overflow-y: hidden; transition: height 0.2s ease-in-out;">
         </div>
     </div>
 </dom>

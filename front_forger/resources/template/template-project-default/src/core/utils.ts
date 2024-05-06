@@ -1,6 +1,6 @@
 import data from "./cache_data";
 import { HttpRequest } from "./http_request";
-import Scene from "./scene";
+import Scene from "./prefabs/scene";
 import { c2n, n2c } from "./serialize";
 import { Subject } from "./subject";
 import WebApplication from "./web_application";

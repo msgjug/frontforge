@@ -1,5 +1,5 @@
 import { RegClass } from "../serialize";
-import PrefabMsgBox from './msgbox.prefab.html?raw'
+import PrefabMsgBox from './msg_box.prefab.html?raw'
 import Panel from "./panel";
 @RegClass("MsgBox")
 export default class MsgBox extends Panel {

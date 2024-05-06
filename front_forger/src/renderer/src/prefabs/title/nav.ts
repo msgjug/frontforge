@@ -12,6 +12,7 @@ export default class Nav extends AppNode {
     btnLog: HTMLButtonElement = null;
     static ELECTRON_APP_VERSION = "";
     async onLoad() {
+        Nav.__ins = this;
         let res: ProtocolObjectIPCResponse = await window.electron.ipcRenderer.invoke("FF:AppVersion");
         if (!res.ret) {
             Nav.ELECTRON_APP_VERSION = res.msg;
@@ -20,7 +21,6 @@ export default class Nav extends AppNode {
             console.warn("获取APP版本错误:", res.msg);
         }
 
-        Nav.__ins = this;
         const PageStamp = Utils.parseUrlParam(false).ps || "none";
         const BoxStamp = Utils.parseUrlParam(false).box || "none";
         this.lbTitle.innerText =
@@ -32,7 +32,8 @@ export default class Nav extends AppNode {
             }[BoxStamp]
             || {
                 index: Macro.APP_NAME + Nav.ELECTRON_APP_VERSION,
-                code: "代码编辑器"
+                code: "代码编辑器",
+                designer: "HTML设计"
             }[PageStamp];
     }
     onClickClose() {

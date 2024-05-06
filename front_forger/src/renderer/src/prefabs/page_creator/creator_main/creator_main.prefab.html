@@ -38,11 +38,15 @@
         justify-content: space-between;
         padding-top: 0.5em;
         background: rgba(0,0,0,0.5);">
-            <div $="lbName">__</div>
             <div class="row">
                 <button @click="onClickSave" class="emoji-btn">💾<span>保存</span></button>
                 <!-- <button @click="onClickSetStart" class="emoji-btn">🚩<span>设置入口</span></button> -->
                 <button @click="onClickDelete" class="emoji-btn">🗑️<span>删除资源</span></button>
+                <div $="lbName" style="
+                background: #1359bc;
+                padding:0.4em;
+                border-top-left-radius: 1em;
+                border-top-right-radius: 1em;">__</div>
             </div>
             <div $="tabView" class="row" ctor="TabView">
                 <button class="tap" cur>TypeScript</button>

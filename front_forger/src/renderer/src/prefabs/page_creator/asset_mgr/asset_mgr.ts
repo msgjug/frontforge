@@ -10,6 +10,57 @@ import AssetItem from "./asset_item";
 import PrefabStr from "./asset_mgr.prefab.html?raw"
 import BoxNewPrefabAsset from "./box_new_prefab_asset";
 
+
+export const INTERNAL_ASSETS = {
+  files: [
+    ["项目笔记", "devnote.md"],
+    ["全局CSS", "src/css/global.css"],
+    "src/core/app_node.ts",
+    "src/core/cache_data.ts",
+    "src/core/data_ext.ts",
+    "src/core/http_request.ts",
+    "src/core/index.ts",
+    "src/core/macro.ts",
+    "src/core/prefab.ts",
+    "src/core/serialize.ts",
+    "src/core/subject.ts",
+    "src/core/utils.ts",
+    "src/core/web_application.ts",
+  ],
+  prefabs: [
+    {
+      is_persist: false,
+      name: "blocker",
+      path: "./src/core/prefabs/"
+    },
+    {
+      is_persist: false,
+      name: "msg_box",
+      path: "./src/core/prefabs/"
+    },
+    {
+      is_persist: false,
+      name: "msgbox_yes_no",
+      path: "./src/core/prefabs/"
+    },
+    {
+      is_persist: false,
+      name: "panel",
+      path: "./src/core/prefabs/"
+    },
+    {
+      is_persist: true,
+      name: "scene",
+      path: "./src/core/prefabs/"
+    },
+    {
+      is_persist: false,
+      name: "toast",
+      path: "./src/core/prefabs/"
+    },
+  ]
+};
+
 @RegClass("AssetMgr")
 export default class AssetMgr extends AppNode {
   contain: HTMLDivElement = null;
@@ -30,7 +81,7 @@ export default class AssetMgr extends AppNode {
       case msg instanceof ProtocolObjectPersistPrefab:
         let item = this.findAssetItemByAssetConfig(msg.prefab_conf);
         if (item) {
-          item.setData(msg.prefab_conf);
+          item.setPrefabData(msg.prefab_conf);
         }
         break;
     }
@@ -55,6 +106,29 @@ export default class AssetMgr extends AppNode {
   refresh() {
     this.groupCol = {};
     this.disposeAllChildren(this.contain);
+
+    //internal 资源
+    let group = this.addGroup("internal");
+    group.fold();
+    group.dragable = false;
+    group.ele.style.background = "rgba(0,0,100,0.5)";
+    for (let i = 0; i < INTERNAL_ASSETS.prefabs.length; i++) {
+      let conf = new ProtocolObjectPrefabConfig();
+      Object.assign(conf, INTERNAL_ASSETS.prefabs[i]);
+      conf.group = "internal";
+      let internalItem = group.addPrefabAssetItem(conf);
+      internalItem.isDragable = false;
+    }
+    for (let i = 0; i < INTERNAL_ASSETS.files.length; i++) {
+      let path = INTERNAL_ASSETS.files[i];
+      let nickname = "";
+      if (path instanceof Array) {
+        nickname = path[0];
+        path = path[1];
+      }
+      group.addFileAssetItem(nickname || Utils.GetNameByPath(path), path);
+    }
+
     let projConf = EditorEnv.GetProjectConfig();
     projConf.prefabs_list.forEach(conf => {
       this.addPrefabAsset(conf);
@@ -66,7 +140,7 @@ export default class AssetMgr extends AppNode {
     if (!group) {
       group = this.addGroup(prefabConfig.group);
     }
-    group.addAssetItem(prefabConfig);
+    group.addPrefabAssetItem(prefabConfig);
   }
   addGroup(groupName: string) {
     let groupItem = Prefab.Instantiate(AssetGroupItem);
@@ -195,7 +269,7 @@ export default class AssetMgr extends AppNode {
     for (let gk in this.groupCol) {
       let group = this.groupCol[gk];
       for (let key in group.itemCol) {
-        if (group.itemCol[key].prefabConfig.name === startPrefabName) {
+        if (group.itemCol[key].isPrefab && group.itemCol[key].prefabConfig.name === startPrefabName) {
           group.itemCol[key].setStart();
         }
         else {
@@ -262,6 +336,17 @@ export default class AssetMgr extends AppNode {
   updateAsset(prerfabName: string, tsStr: string, domStr: string) {
     this.getDirentHandleByName(prerfabName + ".ts").dataStr = tsStr;
     this.getDirentHandleByName(prerfabName + ".prefab.html").dataStr = domStr;
+  }
+
+  onClickEditCSS() {
+    this.setCurItem(null);
+    let projConf = EditorEnv.GetProjectConfig();
+    this.subject.emit("open-file", projConf.path + "/src/css/global.css");
+  }
+  onClickEditDevNote() {
+    this.setCurItem(null);
+    let projConf = EditorEnv.GetProjectConfig();
+    this.subject.emit("open-file", projConf.path + "/devnote.md");
   }
   static get PrefabStr(): string {
     return PrefabStr;

@@ -6,6 +6,7 @@
         flex-wrap: nowrap;
         align-items: center;
         justify-content: space-between;
+        height:23px;
     }
 
     .asset-item:hover {
@@ -26,13 +27,16 @@
     }
 
     .asset-item .emoji-btn {
-        font-size:1em;
-        padding:0;
+        font-size: 1em;
+        padding: 0;
     }
 </style>
 <dom>
     <div @click="onClick" class="asset-item" draggable="true">
-        <div $="lbName">asset_name</div>
+        <div class="row">
+            <img $="imgIcon" src="icon-file.png" style="height:1em;"/>
+            <div $="lbName" >asset_name</div>
+        </div>
         <div $="iconPersist" style="display:none;">📌</div>
         <div $="iconStart" style="display:none;">🚩</div>
         <div $="btnRoot" class="row" style="display:none">

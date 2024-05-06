@@ -19,12 +19,19 @@ const TEMPLATE_MAIN_TS = Utils.GetResourcePath('template/template-main.ts');
 
 const EDITOR_CONFIG_PATH = path.join(process.cwd(), "resources/editor_config.json");
 
+export class ProjectRunning {
+    port = "";
+    ae: ActionExec;
+};
+
 //主进程逻辑
 export class IPCS {
     //主界面
     static mainWindow: BrowserWindow = null!;
     //代码窗口
     static codeWindow: BrowserWindow = null!;
+    //设计器窗口
+    static designerWindow: BrowserWindow = null!;
     //所有窗口集合 handle{ name: win: }
     static windows: WindowHandle[] = [];
 
@@ -55,6 +62,17 @@ export class IPCS {
                     height: srcSize[1]
                 });
             }
+            if (IPCS.designerWindow && IPCS.designerWindow.isVisible()) {
+                let srcSize = IPCS.designerWindow.getSize();
+                let pos = IPCS.mainWindow.getPosition();
+
+                IPCS.designerWindow.setBounds({
+                    x: pos[0] - srcSize[0],
+                    y: pos[1],
+                    width: srcSize[0],
+                    height: srcSize[1]
+                });
+            }
         })
         //刷新窗口
         IPCS._refreshWindowState();
@@ -62,6 +80,7 @@ export class IPCS {
         //发送消息
         // 分发消息
         ipcMain.on("FF:Message", IPCS._OnMessage);
+        ipcMain.on("FF:MessageTo", IPCS._OnMessageTo);
 
         //检查文件/文件夹是否存在
         ipcMain.handle("FF:FileExist", IPCS._FileExist);
@@ -226,6 +245,9 @@ export class IPCS {
             if (IPCS.codeWindow == wh.win) {
                 IPCS.codeWindow = null!;
             }
+            if (IPCS.designerWindow == wh.win) {
+                IPCS.designerWindow = null!;
+            }
             if (IPCS.mainWindow === wh.win) {
                 IPCS.mainWindow = null!;
                 IPCS._Quit(null);
@@ -270,6 +292,25 @@ export class IPCS {
             else {
             }
         }
+
+        if (IPCS.designerWindow) {
+            if (IPCS.editorConfig.win_designer) {
+                IPCS.designerWindow.show();
+                IPCS.designerWindow.setPosition(pos[0] - IPCS.editorConfig.win_designer_w, pos[1]);
+            }
+            else {
+                IPCS.designerWindow.hide();
+            }
+        }
+        else {
+            if (IPCS.editorConfig.win_designer) {
+                IPCS.designerWindow = IPCS._createWindow("designer", pos[0] - IPCS.editorConfig.win_designer_w, pos[1], IPCS.editorConfig.win_designer_w, IPCS.editorConfig.win_designer_h, "designer", "none", "", "main", true);
+                IPCS.designerWindow.once("ready-to-show", () => IPCS.designerWindow.show());
+                IPCS.InitHotKey(IPCS.designerWindow);
+            }
+            else {
+            }
+        }
     }
 
     //快捷键
@@ -307,12 +348,13 @@ export class IPCS {
     }
     // 退出程序
     protected static _Quit(_) {
-        if (IPCS.__ae) {
-            IPCS.__ae.kill();
-            IPCS.killChildVite();
-            IPCS.__runProjectPort = "";
-            IPCS.__ae = null;
+        //清理所有的任务
+        for (let i = 0; i < IPCS.__runnings.length; i++) {
+            let run = IPCS.__runnings[i];
+            run.ae.kill();
+            IPCS.killChildVite(run.port);
         }
+        IPCS.__runnings = [];
         app.quit();
     }
 
@@ -391,6 +433,15 @@ export class IPCS {
         }
         IPCS.Broadcast(wcs, msg);
     }
+    protected static _OnMessageTo(_, msg: JSON, winNames: string[]) {
+        let wcs: Electron.WebContents[] = [];
+        IPCS.windows.forEach(wh => {
+            if (winNames.findIndex(ele => ele === wh.name) !== -1) {
+                wcs.push(wh.win.webContents);
+            }
+        });
+        IPCS.Broadcast(wcs, msg);
+    }
     /**
      * 分发消息给窗口
      * @param wcs WEBCONTENTS
@@ -424,8 +475,7 @@ export class IPCS {
         win.once("ready-to-show", () => win.show());
     }
     /** 执行命令行对象 */
-    private static __ae: ActionExec = null!;
-    private static __runProjectPort = "";
+    private static __runnings: ProjectRunning[] = [];
     /**
      * 运行项目， (npx vite)
      * @param _ 
@@ -439,33 +489,38 @@ export class IPCS {
             return null;
         }
         let port = (3000 + Math.random() * 9999).toFixed(0);
-        IPCS.__runProjectPort = port;
-        IPCS.Log(`执行命令：npx vite--port ${port}`);
-        IPCS.__ae = new ActionExec(projConf.path);
-        IPCS.__ae.cmd("npx.cmd", ["vite", "--port", port]);
-        IPCS.__ae.onData = (str: string, delta: string) => {
+        while (-1 !== IPCS.__runnings.findIndex(ele => ele.port === port)) {
+            port = (3000 + Math.random() * 9999).toFixed(0);
+        }
+        let run = new ProjectRunning();
+        run.port = port;
+        run.ae = new ActionExec(projConf.path);
+        run.ae.cmd("npx.cmd", ["vite", "--port", run.port]);
+        run.ae.onData = (str: string, delta: string) => {
             IPCS.Log(delta);
         };
-        return port;
+        IPCS.__runnings.push(run);
+        IPCS.Log(`执行命令：npx vite--port ${run.port}`);
+        return run.port;
     }
     /**
      * 停止运行的项目
      * @param _ 
      */
-    protected static async _StopProject(_) {
+    protected static async _StopProject(_, port: string) {
         IPCS.Log("--- 停止预览");
-        if (IPCS.__ae) {
-            IPCS.__ae.kill();
-            IPCS.killChildVite();
-            IPCS.__runProjectPort = "";
-            IPCS.__ae = null!;
+        let foundInd = IPCS.__runnings.findIndex(ele => ele.port === port);
+        if (-1 !== foundInd) {
+            let run = IPCS.__runnings.splice(foundInd, 1)[0];
+            run.ae.kill();
+            IPCS.killChildVite(run.port);
             IPCS.Log("成功");
         }
     }
-    static killChildVite() {
+    static killChildVite(port: string) {
 
         // 构建查找窗口标题的命令
-        const findProcessCommand = `TASKLIST /FI "WINDOWTITLE eq npm exec vite --port ${IPCS.__runProjectPort}"`;
+        const findProcessCommand = `TASKLIST /FI "WINDOWTITLE eq npm exec vite --port ${port}"`;
 
         // 执行命令获取进程信息
         exec(findProcessCommand, (err, stdout, stderr) => {
@@ -524,12 +579,12 @@ export class IPCS {
         }
 
         IPCS.Log(`执行命令：npx vite build`);
-        IPCS.__ae = new ActionExec(projConf.path);
-        IPCS.__ae.cmd("npx.cmd", ["vite", "build"]);
-        IPCS.__ae.onData = (str: string, delta: string) => {
+        let ae = new ActionExec(projConf.path);
+        ae.cmd("npx.cmd", ["vite", "build"]);
+        ae.onData = (str: string, delta: string) => {
             IPCS.Log(delta);
         };
-        return new Promise(ok => IPCS.__ae.onEnd = ok);
+        return new Promise(ok => ae.onEnd = ok);
     }
     /** 复制文件/文件夹 */
     static async CopyFile(p1, p2) {

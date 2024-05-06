@@ -31,6 +31,20 @@ export default class Utils {
 
         return param;
     }
+    static GetNameByPath(path: string) {
+        let i1 = path.lastIndexOf("/");
+        let i2 = path.lastIndexOf("\\");
+        if (i1 === -1 && i2 === -1) {
+            console.warn("__GetNameByPath, warn:", path);
+            return path;
+        }
+        if (i1 > i2) {
+            return path.substring(i1 + 1);
+        }
+        else {
+            return path.substring(i2 + 1);
+        }
+    }
     /** 深拷贝 */
     static cloneDeep(obj: any) {
         if (obj == null) {

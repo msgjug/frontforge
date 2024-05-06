@@ -1,4 +1,12 @@
 <style>
+
+  .creator {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-grow: 1;
+    height: calc( 100vh - 1em );
+  }
   .area-wrap {
     /* border: 1px solid gray; */
   }
@@ -7,12 +15,6 @@
     padding: 0.5em;
   }
 
-  .creator {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    flex-grow: 1;
-  }
 
   .top-area {
     display: flex;
@@ -56,7 +58,9 @@
           @click="onClickSetup"><span>设置项目</span></button>
         <button class="emoji-btn" @click="onClickOpenProjectDir">📂<span>打开项目文件夹</span></button>
         <button class="emoji-btn toggle-btn" $="toggleCode"
-          @click="onClickToggleCodeEditor">⌨️<span>代码编辑器</span></button>
+        @click="onClickToggleCodeEditor">⌨️<span>代码编辑器</span></button>
+        <button class="emoji-btn toggle-btn" $="toggleDesigner"
+          @click="onClickToggleHTMLDesigner">📐<span>HTML设计</span></button>
         <button class="emoji-btn toggle-btn" @click="onClickHelp">❓<span>帮助</span></button>
         <button class="emoji-btn" @click="onClickCloseProject">❌<span>关闭项目</span></button>
       </div>
@@ -67,7 +71,7 @@
       </div>
     </div>
     <div class="row" style="background:#1f2e74;border-top:1px solid gray">
-      <div $="lbInfo"></div>
+      <div $="lbInfo">FrontForger</div>
       <progress $="pb" value=0 max=100 style="display: none;"></progress>
     </div>
   </div>

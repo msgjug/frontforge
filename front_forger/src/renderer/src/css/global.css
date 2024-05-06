@@ -13,8 +13,11 @@
   -webkit-text-size-adjust: 100%;
 }
 
-html {
+html,body {
   overflow: hidden;
+  position: fixed;
+  height:100vh;
+  width:100vw;
 }
 
 body,
@@ -45,7 +48,6 @@ body {
   flex-direction: column;
   justify-content: space-between;
   align-items: stretch;
-  min-height: 100vh;
 }
 
 h1 {

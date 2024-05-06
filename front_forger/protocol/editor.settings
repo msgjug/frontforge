@@ -17,6 +17,10 @@ classes {
         win_code_w "(int)700";
         win_code_h "(int)550";
 
+        win_designer "(bool)false";
+        win_designer_w "(int)700";
+        win_designer_h "(int)550";
+
         # 编辑器配置
         wrap_mode "(bool)false";
         theme "(str)chaos";
@@ -41,6 +45,7 @@ classes {
         name "(str)";
         group "(str)";
         is_persist "(bool)false"; # 是否在Main加载（与Scene同级)
+        path "(str)"; # 独立path,如果为空，则用 src/prefabs/
     };
 
     #
@@ -91,6 +96,20 @@ classes {
     # 删除Prefab
     DeletePrefab {
         prefab_conf "(PrefabConfig)";
+    };
+
+    # 打开文件
+    OpenFile {
+        path "(str)";
+        str "(str)";
+        # ACE编辑器的MODE
+        mode "(str)"; 
+    };
+    # 保存文件
+    SaveFile {
+        path "(str)";
+        str "(str)";
+        silent "(bool)false";
     };
 
     # 设置开始Prefab

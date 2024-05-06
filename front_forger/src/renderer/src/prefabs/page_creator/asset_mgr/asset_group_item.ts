@@ -11,9 +11,15 @@ export default class AssetGroupItem extends AppNode {
     lbName: HTMLDivElement = null;
     contain: HTMLDivElement = null;
     itemCol: { [key: string]: AssetItem } = {};
-
+    dragable = true;
     btnFold: HTMLButtonElement = null;
     groupName = ""
+
+    lbItemCount: HTMLDivElement = null;
+    itemCount = 0;
+
+    foldded = false;
+
     setData(groupName: string) {
         this.groupName = groupName;
         this.lbName.innerText = groupName;
@@ -21,29 +27,53 @@ export default class AssetGroupItem extends AppNode {
 
     onLoad(): void {
         this.ele.ondragenter = (ev) => {
+            if (!this.dragable) {
+                return;
+            }
             this.ele.setAttribute("drag-over", "");
         };
         this.ele.ondragleave = (ev) => {
+            if (!this.dragable) {
+                return;
+            }
             // this.ele.removeAttribute("drag-over");
         };
         this.ele.ondragover = (ev) => {
+            if (!this.dragable) {
+                return;
+            }
             this.ele.removeAttribute("drag-over");
             ev.preventDefault();
         };
     }
-    addAssetItem(prefabConfig: ProtocolObjectPrefabConfig) {
+    addFileAssetItem(name: string, path: string) {
         let item = Prefab.Instantiate(AssetItem);
-        item.setData(prefabConfig);
+        item.setFileData(name, path);
+        this.itemCol[name] = item;
+        this.addChild(item, this.contain);
+        item.subject.on("dispose", this.onItemDispose, this);
+        item.subject.on("click", this.onClickItem, this);
+        this.itemCount++;
+        this.lbItemCount.innerText = `${this.itemCount}`;
+        return item;
+    }
+    addPrefabAssetItem(prefabConfig: ProtocolObjectPrefabConfig) {
+        let item = Prefab.Instantiate(AssetItem);
+        item.setPrefabData(prefabConfig);
         this.itemCol[prefabConfig.name] = item;
         this.addChild(item, this.contain);
         item.subject.on("dispose", this.onItemDispose, this);
         item.subject.on("click", this.onClickItem, this);
+        this.itemCount++;
+        this.lbItemCount.innerText = `${this.itemCount}`;
         return item;
     }
     onItemDispose(item: AssetItem) {
         for (let key in this.itemCol) {
             if (this.itemCol[key] === item) {
                 delete this.itemCol[key];
+                this.itemCount--;
+                this.lbItemCount.innerText = `${this.itemCount}`;
                 break;
             }
         }
@@ -52,15 +82,27 @@ export default class AssetGroupItem extends AppNode {
         this.subject.emit("click-item", item);
     }
     unfold() {
-        this.contain.style.display = "";
+        if (!this.foldded) {
+            return;
+        }
+        this.foldded = false;
+        this.contain.style.height = `calc( (1px + 23px) * ${this.itemCount})`;
+        this.contain.style.padding = "0 0 0.5em 0";
+        // this.contain.style.display = "";
         this.btnFold.innerText = "-";
     }
     fold() {
-        this.contain.style.display = "none";
+        if (this.foldded) {
+            return;
+        }
+        this.foldded = true;
+        this.contain.style.height = "0px";
+        this.contain.style.padding = "0";
+        // this.contain.style.display = "none";
         this.btnFold.innerText = "+";
     }
     onToggleFold() {
-        if (this.contain.style.display === "none") {
+        if (this.foldded) {
             this.unfold();
         }
         else {
@@ -75,7 +117,7 @@ export default class AssetGroupItem extends AppNode {
         let prefabConf = projConf.prefabs_list.find(ele => ele.name === prefabName);
         if (prefabConf.group !== this.groupName) {
             prefabConf.group = this.groupName;
-            this.addAssetItem(prefabConf);
+            this.addPrefabAssetItem(prefabConf);
         }
     }
     static get PrefabStr(): string {
