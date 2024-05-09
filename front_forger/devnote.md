@@ -28,3 +28,4 @@
 # todo: 
   - 修BUG：不缓存TS STR 和 DOM STR，每次访问都从文件读取。
   - 设计器，编辑CSS，MAIN。
+  - 每次刷新预览有可能需要更新res_index.ts

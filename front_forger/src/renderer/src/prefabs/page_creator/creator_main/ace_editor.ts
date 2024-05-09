@@ -10,7 +10,9 @@ export default class ACEEditor extends AppNode {
     _syncCalls: [string, any[]][] = [];
 
     async onLoad() {
+        //@ts-ignore
         this.ace = await EditorEnv.CreateEditor(this.ele);
+
 
         if (this._syncCalls) {
             this._syncCalls.forEach(c => {
@@ -40,6 +42,11 @@ export default class ACEEditor extends AppNode {
             return;
         }
         this.ace.session.setMode(`ace/mode/${mode}`);
+        
+        this.ace.setOptions({
+            copyWithEmptySelection: true,
+            enableAutoCompletion: true,
+        })
     }
 
     _wrapMode = false;
