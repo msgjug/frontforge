@@ -27,5 +27,5 @@
   - 修BUG：不缓存TS STR 和 DOM STR，每次访问都从文件读取。
 
 # todo: 
-  - 新建资源时，更新res_index.ts 。
+  - 项目改变时，更新res_index.ts 。
   - 设计器，编辑CSS，MAIN。

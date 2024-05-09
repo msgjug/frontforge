@@ -254,7 +254,7 @@ export default class PageCreator extends AppNode {
   }
   async runProject(port: string) {
     let projConf = EditorEnv.GetProjectConfig();
-    await window.electron.ipcRenderer.invoke("FF:RunProject", projConf.toMixed(), port);
+    port = await window.electron.ipcRenderer.invoke("FF:RunProject", projConf.toMixed(), port);
     return port;
   }
   runProjectDev() {
