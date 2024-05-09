@@ -10,6 +10,35 @@
                 <div @click="onClickClose" class="btn">x</div>
             </div>
             <div class="panel-contain">
+                <div>
+                    <label>服务器配置</label>
+                    <fieldset>
+                        <legend>DEV</legend>
+                        <div>
+                            <label>服务器域名</label>
+                            <input $="ebDevDomain"/>
+                        </div>
+                        <div>
+                            <label>服务器路径</label>
+                            <input $="ebDevPath"/>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>RES</legend>
+                        <div>
+                            <label>服务器域名</label>
+                            <input $="ebResDomain"/>
+                        </div>
+                        <div>
+                            <label>服务器路径</label>
+                            <input $="ebResPath"/>
+                        </div>
+                    </fieldset>
+                    <div class="row">
+                        <button @click="onClickReset">重置</button>
+                        <button @click="onClickSave">保存</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

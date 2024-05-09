@@ -6,9 +6,14 @@ import { IPCS } from './ipcs';
 import Utils from './utils';
 
 const TEMPLATE_MAIN_TS = Utils.GetResourcePath('template/template-main.ts');
+// 正则表达式匹配 PATH 的值
+const pathRegex = /PATH: "(.*?)",/;
+// 正则表达式匹配 DOMAIN 的值
+const domainRegex = /DOMAIN: "(.*?)",/;
+
 export class ProjectUtils {
 
-    static async BuildProject(projConf: ProtocolObjectProjectConfig) {
+    static async BuildProject(projConf: ProtocolObjectProjectConfig, target = "dev") {
         let prefabConf = projConf.prefabs_list.find(ele => ele.name === projConf.entrance_prefab_name)!;
         if (!prefabConf) {
             IPCS.Log("错误，找不到入口。");
@@ -18,6 +23,7 @@ export class ProjectUtils {
         //删除MAIN.TS 删除 RES_INDEX.TS
         const MAIN_PATH = path.join(projConf.path, "src/main.ts");
         const RES_INDEX_PATH = path.join(projConf.path, "/src/res_index.ts");
+        const MACRO_PATH = path.join(projConf.path, "/src/core/macro.ts");
         await ProjectUtils.DeleteFile(MAIN_PATH);
         await ProjectUtils.DeleteFile(RES_INDEX_PATH);
 
@@ -54,8 +60,18 @@ export class ProjectUtils {
             res_index_str += `\n`;
         });
         ProjectUtils.WriteStrFile(RES_INDEX_PATH, res_index_str);
-
         IPCS.Log("生成Res_Index文件，OK");
+
+        //改写Macro
+        IPCS.Log(`改写Macro文件：${MACRO_PATH}`);
+        let compile = target == "res" ? projConf.compile_res : projConf.compile_dev;
+        let macroTsStr = await ProjectUtils.ReadStrFile(MACRO_PATH);
+        // 替换 PATH 的值
+        macroTsStr = macroTsStr.replace(pathRegex, `PATH: "${compile.server_path}",`);
+        // 替换 DOMAIN 的值
+        macroTsStr = macroTsStr.replace(domainRegex, `DOMAIN: "${compile.server_domain}",`);
+        ProjectUtils.WriteStrFile(MACRO_PATH, macroTsStr);
+        IPCS.Log("改写Macro文件，OK");
 
         return true;
     }

@@ -516,8 +516,44 @@ this.path = gBuf.readString ();
 
     }
 };
+export class ProtocolObjectProjectCompileConfig extends Protocol {
+    server_domain : string = "";server_path : string = "";
+
+    getClassName(){
+        return "ProjectCompileConfig"
+    }
+    toMixed() {
+        let out: any = {};
+        out["__cn"] = this.getClassName();
+        out["server_domain"] = this.server_domain;
+out["server_path"] = this.server_path;
+
+        return out;
+    }
+    fromMixed(input: any) {
+        
+        this.server_domain = input.hasOwnProperty("server_domain") && input["server_domain"] !== null ? input["server_domain"] : this.server_domain;
+this.server_path = input.hasOwnProperty("server_path") && input["server_path"] !== null ? input["server_path"] : this.server_path;
+
+    }
+    protected _toBinary( gBuf: GrowBuffer) {
+        
+        gBuf.writeString(this.getClassName());
+        let __arr_size = 0;
+        gBuf.writeString (this.server_domain);
+gBuf.writeString (this.server_path);
+
+    }
+    protected _fromBinary( gBuf: GrowBuffer ) {
+        
+        let __arr_size = 0;
+        this.server_domain = gBuf.readString ();
+this.server_path = gBuf.readString ();
+
+    }
+};
 export class ProtocolObjectProjectConfig extends Protocol {
-    app_name : string = "";app_version : string = "";path : string = "";entrance_prefab_name : string = "";prefabs_list : ProtocolObjectPrefabConfig [] = [];create_date : number = 0;edit_date : number = 0;
+    app_name : string = "";app_version : string = "";path : string = "";entrance_prefab_name : string = "";prefabs_list : ProtocolObjectPrefabConfig [] = [];create_date : number = 0;edit_date : number = 0;compile_dev : ProtocolObjectProjectCompileConfig = new ProtocolObjectProjectCompileConfig();compile_res : ProtocolObjectProjectCompileConfig = new ProtocolObjectProjectCompileConfig();
 
     getClassName(){
         return "ProjectConfig"
@@ -535,6 +571,8 @@ this.prefabs_list.forEach(ele => {
 });
 out["create_date"] = this.create_date;
 out["edit_date"] = this.edit_date;
+out["compile_dev"] = this.compile_dev.toMixed();
+out["compile_res"] = this.compile_res.toMixed();
 
         return out;
     }
@@ -555,6 +593,12 @@ this.entrance_prefab_name = input.hasOwnProperty("entrance_prefab_name") && inpu
 }
 this.create_date = input.hasOwnProperty("create_date") && input["create_date"] !== null ? input["create_date"] : this.create_date;
 this.edit_date = input.hasOwnProperty("edit_date") && input["edit_date"] !== null ? input["edit_date"] : this.edit_date;
+if( input.hasOwnProperty("compile_dev") && input["compile_dev"] !== null && input["compile_dev"] !== undefined ) {
+        this.compile_dev.fromMixed( input["compile_dev"] );
+    }
+if( input.hasOwnProperty("compile_res") && input["compile_res"] !== null && input["compile_res"] !== undefined ) {
+        this.compile_res.fromMixed( input["compile_res"] );
+    }
 
     }
     protected _toBinary( gBuf: GrowBuffer) {
@@ -572,6 +616,8 @@ for (let i = 0; i < __arr_size; i++) {
 }
 gBuf.writeInt32 (this.create_date);
 gBuf.writeInt32 (this.edit_date);
+gBuf.writeUint8Array(this.compile_dev.toBinary());
+gBuf.writeUint8Array(this.compile_res.toBinary());
 
     }
     protected _fromBinary( gBuf: GrowBuffer ) {
@@ -589,6 +635,8 @@ this.prefabs_list.push(ele);
 }
 this.create_date = gBuf.readInt32 ();
 this.edit_date = gBuf.readInt32 ();
+this.compile_dev.fromBinary(gBuf.readUint8Array());
+this.compile_res.fromBinary(gBuf.readUint8Array());
 
     }
 };
@@ -1216,6 +1264,8 @@ export class ProtocolFactory {
         }
         else if( msgName == "PrefabConfig") {
     return new ProtocolObjectPrefabConfig();
+}else if( msgName == "ProjectCompileConfig") {
+    return new ProtocolObjectProjectCompileConfig();
 }else if( msgName == "ProjectConfig") {
     return new ProtocolObjectProjectConfig();
 }else if( msgName == "EditorConfig") {

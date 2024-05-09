@@ -31,6 +31,15 @@ classes {
         project_dir "(str)";
     };
 
+    ProjectCompileConfig {
+        # 对应项目的Macro 中的 {{DOMAIN}} 项目请求的服务器域名
+        server_domain "(str)";
+        # 对应项目的Macro 中的 {{DOMAIN}} 项目请求的服务器PATH
+        server_path "(str)";
+
+        # todo: apis
+
+    };
     #  
     ProjectConfig { 
         app_name "(str)";
@@ -40,7 +49,11 @@ classes {
         prefabs_list "([PrefabConfig])";
         create_date "(int)0";
         edit_date "(int)0";
-    }
+
+        compile_dev "(ProjectCompileConfig)";
+        compile_res "(ProjectCompileConfig)";
+    };
+    
     # 
     PrefabConfig {
         name "(str)";

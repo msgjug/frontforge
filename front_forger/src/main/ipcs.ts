@@ -588,7 +588,7 @@ export class IPCS {
         let projConf = new ProtocolObjectProjectConfig();
         projConf.fromMixed(projDat);
 
-        if (!ProjectUtils.BuildProject(projConf)) {
+        if (!ProjectUtils.BuildProject(projConf, "res")) {
             return null;
         }
 
@@ -833,6 +833,8 @@ export class IPCS {
                 await IPCS._SaveStrFile(_, EDITOR_CONFIG_PATH, JSON.stringify(IPCS.editorConfig.toMixed()));
             }
         }
+        IPCS.editorConfig.project_paths = [];
+        IPCS.editorConfig.project_configs = [];
         IPCS.editorConfig.fromMixed(json);
         return json;
     }
