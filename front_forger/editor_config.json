@@ -1,6 +1,7 @@
 {
     "__cn": "EditorConfig",
     "project_configs": [],
+    "project_paths": [],
     "win_main": true,
     "win_main_w": 250,
     "win_main_h": 550,

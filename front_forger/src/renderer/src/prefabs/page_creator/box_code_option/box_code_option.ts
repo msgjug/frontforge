@@ -35,26 +35,17 @@ export default class BoxCodeOption extends AppNode {
     async onToggleWrap() {
         let conf = await EditorEnv.GetEditorConfig();
         conf.wrap_mode = !conf.wrap_mode;
-        EditorEnv.SaveEditorConfig();
-        let msg = new ProtocolObjectEditorConfigChange();
-        msg.editor_conf = conf;
-        EditorEnv.postMessage(msg);
+        EditorEnv.SaveEditorConfig(conf);
     }
     async onSelectTheme(evt) {
         let conf = await EditorEnv.GetEditorConfig();
         conf.theme = evt.target.value;
-        EditorEnv.SaveEditorConfig();
-        let msg = new ProtocolObjectEditorConfigChange();
-        msg.editor_conf = conf;
-        EditorEnv.postMessage(msg);
+        EditorEnv.SaveEditorConfig(conf);
     }
     async onSelectFrontSize(evt) {
         let conf = await EditorEnv.GetEditorConfig();
         conf.font_size = Number(evt.target.value);
-        EditorEnv.SaveEditorConfig();
-        let msg = new ProtocolObjectEditorConfigChange();
-        msg.editor_conf = conf;
-        EditorEnv.postMessage(msg);
+        EditorEnv.SaveEditorConfig(conf);
     }
 
     onClickClose() {

@@ -24,7 +24,8 @@
   - 修BUG: 预览的进程无法杀死，常驻在系统。
   - 修BUG：窗口的setPosition 会改变窗口大小（在系统UI为100% 以上时触发这个BUG）
   - persist 属性，开头加载。常驻。
+  - 修BUG：不缓存TS STR 和 DOM STR，每次访问都从文件读取。
 
 # todo: 
-  - 修BUG：不缓存TS STR 和 DOM STR，每次访问都从文件读取。
+  - 新建资源时，更新res_index.ts 。
   - 设计器，编辑CSS，MAIN。

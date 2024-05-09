@@ -255,9 +255,7 @@ export default class AssetMgr extends AppNode {
     this.addPrefabAsset(conf);
 
     //保存项目数据
-    EditorEnv.SetProjectConfig(projConf);
-    //保存编辑器数据
-    EditorEnv.SaveEditorConfig();
+    await EditorEnv.SetProjectConfig(projConf);
 
     //获取dh
     let newDh = await window.electron.ipcRenderer.invoke("FF:GetDirentHandle", projConf.path);
@@ -331,7 +329,6 @@ export default class AssetMgr extends AppNode {
     }
 
     EditorEnv.SetProjectConfig(projConf);
-    EditorEnv.SaveEditorConfig();
   }
   updateAsset(prerfabName: string, tsStr: string, domStr: string) {
     this.getDirentHandleByName(prerfabName + ".ts").dataStr = tsStr;

@@ -15,7 +15,7 @@ export class ACEConfig extends SerializeAble {
 };
 
 export default class EditorEnv {
-    protected static _EditorConfig: ProtocolObjectEditorConfig = null;
+    // protected static _EditorConfig: ProtocolObjectEditorConfig = null;
     static PortSubject: Subject = new Subject();
 
     static onIPCMessage(_, dat: JSON) {
@@ -39,23 +39,17 @@ export default class EditorEnv {
     static postMessageExceptSelf(msg: Protocol) {
         window.electron.ipcRenderer.send("FF:Message", msg.toMixed(), true);
     }
-    static postMessageTo(msg: Protocol, winNames: string[] ) {
+    static postMessageTo(msg: Protocol, winNames: string[]) {
         window.electron.ipcRenderer.send("FF:MessageTo", msg.toMixed(), winNames);
     }
 
     static async GetEditorConfig() {
-        if (!this._EditorConfig) {
-            this._EditorConfig = new ProtocolObjectEditorConfig();
-            this._EditorConfig.fromMixed(await window.electron.ipcRenderer.invoke('FF:ReadEditorConfig'));
-        }
-        return this._EditorConfig;
+        let conf = new ProtocolObjectEditorConfig();
+        conf.fromMixed(await window.electron.ipcRenderer.invoke('FF:ReadEditorConfig'));
+        return conf;
     }
-    static async SaveEditorConfig() {
-        if (!this._EditorConfig) {
-            this._EditorConfig = new ProtocolObjectEditorConfig();
-            this._EditorConfig.fromMixed(await window.electron.ipcRenderer.invoke('FF:ReadEditorConfig'));
-        }
-        await window.electron.ipcRenderer.invoke('FF:SaveEditorConfig', this._EditorConfig.toField());
+    static async SaveEditorConfig(conf: ProtocolObjectEditorConfig) {
+        await window.electron.ipcRenderer.invoke('FF:SaveEditorConfig', conf.toField());
     }
     protected static _ProjectConfig: ProtocolObjectProjectConfig = null;
     static async InitProjectConfig(path: string) {

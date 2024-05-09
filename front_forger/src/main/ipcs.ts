@@ -1,6 +1,6 @@
 import { dialog, ipcMain } from "electron/main";
 import fs from 'fs';
-import { ProtocolObjectIPCResponse, ProtocolObjectLog, ProtocolObjectPrefabConfig, ProtocolObjectProjectConfig, ProtocolObjectWindowChange } from "../classes/protocol_dist";
+import { ProtocolObjectEditorConfigChange, ProtocolObjectIPCResponse, ProtocolObjectLog, ProtocolObjectPrefabConfig, ProtocolObjectProjectConfig, ProtocolObjectWindowChange } from "../classes/protocol_dist";
 import { exec, execSync } from "child_process";
 import ActionExec from "./action_exec";
 import { ProjectUtils } from "./project_utils";
@@ -137,11 +137,7 @@ export class IPCS {
     static Log(str: string) {
         let msg = new ProtocolObjectLog();
         msg.str = str;
-        let wcs: Electron.WebContents[] = [];
-        IPCS.windows.forEach(wh => {
-            wcs.push(wh.win.webContents);
-        });
-        IPCS.Broadcast(wcs, msg.toMixed());
+        IPCS.BroadcastToAllWindows(msg.toMixed());
     }
 
     //创建窗口。
@@ -216,11 +212,7 @@ export class IPCS {
 
         let msg = new ProtocolObjectWindowChange();
         msg.open = name;
-        let wcs: Electron.WebContents[] = [];
-        IPCS.windows.forEach(wh => {
-            wcs.push(wh.win.webContents);
-        });
-        IPCS.Broadcast(wcs, msg.toMixed());
+        IPCS.BroadcastToAllWindows(msg.toMixed());
 
         win.once("close", () => {
             IPCS._onWindowDestroy(wh.name);
@@ -376,17 +368,25 @@ export class IPCS {
     /**
      * 
      * @param _ 
-     * @param path 项目地址
+     * @param dirPath 项目地址
      * @returns {ProtocolObjectIPCResponse}
      */
-    protected static _CheckProjectDir(_, path: string) {
+    protected static async _CheckProjectDir(_, dirPath: string) {
         IPCS.Log("--- 检查项目");
         let rtn = new ProtocolObjectIPCResponse();
         //检查是否有front_forge_project.json
-        let confPath = path + "/" + "front_forge_project.json";
+        let confPath = dirPath + "/" + "front_forge_project.json";
         IPCS.Log(`项目配置文件路径：${confPath}`);
         rtn.ret = fs.existsSync(confPath) ? 0 : 1;
-        IPCS.Log(rtn.ret === 1 ? "找不到配置" : "已找到配置")
+        IPCS.Log(rtn.ret === 1 ? "找不到配置" : "已找到配置");
+
+        if (!rtn.ret) {
+            if (!fs.existsSync(path.join(dirPath, "node_modules"))) {
+                //没有NODE_MODULES文件夹，需要执行一下NPM INSTALL
+                const NODE_MODULES_PACK = Utils.GetResourcePath("template/node_modules_pack.zip");
+                await compressing.zip.uncompress(NODE_MODULES_PACK, dirPath);
+            }
+        }
         return rtn;
     }
     //text内容，parentName 父窗口名字
@@ -451,6 +451,13 @@ export class IPCS {
         wcs.forEach(wc => {
             wc.send("FF:Broadcast", msg);
         });
+    }
+    protected static BroadcastToAllWindows(msg: JSON) {
+        let wcs: Electron.WebContents[] = [];
+        IPCS.windows.forEach(wh => {
+            wcs.push(wh.win.webContents);
+        });
+        IPCS.Broadcast(wcs, msg);
     }
     /**
      * FF:CreateWindow实现，参数参考IPCS._createWindow
@@ -644,6 +651,8 @@ export class IPCS {
             await IPCS.CopyFile(`"${TEMPLATE_DIR}_.prefab.html"`, `"${DST_DIR}${name}.prefab.html"`);
             IPCS.Log(`修改TS文件`);
             await IPCS.FileContentReplaceKey(`${DST_DIR}${name}.ts`, ["{{CLASS_NAME}}", name], ["{{CLASS_NAME_BIG}}", Utils.SnakeToPascal(name)]);
+            IPCS.Log(`更新项目MAIN与RES_INDEX`);
+            await ProjectUtils.BuildProject(projConf);
             IPCS.Log(`成功`);
         }
         catch (e) {
@@ -772,7 +781,10 @@ export class IPCS {
             return null;
         }
         let json = JSON.parse(await IPCS._ReadStrFile(_, confPath));
-        return json;
+        let conf = new ProtocolObjectProjectConfig();
+        conf.fromMixed(json);
+        conf.path = path;
+        return conf.toMixed();
     }
     /**
      * 保存项目文件
@@ -781,10 +793,26 @@ export class IPCS {
      * @returns 
      */
     protected static async _SaveProjectConfig(_, config: JSON) {
+        IPCS.Log(`--- 保存项目`)
         let projConf = new ProtocolObjectProjectConfig();
         projConf.fromMixed(config);
         let confPath = projConf.path + "/" + "front_forge_project.json";
         await IPCS._SaveStrFile(_, confPath, JSON.stringify(config));
+        ProjectUtils.BuildProject(projConf);
+
+        //更新配置
+        let foundInd = IPCS.editorConfig.project_configs.findIndex(conf => conf.app_name === projConf.app_name);
+        if (-1 === foundInd) {
+            IPCS.Log("警报： 更新编辑器配置失败");
+        }
+        else {
+            IPCS.editorConfig.project_configs[foundInd] = projConf;
+            IPCS.editorConfig.project_paths[foundInd] = projConf.path;
+        }
+
+        IPCS._SaveEditorConfig(_, IPCS.editorConfig.toMixed());
+
+        IPCS.Log(`成功`);
         return true;
     }
 
@@ -815,9 +843,18 @@ export class IPCS {
      * @returns 
      */
     protected static async _SaveEditorConfig(_, json: JSON) {
+        IPCS.editorConfig.project_paths = [];
+        IPCS.editorConfig.project_configs = [];
         IPCS.editorConfig.fromMixed(json);
         IPCS._refreshWindowState();
-        return await IPCS._SaveStrFile(_, EDITOR_CONFIG_PATH, JSON.stringify(json))
+        let isOk = await IPCS._SaveStrFile(_, EDITOR_CONFIG_PATH, JSON.stringify(json));
+
+        if (isOk) {
+            let msg = new ProtocolObjectEditorConfigChange();
+            msg.editor_conf = IPCS.editorConfig;
+            IPCS.BroadcastToAllWindows(msg.toMixed());
+        }
+        return isOk;
     }
     /**
      * 读文本文件

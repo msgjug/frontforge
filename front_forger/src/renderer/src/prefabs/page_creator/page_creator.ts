@@ -102,7 +102,7 @@ export default class PageCreator extends AppNode {
               else {
                 this.toggleCode.removeAttribute("pressed");
               }
-              await EditorEnv.SaveEditorConfig();
+              await EditorEnv.SaveEditorConfig(conf);
             }
           }
           if (msg.open === "code") {
@@ -120,7 +120,7 @@ export default class PageCreator extends AppNode {
               else {
                 this.toggleDesigner.removeAttribute("pressed");
               }
-              await EditorEnv.SaveEditorConfig();
+              await EditorEnv.SaveEditorConfig(conf);
             }
           }
           if (msg.open === "designer") {
@@ -323,7 +323,7 @@ export default class PageCreator extends AppNode {
     else {
       this.toggleCode.removeAttribute("pressed");
     }
-    await EditorEnv.SaveEditorConfig();
+    await EditorEnv.SaveEditorConfig(conf);
   }
   async onClickToggleHTMLDesigner() {
     let conf = await EditorEnv.GetEditorConfig();
@@ -335,7 +335,7 @@ export default class PageCreator extends AppNode {
     else {
       this.toggleDesigner.removeAttribute("pressed");
     }
-    await EditorEnv.SaveEditorConfig();
+    await EditorEnv.SaveEditorConfig(conf);
   }
 
   async onClickHelp() {

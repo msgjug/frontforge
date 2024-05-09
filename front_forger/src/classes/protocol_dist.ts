@@ -593,7 +593,7 @@ this.edit_date = gBuf.readInt32 ();
     }
 };
 export class ProtocolObjectEditorConfig extends Protocol {
-    project_configs : ProtocolObjectProjectConfig [] = [];win_main : boolean = true;win_main_w : number = 250;win_main_h : number = 550;win_code : boolean = false;win_code_w : number = 700;win_code_h : number = 550;win_designer : boolean = false;win_designer_w : number = 700;win_designer_h : number = 550;wrap_mode : boolean = false;theme : string = "chaos";font_size : number = 12;project_dir : string = "";
+    project_configs : ProtocolObjectProjectConfig [] = [];project_paths : string [] = [];win_main : boolean = true;win_main_w : number = 250;win_main_h : number = 550;win_code : boolean = false;win_code_w : number = 700;win_code_h : number = 550;win_designer : boolean = false;win_designer_w : number = 700;win_designer_h : number = 550;wrap_mode : boolean = false;theme : string = "chaos";font_size : number = 12;project_dir : string = "";
 
     getClassName(){
         return "EditorConfig"
@@ -604,6 +604,10 @@ export class ProtocolObjectEditorConfig extends Protocol {
         out["project_configs"] = [];
 this.project_configs.forEach(ele => {
     out["project_configs"].push(ele.toMixed());
+});
+out["project_paths"] = [];
+this.project_paths.forEach(ele => {
+    out["project_paths"].push(ele);
 });
 out["win_main"] = this.win_main;
 out["win_main_w"] = this.win_main_w;
@@ -632,6 +636,13 @@ out["project_dir"] = this.project_dir;
     this.project_configs.push( ele );
     }
 }
+{
+    let arr: any[] = input.hasOwnProperty("project_paths") && input["project_paths"] !== null ? input["project_paths"] : [];
+    let count = arr.length;
+    for (let i = 0; i < count; i++) {
+        this.project_paths.push(arr[i]);
+    }
+}
 this.win_main = input.hasOwnProperty("win_main") && input["win_main"] !== null ? input["win_main"] : this.win_main;
 this.win_main_w = input.hasOwnProperty("win_main_w") && input["win_main_w"] !== null ? input["win_main_w"] : this.win_main_w;
 this.win_main_h = input.hasOwnProperty("win_main_h") && input["win_main_h"] !== null ? input["win_main_h"] : this.win_main_h;
@@ -656,6 +667,11 @@ gBuf.writeUint32(__arr_size);
 for (let i = 0; i < __arr_size; i++) {
     gBuf.writeUint8Array(this.project_configs[i].toBinary());
 }
+__arr_size = this.project_paths.length;
+gBuf.writeUint32(__arr_size);
+for (let i = 0; i < __arr_size; i++) {
+    gBuf.writeString (this.project_paths[i]);
+}
 gBuf.writeBool (this.win_main);
 gBuf.writeInt32 (this.win_main_w);
 gBuf.writeInt32 (this.win_main_h);
@@ -679,6 +695,10 @@ for (let i = 0; i < __arr_size; i++) {
     let ele = new ProtocolObjectProjectConfig();
 ele.fromBinary(gBuf.readUint8Array());
 this.project_configs.push(ele);
+}
+__arr_size = gBuf.readUint32();
+for (let i = 0; i < __arr_size; i++) {
+    this.project_paths.push(gBuf.readString());
 }
 this.win_main = gBuf.readBool ();
 this.win_main_w = gBuf.readInt32 ();
