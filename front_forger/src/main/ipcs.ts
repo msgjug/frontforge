@@ -482,15 +482,22 @@ export class IPCS {
      * @param projDat 项目配置
      * @returns 
      */
-    protected static async _RunProject(_, projDat: JSON) {
+    protected static async _RunProject(_, projDat: JSON, port = "") {
         let projConf = new ProtocolObjectProjectConfig();
         projConf.fromMixed(projDat);
         if (!ProjectUtils.BuildProject(projConf)) {
             return null;
         }
-        let port = (3000 + Math.random() * 9999).toFixed(0);
-        while (-1 !== IPCS.__runnings.findIndex(ele => ele.port === port)) {
+        if (!port) {
             port = (3000 + Math.random() * 9999).toFixed(0);
+            while (-1 !== IPCS.__runnings.findIndex(ele => ele.port === port)) {
+                port = (3000 + Math.random() * 9999).toFixed(0);
+            }
+        }
+        else {
+            if (-1 !== IPCS.__runnings.findIndex(ele => ele.port === port)) {
+                return port;
+            }
         }
         let run = new ProjectRunning();
         run.port = port;

@@ -32,6 +32,7 @@ var Macro = {
             REQ: "req.do",
         }
     },
+    PROJECT_VIEW_PORT : "4545",
     LANG_TABLE: ['', 'html', 'typescript', 'javascript', 'c_cpp', 'sql', 'java',],
     ACE_THEME: [
         "ambiance",

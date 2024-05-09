@@ -10,6 +10,7 @@ import AssetMgr from "./asset_mgr/asset_mgr";
 import AssetItem from "./asset_mgr/asset_item";
 import MsgHub from "../../core/subject";
 import BoxProjectSetting from "./box_project_setting/box_project_setting";
+import Macro from "../../core/macro";
 
 export class CallMethod {
   method = "";
@@ -56,6 +57,7 @@ export default class PageCreator extends AppNode {
   onDispose(): void {
     EditorEnv.offMessage(this);
     MsgHub.targetOff(this);
+    window.electron.ipcRenderer.invoke("FF:StopProject", Macro.PROJECT_VIEW_PORT);
   }
   onHotKey(tag) {
     switch (tag) {
@@ -213,6 +215,7 @@ export default class PageCreator extends AppNode {
     }
     await EditorEnv.InitProjectConfig(msg.project_conf.path);
     await this.assetMgr.listDir();
+    await this.runProjectDev();
   }
 
   async onClickRun() {
@@ -221,7 +224,7 @@ export default class PageCreator extends AppNode {
       Utils.app.msgBox("请设置入口");
       return;
     }
-    this._viewPort = await window.electron.ipcRenderer.invoke("FF:RunProject", projConf.toMixed());
+    this._runPort = await this.runProject("");
 
     this.btnRun.style.display = "none";
     this.btnStop.style.display = "";
@@ -244,14 +247,24 @@ export default class PageCreator extends AppNode {
     this.pb.style.display = "none";
 
 
-    this.lbInfo.innerText = `http://localhost:${this._viewPort}`;
+    this.lbInfo.innerText = `http://localhost:${this._runPort}`;
 
     // port
-    await window.electron.ipcRenderer.invoke("FF:OpenURL", `http://localhost:${this._viewPort}`);
+    await window.electron.ipcRenderer.invoke("FF:OpenURL", `http://localhost:${this._runPort}`);
   }
-  protected _viewPort = 0;
+  async runProject(port: string) {
+    let projConf = EditorEnv.GetProjectConfig();
+    await window.electron.ipcRenderer.invoke("FF:RunProject", projConf.toMixed(), port);
+    return port;
+  }
+  runProjectDev() {
+    return this.runProject(Macro.PROJECT_VIEW_PORT)
+  }
+  protected _runPort = ""; //手动运行预览
+
   async onClickStop() {
-    await window.electron.ipcRenderer.invoke("FF:StopProject");
+    await window.electron.ipcRenderer.invoke("FF:StopProject", this._runPort);
+    this._runPort = "";
 
     this.btnRun.style.display = "";
     this.btnStop.style.display = "none";

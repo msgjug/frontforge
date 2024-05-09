@@ -1,15 +1,16 @@
 import { Protocol, ProtocolObjectCloseProject, ProtocolObjectOpenProject } from "../../../../classes/protocol_dist";
 import { AppNode } from "../../core/app_node";
+import Macro from "../../core/macro";
 import { RegClass } from "../../core/serialize";
 import MsgHub from "../../core/subject";
-import Utils from "../../core/utils";
+import Utils, { rAF } from "../../core/utils";
 import EditorEnv from "../../env";
 import HtmlDesigner from "../page_creator/html_designer/html_designer";
 import PrefabStr from "./page_designer.prefab.html?raw";
 @RegClass("PageDesigner")
 export default class PageDesigner extends AppNode {
     designer: HtmlDesigner = null;
-
+    _updateId = 0;
     onDispose(): void {
         EditorEnv.offMessage(this);
         MsgHub.targetOff(this);
@@ -18,13 +19,7 @@ export default class PageDesigner extends AppNode {
         EditorEnv.onMessage(this.onMessage, this);
     }
     async onOpenProject(msg: ProtocolObjectOpenProject) {
-        if ((await window.electron.ipcRenderer.invoke("FF:CheckProjectDir", msg.project_conf.path)).ret === 1) {
-            return;
-        }
         await EditorEnv.InitProjectConfig(msg.project_conf.path);
-
-        let conf = EditorEnv.GetProjectConfig();
-        this.designer.runProject(conf);
     }
     onMessage(msg: Protocol) {
         switch (true) {

@@ -77,17 +77,17 @@ export class AppNode {
     parent: AppNode = null;
     inited = false;
 
-    protected _oldDisplay: string = "";
+    private __oldDisplay: string = "";
     get active() {
         return this.ele.style.display !== "none";
     }
     set active(val: boolean) {
         if (this.active && !val) {
-            this._oldDisplay = this.ele.style.display
+            this.__oldDisplay = this.ele.style.display
             this.ele.style.display = "none";
         }
         else if (!this.active && val) {
-            this.ele.style.display = this._oldDisplay;
+            this.ele.style.display = this.__oldDisplay;
         }
     }
     get opacity() {
