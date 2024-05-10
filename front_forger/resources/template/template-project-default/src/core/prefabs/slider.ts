@@ -38,11 +38,11 @@ export default class Slider extends AppNode {
 
     private __touching(e) {
         e.preventDefault();
-        var sliderWidth = this.track.offsetWidth;
-        // var pageX = e.pageX || e.touches[0].pageX;
+        let rect = this.track.getBoundingClientRect();
         const mouseMoveHandler = (e) => {
+            
             var newX = e.clientX - this.thumb.clientWidth;
-            var percent = (newX - this.track.offsetLeft) / sliderWidth;
+            var percent = (newX - rect.left) / rect.width;
             //@ts-ignore
             this.input.value = Math.round(percent * (this.input.max - this.input.min) + this.input.min);
             this.__updateThumbPosition(this.input.value);
@@ -50,7 +50,7 @@ export default class Slider extends AppNode {
         };
         const touchMoveHandler = (e) => {
             var newX = e.touches[0].clientX;
-            var percent = (newX - this.track.offsetLeft) / sliderWidth;
+            var percent = (newX - rect.left) / rect.width;
             //@ts-ignore
             this.input.value = Math.round(percent * (this.input.max - this.input.min) + this.input.min);
             this.__updateThumbPosition(this.input.value);

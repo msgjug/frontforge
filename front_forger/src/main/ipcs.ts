@@ -641,7 +641,7 @@ export class IPCS {
         projConf.fromMixed(projDat);
         // 新建文件
         const TEMPLATE_DIR = Utils.GetResourcePath("template/template-prefab/");
-        const DST_DIR = projConf.path + `src\\prefabs\\`;
+        const DST_DIR = path.join(projConf.path, `src/prefabs/`);
 
         let rtn = new ProtocolObjectIPCResponse();
         try {
