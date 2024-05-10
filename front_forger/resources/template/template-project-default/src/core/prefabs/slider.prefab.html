@@ -1,0 +1,65 @@
+<style>
+    .slider-wrap {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        align-items: center;
+        justify-content: center;
+        height: 1em;
+    }
+
+    .slider-wrap .label {
+        position: absolute;
+        pointer-events: none;
+    }
+
+    .slider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+
+
+    .slider-track {
+        position: absolute;
+        width: 100%;
+        height: 1em;
+        background-color: #393939;
+        border-radius: 5px;
+    }
+
+    .slider-track[fill] {
+        left: 0;
+        width: 0;
+        background: #ffffff;
+    }
+
+    .slider-thumb {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        background-color: #f0f0f0;
+        border: 2px solid #a9a9a9;
+        border-radius: 50%;
+    }
+</style>
+
+<dom>
+    <div class="slider-wrap">
+        <div class="slider">
+            <div $="track" class="slider-track"></div>
+            <div $="trackFill" class="slider-track" fill></div>
+            <div $="thumb" class="slider-thumb"></div>
+            <input $="input" type="range" min="0" max="100" value="0"
+                style="display: none;">
+        </div>
+        <div class="row label">
+            <div $="lbName">百分比:</div>
+            <span $="lb">0%</span>
+        </div>
+    </div>
+</dom>

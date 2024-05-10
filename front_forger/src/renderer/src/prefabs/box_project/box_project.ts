@@ -76,8 +76,8 @@ export default class BoxProject extends AppNode {
         //记录数据
         editorConf.project_configs.push(conf);
         editorConf.project_paths.push(conf.path);
+        await EditorEnv.SaveEditorConfig(editorConf);
         this.refresh();
-        EditorEnv.SaveEditorConfig(editorConf);
     }
     async onClickLoad() {
         let path = await window.electron.ipcRenderer.invoke('FF:LocatDir');

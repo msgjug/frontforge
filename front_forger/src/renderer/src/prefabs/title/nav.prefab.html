@@ -4,8 +4,17 @@
         display: flex;
         flex-direction: row;
         justify-content: space-between;
-        background:#1359bc;
+        background: #1359bc;
     }
+
+    .nav .btn {
+        background: gray;
+        color: black;
+        text-align: center;
+        padding: 0 0.25em;
+        cursor: pointer;
+    }
+
     .logo {
         height: 1.5em;
         pointer-events: none;
@@ -14,7 +23,7 @@
 
 <dom>
     <div class="nav">
-        <img class="logo" src="logo.png"  />
+        <img class="logo" src="logo.png" />
         <div class="row" style="-webkit-app-region: drag;flex-grow: 1;">
             <div $="lbTitle">标题</div>
         </div>

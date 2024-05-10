@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { DirentHandle } from "../classes/dirent_handle"
-import { ProtocolObjectProjectConfig } from '../classes/protocol_dist';
+import { ProtocolObjectPrefabConfig, ProtocolObjectProjectConfig } from '../classes/protocol_dist';
 import { IPCS } from './ipcs';
 import Utils from './utils';
 
@@ -12,6 +12,40 @@ const pathRegex = /PATH: "(.*?)",/;
 const domainRegex = /DOMAIN: "(.*?)",/;
 
 export class ProjectUtils {
+    static GetDefaultProjectConfig(projConf: ProtocolObjectProjectConfig) {
+        projConf = projConf || new ProtocolObjectProjectConfig();
+
+        projConf.prefabs_list = [];
+        projConf.entrance_prefab_name = "";
+
+        //默认给一个page_home资源，组名pages，并设置入口
+        {
+            let prefab = new ProtocolObjectPrefabConfig();
+            prefab.group = "pages";
+            prefab.name = "page_home";
+            projConf.prefabs_list.push(prefab);
+            projConf.entrance_prefab_name = "page_home";
+        }
+
+        //默认给一个page_ui资源，组名pages，
+        {
+            let prefab = new ProtocolObjectPrefabConfig();
+            prefab.group = "pages";
+            prefab.name = "page_ui";
+            projConf.prefabs_list.push(prefab);
+        }
+
+        //默认给一个head资源，组名persist
+        {
+            let prefab = new ProtocolObjectPrefabConfig();
+            prefab.group = "persist";
+            prefab.name = "head";
+            prefab.is_persist = true;
+            projConf.prefabs_list.push(prefab);
+        }
+
+        return projConf;
+    }
 
     static async BuildProject(projConf: ProtocolObjectProjectConfig, target = "dev") {
         let prefabConf = projConf.prefabs_list.find(ele => ele.name === projConf.entrance_prefab_name)!;

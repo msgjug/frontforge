@@ -734,13 +734,8 @@ export class IPCS {
         let rsp = new ProtocolObjectIPCResponse();
         let projConf = new ProtocolObjectProjectConfig();
         projConf.fromMixed(projDat);
+        projConf = ProjectUtils.GetDefaultProjectConfig(projConf);
 
-        //默认给一个page_home资源，组名pages，并设置入口
-        let prefab = new ProtocolObjectPrefabConfig();
-        prefab.group = "pages";
-        prefab.name = "page_home";
-        projConf.prefabs_list.push(prefab);
-        projConf.entrance_prefab_name = "page_home";
 
         if (fs.existsSync(projConf.path)) {
             rsp.ret = 1;

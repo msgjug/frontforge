@@ -1,0 +1,75 @@
+<style>
+    .tab-view-verticle {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .tab-contain-verticle {
+        display: flex;
+        flex-direction: column;
+        background-color: #c0c0c0;
+        border-right:1px solid black;
+    }
+
+    .tab-link-verticle {
+        border-radius: 0.5em;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+
+        padding: 0.5em;
+        cursor: default;
+        transition: background-color 0.3s;
+        border: 1px solid rgb(67, 67, 67);
+        border-right: none;
+    }
+
+    .tab-link-verticle:hover {
+        background-color: #fff;
+    }
+
+    .tab-link-verticle[cur] {
+        background-color: #fff;
+        z-index: 2;
+        border-right: 1px solid white;
+        margin-right: -1px;
+    }
+
+    .page-contain-verticle {
+        border: 1px solid black;
+        border-left: none;
+
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .page {
+        flex-grow: 1;
+        display: none;
+        padding: 0.5em;
+        background: white;
+    }
+</style>
+<dom>
+    <div class="row">
+        <div class="tab-view-verticle" style="flex-grow: 1;">
+            <div $="linkContain" class="tab-contain-verticle">
+                <div class="tab-link-verticle" @click="openTab(0)" cur>Tab 1</div>
+                <div class="tab-link-verticle" @click="openTab(1)">Tab 2</div>
+                <div class="tab-link-verticle" @click="openTab(2)">Tab 3</div>
+            </div>
+            <div class="page-contain-verticle" $="pageContain">
+                <div class="page">
+                    <p>内容 1</p>
+                </div>
+                <div class="page">
+                    <p>内容 2</p>
+                </div>
+                <div class="page">
+                    <p>内容 3</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</dom>
