@@ -592,6 +592,9 @@ export class IPCS {
             return null;
         }
 
+        if( projConf.path[projConf.path.length-1] !== "/" || projConf.path[projConf.path.length-1] !== "\\") {
+            projConf.path += "\\";
+        }
         IPCS.Log(`执行命令：npx vite build`);
         let ae = new ActionExec(projConf.path);
         ae.cmd("npx.cmd", ["vite", "build"]);

@@ -293,7 +293,7 @@ export default class PageCreator extends AppNode {
     this.pb.style.display = "none";
     this.lbInfo.innerText = `构建完毕`;
     this.isBuilding = false;
-    await window.electron.ipcRenderer.invoke("FF:OpenDir", projConf.path + "dist");
+    await window.electron.ipcRenderer.invoke("FF:OpenDir", projConf.path + "/dist/");
   }
   async onClickSetup() {
     Utils.scene.addChild(Prefab.Instantiate(BoxProjectSetting));
