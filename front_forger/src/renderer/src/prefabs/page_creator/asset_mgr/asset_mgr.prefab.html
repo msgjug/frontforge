@@ -11,7 +11,7 @@
         /* background: rgba(0, 0, 0, 0.5); */
     }
 
-    .asset-btns .btn {
+    .asset-btns .emoji-btn {
         flex-grow: 1;
     }
 
@@ -24,19 +24,26 @@
         justify-content: space-between;
         cursor: default;
     }
+
     .spec-asset-item:hover {
         background: rgba(255, 255, 255, 0.5);
     }
+
     .spec-asset-item[cur] {
         background: #f7922c;
     }
 
+    .desc-editor {
+        background: rgba(100, 100, 0, 0.5);
+        border: 1px solid rgb(100, 100, 0);
+
+    }
 </style>
 
 <dom>
     <div class="asset-area">
         <!-- <div class="title">asset</div> -->
-        <div class="asset-btns row ">
+        <div class="asset-btns row">
             <button @click="onClickNewPrefab" class="emoji-btn">➕<span>新建资源</span></button>
             <button @click="onClickFold" class="emoji-btn">⏫<span>折叠</span></button>
             <button @click="onClickUnfold" class="emoji-btn">⏬<span>展开</span></button>

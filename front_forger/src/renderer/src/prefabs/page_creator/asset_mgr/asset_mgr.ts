@@ -118,6 +118,8 @@ export default class AssetMgr extends AppNode {
       conf.group = "internal";
       let internalItem = group.addPrefabAssetItem(conf);
       internalItem.isDragable = false;
+      internalItem.isInternal = true;
+      internalItem.prefabInfo.style.display = "none";
     }
     for (let i = 0; i < INTERNAL_ASSETS.files.length; i++) {
       let path = INTERNAL_ASSETS.files[i];
@@ -126,7 +128,10 @@ export default class AssetMgr extends AppNode {
         nickname = path[0];
         path = path[1];
       }
-      group.addFileAssetItem(nickname || Utils.GetNameByPath(path), path);
+      let internalItem = group.addFileAssetItem(nickname || Utils.GetNameByPath(path), path);
+      internalItem.isDragable = false;
+      internalItem.isDragable = true;
+      internalItem.prefabInfo.style.display = "none";
     }
 
     let projConf = EditorEnv.GetProjectConfig();
@@ -149,6 +154,8 @@ export default class AssetMgr extends AppNode {
     this.groupCol[groupName] = groupItem;
     this.addChild(groupItem, this.contain);
     groupItem.subject.on("click-item", this.onClickAssetItem, this);
+    groupItem.subject.on("item-desc-changed", this.onItemDescChanged, this);
+
     return groupItem;
   }
 
@@ -206,6 +213,10 @@ export default class AssetMgr extends AppNode {
   }
   onClickAssetItem(item: AssetItem) {
     this.setCurItem(item);
+  }
+  onItemDescChanged(item: AssetItem) {
+    let projConf = EditorEnv.GetProjectConfig();
+    EditorEnv.SetProjectConfig(projConf);
   }
   onClickNewPrefab() {
     let panel = Prefab.Instantiate(BoxNewPrefabAsset);
@@ -345,6 +356,7 @@ export default class AssetMgr extends AppNode {
     let projConf = EditorEnv.GetProjectConfig();
     this.subject.emit("open-file", projConf.path + "/devnote.md");
   }
+
   static get PrefabStr(): string {
     return PrefabStr;
   }

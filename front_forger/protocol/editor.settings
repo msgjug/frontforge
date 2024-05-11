@@ -57,6 +57,7 @@ classes {
     # 
     PrefabConfig {
         name "(str)";
+        desc "(str)"; # 说明
         group "(str)";
         is_persist "(bool)false"; # 是否在Main加载（与Scene同级)
         path "(str)"; # 独立path,如果为空，则用 src/prefabs/

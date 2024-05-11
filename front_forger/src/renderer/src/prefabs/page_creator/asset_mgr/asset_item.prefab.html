@@ -6,7 +6,8 @@
         flex-wrap: nowrap;
         align-items: center;
         justify-content: space-between;
-        height:23px;
+        height: 23px;
+        position: relative;
     }
 
     .asset-item:hover {
@@ -30,19 +31,32 @@
         font-size: 1em;
         padding: 0;
     }
+
+    .asset-item-desc {
+        display: none;
+        /* pointer-events: none; */
+    }
+
+    .asset-item:hover .asset-item-desc {
+        display: flex;
+    }
 </style>
 <dom>
     <div @click="onClick" class="asset-item" draggable="true">
         <div class="row">
-            <img $="imgIcon" src="icon-file.png" style="height:1em;"/>
-            <div $="lbName" >asset_name</div>
+            <img $="imgIcon" src="icon-file.png" style="height:1em;" />
+            <div $="lbName">asset_name</div>
         </div>
         <div $="iconPersist" style="display:none;">📌</div>
         <div $="iconStart" style="display:none;">🚩</div>
-        <div $="btnRoot" class="row" style="display:none">
-            <button @click="onClickSave" class="emoji-btn">💾</button>
-            <button @click="onClickSetStart" class="emoji-btn">🚩</button>
-            <button @click="onClickDelete" class="emoji-btn">🚫</button>
+        <div $="prefabInfo" style="display: none; position: absolute; right: 0;">
+            <div $="assetItemDesc" class="row asset-item-desc">
+                <div style="
+            background: rgba(255,255,255,0.8);
+            color:black;" $="lbDesc"></div>
+                <input $="ebDesc" style="display:none" $="ebDesc" value="" />
+                <button @click="onClickEditDesc" class="emoji-btn-static">🏷️</button>
+            </div>
         </div>
     </div>
 </dom>

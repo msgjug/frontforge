@@ -64,6 +64,7 @@ export default class AssetGroupItem extends AppNode {
         this.addChild(item, this.contain);
         item.subject.on("dispose", this.onItemDispose, this);
         item.subject.on("click", this.onClickItem, this);
+        item.subject.on("desc-changed", this.onEditDesc, this);
         this.itemCount++;
         this.lbItemCount.innerText = `${this.itemCount}`;
         return item;
@@ -80,6 +81,9 @@ export default class AssetGroupItem extends AppNode {
     }
     onClickItem(item: AssetItem) {
         this.subject.emit("click-item", item);
+    }
+    onEditDesc(item: AssetItem) {
+        this.subject.emit("item-desc-changed", item);
     }
     unfold() {
         if (!this.foldded) {

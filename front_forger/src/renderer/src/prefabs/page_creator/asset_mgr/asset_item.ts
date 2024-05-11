@@ -6,7 +6,12 @@ import PrefabStr from "./asset_item.prefab.html?raw"
 
 @RegClass("AssetItem")
 export default class AssetItem extends AppNode {
+    prefabInfo: HTMLDivElement = null;
+    assetItemDesc: HTMLDivElement = null;
+
     lbName: HTMLDivElement = null;
+    lbDesc: HTMLDivElement = null;
+    ebDesc: HTMLInputElement = null;
     btnRoot: HTMLDivElement = null;
     iconStart: HTMLDivElement = null;
     iconPersist: HTMLDivElement = null;
@@ -16,6 +21,7 @@ export default class AssetItem extends AppNode {
 
     isPrefab = false;
     isDragable = true;
+    isInternal = false; //是否内置资源。
 
     fileName = "";
     filePath = "";
@@ -46,6 +52,7 @@ export default class AssetItem extends AppNode {
         this.fileName = name;
         this.filePath = path;
         this.lbName.innerText = this.fileName;
+        this.lbDesc.innerText = "";
         this.iconPersist.style.display = "none"
     }
     setPrefabData(prefabConfig: ProtocolObjectPrefabConfig) {
@@ -53,7 +60,9 @@ export default class AssetItem extends AppNode {
         this.imgIcon.src = "icon-prefab.png";
         this.prefabConfig = prefabConfig;
         this.lbName.innerText = this.prefabConfig.name;
+        this.lbDesc.innerText = this.prefabConfig.desc;
         this.iconPersist.style.display = this.prefabConfig.is_persist ? "" : "none"
+        this.prefabInfo.style.display = "flex";
     }
     blur() {
         this.ele.removeAttribute("cur");
@@ -75,14 +84,24 @@ export default class AssetItem extends AppNode {
     onClick() {
         this.subject.emit("click", this);
     }
-    onClickSave() {
-        this.subject.emit("save", this);
-    }
-    onClickSetStart() {
-        this.subject.emit("set-start", this);
-    }
-    onClickDelete() {
-        this.subject.emit("delete", this);
+
+    editingDesc = false;
+    onClickEditDesc() {
+        this.editingDesc = !this.editingDesc;
+        this.ebDesc.style.display = this.editingDesc ? "" : "none";
+        this.lbDesc.style.display = this.editingDesc ? "none" : "";
+
+        this.assetItemDesc.style.display = this.editingDesc ? "flex" : ""
+
+        if (!this.editingDesc) {
+            this.prefabConfig.desc = this.ebDesc.value;
+            this.lbDesc.innerText = this.prefabConfig.desc;
+            this.subject.emit("desc-changed", this);
+        }
+        else {
+            this.lbDesc.innerText = this.prefabConfig.desc;
+            this.ebDesc.value = this.prefabConfig.desc;
+        }
     }
     static get PrefabStr(): string {
         return PrefabStr;

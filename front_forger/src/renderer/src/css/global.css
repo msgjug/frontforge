@@ -135,10 +135,15 @@ button:active {
 }
 
 
+.emoji-btn-static {
+  background: none;
+  border: none;
+  font-size: 1.0em;
+}
 .emoji-btn {
   background: none;
   border: none;
-  font-size: 1.5em;
+  font-size: 1.0em;
   transition: transform 0.15s ease-out, filter 0.15s ease-out;
 }
 
