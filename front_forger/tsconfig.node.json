@@ -4,7 +4,7 @@
     "src/main/**/*",
     "src/preload/**/*",
     "src/classes/**/*"
-, "resources/template/template-project-preview/preview_script.ts"  ],
+, "resources/template/template-project-preview/preview.ts"  ],
   "compilerOptions": {
     "skipLibCheck": true,
     "noImplicitAny": false,

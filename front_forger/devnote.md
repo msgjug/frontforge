@@ -31,3 +31,4 @@
 
 # todo: 
   - 设计器，编辑CSS，MAIN。
+  - preview 项目变更时刷新。

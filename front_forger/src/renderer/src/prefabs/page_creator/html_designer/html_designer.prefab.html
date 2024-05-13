@@ -1,22 +1,19 @@
 <style>
     .designer {
+    flex: 1;
         position: relative;
         display: flex;
         flex-direction: column;
     }
     .screen {
-        width: 100vw;
-        height: 100vh;
+        width: 100%;
+        height: 100%;
         border: none;
         padding: 0;
         margin: 0;
     }
     .toolbar {
-        position: absolute;
         background: rgba(0, 0, 0, 0.5);
-        top:0;
-        width:100%;
-
         display: flex;
         flex-direction: row;
     }
@@ -24,16 +21,16 @@
 
 <dom>
     <div class="designer">
-        <iframe class="screen" $="frame" src="http://localhost:4545">
-        </iframe>
         <div class="toolbar">
             <div style="margin:1em;">
                 <button @click="onClickRefresh">刷新</button>
-                <button @click="onClickSelect">选择</button>
-                <button>插入</button>
-                <button>CSS</button>
-                <button>Text</button>
+                <!-- <button @click="onClickSelect">选择</button> -->
+                <!-- <button>插入</button> -->
+                <!-- <button>CSS</button> -->
+                <!-- <button>Text</button> -->
             </div>
         </div>
+        <iframe class="screen" $="frame" src="http://localhost:4545">
+        </iframe>
     </div>
 </dom>

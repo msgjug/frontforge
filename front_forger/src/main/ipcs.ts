@@ -509,14 +509,14 @@ export class IPCS {
         await Utils.CopyDirectory(Utils.GetResourcePath("template/template-project-preview"), path.join(PREVIEW_PATH, "src"));
         projConf.path = PREVIEW_PATH;
 
-        const RES_INDEX_PATH = path.join(projConf.path, "/src/res_index.ts");
+        const MAIN_INDEX_PATH = path.join(projConf.path, "/src/main.ts");
         //改写res_INDEX.ts
-        let res_index_str = await ProjectUtils.ReadStrFile(RES_INDEX_PATH);
-        res_index_str +=
-            `import __Preview__ from "./preview_script";
-__Preview__.Init();
+        let main_str = await ProjectUtils.ReadStrFile(MAIN_INDEX_PATH);
+        main_str +=
+            `import __Preview__ from "./preview";
+            Utils.app.root.addChild( Prefab.Instantiate(__Preview__));
 `;
-        await ProjectUtils.WriteStrFile(RES_INDEX_PATH, res_index_str);
+        await ProjectUtils.WriteStrFile(MAIN_INDEX_PATH, main_str);
 
         let run = new ProjectRunning();
         run.port = "4545";

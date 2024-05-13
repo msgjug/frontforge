@@ -1,5 +1,11 @@
 enums {
-
+    PreviewMsgType {
+        Other 0;
+        Refresh 1;
+        Select 2;
+        Prefab 3;
+        Page 3;
+    };
 };
 
 classes {
@@ -141,4 +147,11 @@ classes {
     EditorConfigChange {
         editor_conf "(EditorConfig)";
     };
+
+
+    # preview 消息
+    PreviewMsg {
+        type "(PreviewMsgType)Other";
+        args "([str])";
+    }
 };

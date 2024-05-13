@@ -7,9 +7,6 @@ import MsgHub from "./subject";
 @RegClass("Scene")
 export default class Scene extends AppNode {
     curPage: AppNode = null;
-    onLoad(): void {
-        MsgHub.emit("scene-inited");
-    }
     replacePage(node: AppNode) {
         if (this.curPage) {
             this.curPage.dispose();

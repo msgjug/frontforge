@@ -1,0 +1,29 @@
+<style>
+    .gzimo-title {
+        background: rgba(0,0,0,0.8);
+        color:white;
+    }
+    .gzimo {
+        position: absolute;
+        z-index: 999;
+        pointer-events: none;
+        border: 2px dashed black;
+        color:white;
+    }
+
+    .gzimo[selected] {
+        background: rgba(100, 100, 0, 0.2);
+        border: 2px dashed yellow;
+    }
+</style>
+
+<dom>
+    <div style="position: fixed;">
+        <div $="dashedGzimo" class="gzimo ant-line">
+            <span class="gzimo-title" $="lbTitle"></span>
+        </div>
+        <div $="selecteddGzimo" class="gzimo ant-line" selected>
+            <span class="gzimo-title" $="lbTitleSelected"></span>
+        </div>
+    </div>
+</dom>

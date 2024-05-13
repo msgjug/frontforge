@@ -469,7 +469,15 @@ export abstract class Protocol {
     }
 };
 //枚举
-
+
+export enum PreviewMsgType {
+    
+Other = 0,
+Refresh = 1,
+Select = 2,
+Prefab = 3,
+Page = 3,
+};
 //消息协议
 
 export class ProtocolObjectPrefabConfig extends Protocol {
@@ -1247,6 +1255,58 @@ export class ProtocolObjectEditorConfigChange extends Protocol {
         this.editor_conf.fromBinary(gBuf.readUint8Array());
 
     }
+};
+export class ProtocolObjectPreviewMsg extends Protocol {
+    type : PreviewMsgType = PreviewMsgType.Other;args : string [] = [];
+
+    getClassName(){
+        return "PreviewMsg"
+    }
+    toMixed() {
+        let out: any = {};
+        out["__cn"] = this.getClassName();
+        out["type"] = this.type;
+out["args"] = [];
+this.args.forEach(ele => {
+    out["args"].push(ele);
+});
+
+        return out;
+    }
+    fromMixed(input: any) {
+        
+        this.type = input.hasOwnProperty("type") && input["type"] !== null ? input["type"] : this.type;
+{
+    let arr: any[] = input.hasOwnProperty("args") && input["args"] !== null ? input["args"] : [];
+    let count = arr.length;
+    for (let i = 0; i < count; i++) {
+        this.args.push(arr[i]);
+    }
+}
+
+    }
+    protected _toBinary( gBuf: GrowBuffer) {
+        
+        gBuf.writeString(this.getClassName());
+        let __arr_size = 0;
+        gBuf.writeInt32(this.type);
+__arr_size = this.args.length;
+gBuf.writeUint32(__arr_size);
+for (let i = 0; i < __arr_size; i++) {
+    gBuf.writeString (this.args[i]);
+}
+
+    }
+    protected _fromBinary( gBuf: GrowBuffer ) {
+        
+        let __arr_size = 0;
+        this.type = gBuf.readInt32();
+__arr_size = gBuf.readUint32();
+for (let i = 0; i < __arr_size; i++) {
+    this.args.push(gBuf.readString());
+}
+
+    }
 };
 
 //消息工厂
@@ -1300,6 +1360,8 @@ export class ProtocolFactory {
     return new ProtocolObjectPersistPrefab();
 }else if( msgName == "EditorConfigChange") {
     return new ProtocolObjectEditorConfigChange();
+}else if( msgName == "PreviewMsg") {
+    return new ProtocolObjectPreviewMsg();
 }
         return null!;
     }
