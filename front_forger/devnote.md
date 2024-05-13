@@ -32,3 +32,5 @@
 # todo: 
   - 设计器，编辑CSS，MAIN。
   - preview 项目变更时刷新。
+  - BUG: ref 会删除下一个ele
+  - <ref></ref> 形式，为prefab 输入内容/参数。
