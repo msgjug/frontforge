@@ -47,7 +47,7 @@ export class ProjectUtils {
         return projConf;
     }
 
-    static async BuildProject(projConf: ProtocolObjectProjectConfig, target = "dev") {
+    static async BuildProject(projConf: ProtocolObjectProjectConfig, target: string, scripts: [string, string][] = []) {
         let prefabConf = projConf.prefabs_list.find(ele => ele.name === projConf.entrance_prefab_name)!;
         if (!prefabConf) {
             IPCS.Log("错误，找不到入口。");
@@ -106,6 +106,18 @@ export class ProjectUtils {
         macroTsStr = macroTsStr.replace(domainRegex, `DOMAIN: "${compile.server_domain}",`);
         ProjectUtils.WriteStrFile(MACRO_PATH, macroTsStr);
         IPCS.Log("改写Macro文件，OK");
+
+        //注入远程调试脚本。
+        if (scripts.length > 0) {
+            let res_index_str = await ProjectUtils.ReadStrFile(RES_INDEX_PATH);
+            scripts.forEach(async sc => {
+                let [scName, scText] = sc;
+                let scPath = path.join(projConf.path, `src/${scName}.ts`);
+                res_index_str += scPath;
+                await ProjectUtils.WriteStrFile(scPath, scText);
+            });
+            await ProjectUtils.WriteStrFile(RES_INDEX_PATH, res_index_str);
+        }
 
         return true;
     }

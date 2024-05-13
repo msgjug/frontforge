@@ -3,6 +3,7 @@ import { RegClass } from "../serialize";
 import PrefabStr from "./scene.prefab.html?raw"
 import Prefab from "../prefab";
 import Toast from "./toast";
+import MsgHub from "../subject";
 @RegClass("Scene")
 export default class Scene extends AppNode {
     curPage: AppNode = null;
@@ -13,8 +14,9 @@ export default class Scene extends AppNode {
         }
         this.addChild(node);
         this.curPage = node;
+        this.subject.emit("replace-page", this.curPage);
     }
-    
+
     toast(text: string, sec: number = 2) {
         let toast = Prefab.Instantiate(Toast);
         this.addChild(toast, "div[class=toast-container]");

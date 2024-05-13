@@ -114,6 +114,7 @@ export class IPCS {
         ipcMain.handle("FF:DeleteFile", IPCS._DeleteFile);
         //运行
         ipcMain.handle("FF:RunProject", IPCS._RunProject);
+        ipcMain.handle("FF:RunProjectPreview", IPCS._RunProjectPreview);
         ipcMain.handle("FF:StopProject", IPCS._StopProject);
         //构建
         ipcMain.handle("FF:BuildProject", IPCS._BuildProject);
@@ -489,10 +490,49 @@ export class IPCS {
      * @param projDat 项目配置
      * @returns 
      */
+    protected static async _RunProjectPreview(_, projDat: JSON) {
+        let projConf = new ProtocolObjectProjectConfig();
+        projConf.fromMixed(projDat);
+        if (!await ProjectUtils.BuildProject(projConf, "dev")) {
+            return null;
+        }
+        //复制文件。
+        const PREVIEW_PATH = Utils.GetResourcePath("preview");
+        if (!fs.existsSync(PREVIEW_PATH)) {
+            fs.mkdirSync(PREVIEW_PATH);
+        }
+        else {
+            Utils.DeleteDirectoryExceptSync(PREVIEW_PATH, ["node_modules"]);
+        }
+
+        await Utils.CopyDirectory(projConf.path, PREVIEW_PATH);
+        await Utils.CopyDirectory(Utils.GetResourcePath("template/template-project-preview"), path.join(PREVIEW_PATH, "src"));
+        projConf.path = PREVIEW_PATH;
+
+        const RES_INDEX_PATH = path.join(projConf.path, "/src/res_index.ts");
+        //改写res_INDEX.ts
+        let res_index_str = await ProjectUtils.ReadStrFile(RES_INDEX_PATH);
+        res_index_str +=
+            `import __Preview__ from "./preview_script";
+__Preview__.Init();
+`;
+        await ProjectUtils.WriteStrFile(RES_INDEX_PATH, res_index_str);
+
+        let run = new ProjectRunning();
+        run.port = "4545";
+        run.ae = new ActionExec(projConf.path);
+        run.ae.cmd("npx.cmd", ["vite", "--port", run.port]);
+        run.ae.onData = (str: string, delta: string) => {
+            IPCS.Log(delta);
+        };
+        IPCS.__runnings.push(run);
+        IPCS.Log(`执行命令：npx vite--port ${run.port}`);
+        return run.port;
+    }
     protected static async _RunProject(_, projDat: JSON, port = "") {
         let projConf = new ProtocolObjectProjectConfig();
         projConf.fromMixed(projDat);
-        if (!ProjectUtils.BuildProject(projConf)) {
+        if (!ProjectUtils.BuildProject(projConf, "dev")) {
             return null;
         }
         if (!port) {
@@ -592,7 +632,7 @@ export class IPCS {
             return null;
         }
 
-        if( projConf.path[projConf.path.length-1] !== "/" || projConf.path[projConf.path.length-1] !== "\\") {
+        if (projConf.path[projConf.path.length - 1] !== "/" || projConf.path[projConf.path.length - 1] !== "\\") {
             projConf.path += "\\";
         }
         IPCS.Log(`执行命令：npx vite build`);
@@ -655,7 +695,7 @@ export class IPCS {
             IPCS.Log(`修改TS文件`);
             await IPCS.FileContentReplaceKey(`${DST_DIR}${name}.ts`, ["{{CLASS_NAME}}", name], ["{{CLASS_NAME_BIG}}", Utils.SnakeToPascal(name)]);
             IPCS.Log(`更新项目MAIN与RES_INDEX`);
-            await ProjectUtils.BuildProject(projConf);
+            await ProjectUtils.BuildProject(projConf, "dev");
             IPCS.Log(`成功`);
         }
         catch (e) {
@@ -796,7 +836,7 @@ export class IPCS {
         projConf.fromMixed(config);
         let confPath = projConf.path + "/" + "front_forge_project.json";
         await IPCS._SaveStrFile(_, confPath, JSON.stringify(config));
-        ProjectUtils.BuildProject(projConf);
+        ProjectUtils.BuildProject(projConf, "dev");
 
         //更新配置
         let foundInd = IPCS.editorConfig.project_configs.findIndex(conf => conf.app_name === projConf.app_name);

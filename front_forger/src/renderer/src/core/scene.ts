@@ -3,10 +3,13 @@ import { RegClass } from "./serialize";
 import PrefabStr from "./prefabs/scene.prefab.html?raw"
 import Prefab from "./prefab";
 import Toast from "./prefabs/toast";
+import MsgHub from "./subject";
 @RegClass("Scene")
 export default class Scene extends AppNode {
     curPage: AppNode = null;
-
+    onLoad(): void {
+        MsgHub.emit("scene-inited");
+    }
     replacePage(node: AppNode) {
         if (this.curPage) {
             this.curPage.dispose();

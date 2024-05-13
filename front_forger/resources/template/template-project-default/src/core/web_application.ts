@@ -1,6 +1,6 @@
 import * as Tween from "@tweenjs/tween.js";
 
-import { Subject } from "./subject";
+import MsgHub, { Subject } from "./subject";
 import Utils, { rAF, Sync } from "./utils";
 import Prefab from "./prefab";
 import MsgBox from "./prefabs/msg_box";

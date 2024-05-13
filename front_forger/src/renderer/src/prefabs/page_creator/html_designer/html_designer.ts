@@ -8,4 +8,12 @@ export default class HtmlDesigner extends AppNode {
     static get PrefabStr(): string {
         return PrefabStr;
     }
+
+
+    onClickRefresh() {
+
+    }
+    onClickSelect() {
+        this.frame.contentWindow.postMessage("Preview:select");
+    }
 };
