@@ -7,7 +7,7 @@ export default defineConfig({
         output: {
           format: 'es'
         }
-      }
+      },
     },
     plugins: [externalizeDepsPlugin()]
   },

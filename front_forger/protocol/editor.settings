@@ -87,6 +87,11 @@ classes {
         open "(str)";
         close "(str)";
     };
+    # 窗口名字（新创建窗口时，IPCS给窗口发送 窗口名
+    YourWindowName {
+        name "(str)";
+    };
+
     # 打开项目
     OpenProject {
         project_conf "(ProjectConfig)";  

@@ -4,12 +4,14 @@ import Macro from "../../core/macro";
 import { RegClass } from "../../core/serialize";
 import MsgHub from "../../core/subject";
 import Utils from "../../core/utils";
+import EditorEnv from "../../env";
 import PrefabStr from "./nav.prefab.html?raw";
 @RegClass("Nav")
 export default class Nav extends AppNode {
     lbTitle: HTMLDivElement = null;
     btnOption: HTMLButtonElement = null;
     btnLog: HTMLButtonElement = null;
+    btnTop: HTMLButtonElement = null;
     static ELECTRON_APP_VERSION = "";
     async onLoad() {
         Nav.__ins = this;
@@ -67,6 +69,18 @@ export default class Nav extends AppNode {
     onClickOption() {
         MsgHub.emit("option");
     }
+
+    async onClickToggleTop() {
+        let alwaysOnTop = await window.electron.ipcRenderer.invoke("FF:ToggleWindowTop");
+
+        if (alwaysOnTop) {
+            this.btnTop.setAttribute("selected", "");
+        }
+        else {
+            this.btnTop.removeAttribute("selected");
+        }
+    }
+
     static get PrefabStr(): string {
         return PrefabStr;
     }

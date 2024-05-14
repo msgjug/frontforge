@@ -1,6 +1,6 @@
 import { dialog, ipcMain } from "electron/main";
 import fs from 'fs';
-import { ProtocolObjectEditorConfigChange, ProtocolObjectIPCResponse, ProtocolObjectLog, ProtocolObjectPrefabConfig, ProtocolObjectProjectConfig, ProtocolObjectWindowChange } from "../classes/protocol_dist";
+import { ProtocolObjectEditorConfigChange, ProtocolObjectIPCResponse, ProtocolObjectLog, ProtocolObjectPrefabConfig, ProtocolObjectProjectConfig, ProtocolObjectWindowChange, ProtocolObjectYourWindowName } from "../classes/protocol_dist";
 import { exec, execSync } from "child_process";
 import ActionExec from "./action_exec";
 import { ProjectUtils } from "./project_utils";
@@ -127,6 +127,9 @@ export class IPCS {
 
         //获取当前APP版本。
         ipcMain.handle("FF:AppVersion", IPCS._AppVersion);
+
+        //窗口置顶
+        ipcMain.handle("FF:ToggleWindowTop", IPCS._ToggleWindowTop);
 
         let tag = process.argv[1];
         switch (tag) {
@@ -365,6 +368,17 @@ export class IPCS {
         return res;
     }
 
+    //窗口置顶
+    protected static async _ToggleWindowTop(_) {
+        let wh = IPCS.windows.find(ele => ele.win.webContents === _.sender);
+        if (wh) {
+            wh.alwaysOnTop = !wh.alwaysOnTop;
+            wh.win.setAlwaysOnTop(wh.alwaysOnTop);
+            return wh.alwaysOnTop;
+        }
+        return false;
+    }
+
     // 检查项目文件夹 是否健康，
     /**
      * 
@@ -477,10 +491,14 @@ export class IPCS {
      */
     protected static _CreateWindow(_, name: string, x: number, y: number, width: number, height: number, page: string, box: string, modal = "", child = "", resizable = false) {
         if (IPCS.windows.find(ele => ele.name === name)) {
-            return;
+            return name;
         }
         const win = IPCS._createWindow(name, x, y, width, height, page, box, modal, child, resizable);
         win.once("ready-to-show", () => win.show());
+        let msg = new ProtocolObjectYourWindowName();
+        msg.name = name;
+        IPCS.Broadcast([win.webContents], msg.toMixed());
+        return name;
     }
     /** 执行命令行对象 */
     private static __runnings: ProjectRunning[] = [];
@@ -506,7 +524,11 @@ export class IPCS {
         }
 
         await Utils.CopyDirectory(projConf.path, PREVIEW_PATH);
-        await Utils.CopyDirectory(Utils.GetResourcePath("template/template-project-preview"), path.join(PREVIEW_PATH, "src"));
+        let tsTpl = await ProjectUtils.ReadStrFile(Utils.GetResourcePath("template/template-project-preview/preview.ts.tpl"));
+        let htmlTpl = await ProjectUtils.ReadStrFile(Utils.GetResourcePath("template/template-project-preview/preview.prefab.html"));
+        await ProjectUtils.WriteStrFile(path.join(PREVIEW_PATH, "src", "preview.ts"), tsTpl);
+        await ProjectUtils.WriteStrFile(path.join(PREVIEW_PATH, "src", "preview.prefab.html"), htmlTpl);
+        // await Utils.CopyDirectory(Utils.GetResourcePath("template/template-project-preview"), path.join(PREVIEW_PATH, "src"));
         projConf.path = PREVIEW_PATH;
 
         const MAIN_INDEX_PATH = path.join(projConf.path, "/src/main.ts");

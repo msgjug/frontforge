@@ -29,6 +29,9 @@ export default class EditorEnv {
     static onMessage(fn: (msg: Protocol) => void, obj: any) {
         this.PortSubject.on("message", fn, obj);
     }
+    static onceMessage(fn: (msg: Protocol) => void, obj: any) {
+        this.PortSubject.once("message", fn, obj);
+    }
     static offMessage(obj: any) {
         this.PortSubject.targetOff(obj);
     }
@@ -80,6 +83,8 @@ export default class EditorEnv {
         }
         return null;
     }
+
+    static windowName = ""; //当前窗口名字
 };
 window["env"] = EditorEnv;
 

@@ -16,6 +16,7 @@ import BoxCodeOption from './prefabs/page_creator/box_code_option/box_code_optio
 import BoxHelp from './prefabs/page_creator/box_help/box_help'
 import BoxLogger from './prefabs/box_logger/box_logger'
 import PageDesigner from './prefabs/page_designer/page_designer'
+import { ProtocolObjectYourWindowName } from '../../classes/protocol_dist'
 
 const ROUTE: { [key: string]: new () => AppNode } = {
   "index": PageCreator,
@@ -25,7 +26,7 @@ const ROUTE: { [key: string]: new () => AppNode } = {
   "BoxProject": BoxProject,
   "BoxCodeOption": BoxCodeOption,
   "BoxHelp": BoxHelp,
-  "BoxLogger" : BoxLogger
+  "BoxLogger": BoxLogger
 };
 
 (() => {
@@ -51,6 +52,11 @@ const ROUTE: { [key: string]: new () => AppNode } = {
 
     window.electron.ipcRenderer.on("FF:Broadcast", EditorEnv.onIPCMessage.bind(EditorEnv));
     window.electron.ipcRenderer.on("hot-key", EditorEnv.onHotkey.bind(this));
+
+    EditorEnv.onceMessage((msg: ProtocolObjectYourWindowName) => {
+      window["windowName"] = msg.name;
+    }, window);
+
     window["app"] = app;
   })
 })();

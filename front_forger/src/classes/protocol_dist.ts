@@ -880,6 +880,38 @@ this.close = gBuf.readString ();
 
     }
 };
+export class ProtocolObjectYourWindowName extends Protocol {
+    name : string = "";
+
+    getClassName(){
+        return "YourWindowName"
+    }
+    toMixed() {
+        let out: any = {};
+        out["__cn"] = this.getClassName();
+        out["name"] = this.name;
+
+        return out;
+    }
+    fromMixed(input: any) {
+        
+        this.name = input.hasOwnProperty("name") && input["name"] !== null ? input["name"] : this.name;
+
+    }
+    protected _toBinary( gBuf: GrowBuffer) {
+        
+        gBuf.writeString(this.getClassName());
+        let __arr_size = 0;
+        gBuf.writeString (this.name);
+
+    }
+    protected _fromBinary( gBuf: GrowBuffer ) {
+        
+        let __arr_size = 0;
+        this.name = gBuf.readString ();
+
+    }
+};
 export class ProtocolObjectOpenProject extends Protocol {
     project_conf : ProtocolObjectProjectConfig = new ProtocolObjectProjectConfig();
 
@@ -1340,6 +1372,8 @@ export class ProtocolFactory {
     return new ProtocolObjectLog();
 }else if( msgName == "WindowChange") {
     return new ProtocolObjectWindowChange();
+}else if( msgName == "YourWindowName") {
+    return new ProtocolObjectYourWindowName();
 }else if( msgName == "OpenProject") {
     return new ProtocolObjectOpenProject();
 }else if( msgName == "CloseProject") {

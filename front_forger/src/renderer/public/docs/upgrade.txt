@@ -1,3 +1,10 @@
+- FrontForger 1.3.2(2024.5.14)
+  - 设计器开发，可以预览，查看元素。
+  - 窗口增加alwayOnTop按钮
+  - 框架：
+    - 修BUG：AppNode的REF元素BUG。
+    - 增加Prefab的refCtor属性
+    - 增加组件
 - FrontForger 1.3.1(2024.5.11)
   - prefab备注
 - FrontForger 1.3.0(2024.5.11)

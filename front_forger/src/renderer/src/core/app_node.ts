@@ -77,17 +77,17 @@ export class AppNode {
     parent: AppNode = null;
     inited = false;
 
-    private __oldDisplay: string = "";
+    protected _oldDisplay: string = "";
     get active() {
         return this.ele.style.display !== "none";
     }
     set active(val: boolean) {
         if (this.active && !val) {
-            this.__oldDisplay = this.ele.style.display
+            this._oldDisplay = this.ele.style.display
             this.ele.style.display = "none";
         }
         else if (!this.active && val) {
-            this.ele.style.display = this.__oldDisplay;
+            this.ele.style.display = this._oldDisplay;
         }
     }
     get opacity() {
@@ -97,19 +97,22 @@ export class AppNode {
         this.ele.style.opacity = `${val}`;
     }
 
-    static get PrefabStr(): string {
-        return "";
-    }
-    protected async _recBindDom(ele: Element, checkCtor = false) {
+    protected _recBindDom(ele: Element, checkCtor = false) {
         let isRef = ele.tagName === "REF";
         let appNode: AppNode = null;
-        let parentEle = null;
+        let parentEle: Element = null;
         //ref 标签
         if (isRef) {
             //引用。
             let ctorName = ele.getAttribute("ctor");
             let ctor = n2c(ctorName);
             appNode = Prefab.Instantiate(ctor);
+            let children: Element[] = Array.from(ele.children);
+            for (let i = 0; i < children.length; i++) {
+                let child = children[i];
+                this._recBindDom(child, true);
+            }
+            appNode.refCtor(ele);
             parentEle = ele.parentElement;
         }
         else {
@@ -166,21 +169,41 @@ export class AppNode {
                 }
             }
         }
-        if (!isRef) {
-            if (!appNode) {
-                for (let i = 0; i < ele.children.length; i++) {
-                    let child = ele.children[i];
-                    this._recBindDom(child, true);
+        //@msg 
+        if (appNode) {
+            let attrs = Array.from(ele.attributes);
+            for (let i = 0; i < attrs.length; i++) {
+                let attr = attrs[i];
+                if (/\@msg-/g.test(attr.name)) {
+                    let msgName = attr.name.replace("@msg-", "");
+                    let ma = null;
+                    if (attr.value) {
+                        ma = AppNode.__parseMethodCall(attr.value);
+                    }
+                    appNode.subject.on(msgName, this[ma.method].bind(this, ...ma.args), this);
                 }
             }
         }
+
+
+        if (isRef) {
+        }
         else {
-            ele.remove();
+            if (!appNode) {
+                let children: Element[] = Array.from(ele.children);
+                for (let i = 0; i < children.length; i++) {
+                    let child = children[i];
+                    this._recBindDom(child, true);
+                }
+            }
         }
 
         if (appNode) {
             if (isRef) {
                 this.addChild(appNode, parentEle);
+                //和REF 的元素调换位置
+                parentEle.insertBefore(appNode.ele, ele);
+                ele.remove();
             }
             else {
                 // this.addChild
@@ -509,6 +532,7 @@ export class AppNode {
     static IsValid(appNode: AppNode) {
         return appNode && appNode.__valid;
     }
+    refCtor(refEle: Element) { }
     onLoad() { }
     onDispose() { }
 
