@@ -7,7 +7,7 @@ import Utils from './core/utils'
 //assets
 import Scene from './core/scene'
 import PageCreator from './prefabs/page_creator/page_creator'
-import { AppNode } from './core/app_node'
+import AppNode from './core/app_node'
 import PageCode from './prefabs/page_code/page_code'
 import EditorEnv from './env'
 import BoxProject from './prefabs/box_project/box_project'

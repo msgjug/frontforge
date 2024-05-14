@@ -1,4 +1,4 @@
-import { AppNode } from "../app_node";
+import AppNode from "../app_node";
 import { RegClass } from "../serialize";
 import { H5Utils } from "../utils";
 import PrefabStr from "./slider.prefab.html?raw";

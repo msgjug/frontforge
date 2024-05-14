@@ -1,4 +1,4 @@
-import { AppNode } from "../../../core/app_node";
+import AppNode from "../../../core/app_node";
 import { RegClass } from "../../../core/serialize";
 import EditorEnv from "../../../env";
 import { ProtocolObjectPrefabConfig } from "../../../../../classes/protocol_dist";

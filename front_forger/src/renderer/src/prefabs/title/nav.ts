@@ -1,5 +1,5 @@
 import { ProtocolObjectIPCResponse } from "../../../../classes/protocol_dist";
-import { AppNode } from "../../core/app_node";
+import AppNode from "../../core/app_node";
 import Macro from "../../core/macro";
 import { RegClass } from "../../core/serialize";
 import MsgHub from "../../core/subject";

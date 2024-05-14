@@ -1,4 +1,4 @@
-import { AppNode, property } from "../app_node";
+import AppNode, { property } from "../app_node";
 import { RegClass } from "../serialize";
 import { H5Utils } from "../utils";
 

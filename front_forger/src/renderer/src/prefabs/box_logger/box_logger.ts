@@ -1,6 +1,6 @@
 import { RegClass } from "../../core/serialize";
 import PrefabStr from "./box_logger.prefab.html?raw"
-import { AppNode } from "../../core/app_node";
+import AppNode from "../../core/app_node";
 import Nav from "../title/nav";
 import EditorEnv from "../../env";
 import { Protocol, ProtocolObjectLog } from "../../../../classes/protocol_dist";

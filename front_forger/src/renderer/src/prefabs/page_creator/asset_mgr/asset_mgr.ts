@@ -1,10 +1,10 @@
 import { DirentHandle } from "../../../../../classes/dirent_handle";
-import { AppNode } from "../../../core/app_node";
+import AppNode from "../../../core/app_node";
 import Prefab from "../../../core/prefab";
 import { RegClass } from "../../../core/serialize";
 import Utils from "../../../core/utils";
 import EditorEnv from "../../../env";
-import { Protocol, ProtocolObjectFlagPrefab, ProtocolObjectPersistPrefab, ProtocolObjectPrefabConfig } from "../../../../../classes/protocol_dist";
+import { Protocol, ProtocolObjectDeletePrefab, ProtocolObjectFlagPrefab, ProtocolObjectPersistPrefab, ProtocolObjectPrefabConfig } from "../../../../../classes/protocol_dist";
 import AssetGroupItem from "./asset_group_item";
 import AssetItem from "./asset_item";
 import PrefabStr from "./asset_mgr.prefab.html?raw"
@@ -317,7 +317,10 @@ export default class AssetMgr extends AppNode {
     if (!await Utils.app.msgBoxYesNo(`删除${this.curItem.prefabConfig.name}?`)) {
       return;
     }
-    this.deleteAsset(this.curItem.prefabConfig);
+
+    let msg = new ProtocolObjectDeletePrefab();
+    msg.prefab_conf = this.curItem.prefabConfig;
+    EditorEnv.postMessage(msg);
   }
 
   setStartAsset(prefabConfig: ProtocolObjectPrefabConfig) {
@@ -325,17 +328,17 @@ export default class AssetMgr extends AppNode {
   }
   deleteAsset(prefabConfig: ProtocolObjectPrefabConfig) {
     let projConf = EditorEnv.GetProjectConfig();
-    let foundInd = projConf.prefabs_list.findIndex(ele => ele === prefabConfig);
+    let foundInd = projConf.prefabs_list.findIndex(ele => ele.name === prefabConfig.name);
     if (foundInd !== -1) {
       projConf.prefabs_list.splice(foundInd, 1);
     }
 
     if (this.groupCol[prefabConfig.group]) {
       let group = this.groupCol[prefabConfig.group]
-      group.itemCol[prefabConfig.name].dispose();
+      group.itemCol[prefabConfig.name] && group.itemCol[prefabConfig.name].dispose();
     }
 
-    if (this.curItem.prefabConfig.name === prefabConfig.name) {
+    if (this.curItem && this.curItem.prefabConfig.name === prefabConfig.name) {
       this.setCurItem(null);
     }
 

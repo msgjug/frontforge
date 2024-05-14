@@ -1,4 +1,4 @@
-import { AppNode } from "../../core/app_node";
+import AppNode from "../../core/app_node";
 import Prefab from "../../core/prefab";
 import { RegClass } from "../../core/serialize";
 import PrefabStr from "./page_creator.prefab.html?raw"
@@ -147,24 +147,26 @@ export default class PageCreator extends AppNode {
   }
   async onSelectAssetItem(item: AssetItem) {
     let msg = new ProtocolObjectSelectPrefab();
+    let projConf = EditorEnv.GetProjectConfig();
     if (!item) {
       EditorEnv.postMessageExceptSelf(msg);
     }
-    let projConf = EditorEnv.GetProjectConfig();
-    if (item.isPrefab) {
-      //获取dh
-      let tsPath = projConf.path + PageCreator.GetPath(item.prefabConfig) + item.prefabConfig.name + ".ts";
-      let domPath = projConf.path + PageCreator.GetPath(item.prefabConfig) + item.prefabConfig.name + ".prefab.html";
-      let dhTs = await window.electron.ipcRenderer.invoke("FF:GetDirentHandle", tsPath);
-      let dhDom = await window.electron.ipcRenderer.invoke("FF:GetDirentHandle", domPath);
-      msg.valid = true;
-      msg.ts_str = dhTs.dataStr;
-      msg.dom_str = dhDom.dataStr;
-      msg.prefab_conf = item.prefabConfig;
-      EditorEnv.postMessageExceptSelf(msg);
-    }
     else {
-      this.onOpenFile(projConf.path + item.filePath);
+      if (item.isPrefab) {
+        //获取dh
+        let tsPath = projConf.path + PageCreator.GetPath(item.prefabConfig) + item.prefabConfig.name + ".ts";
+        let domPath = projConf.path + PageCreator.GetPath(item.prefabConfig) + item.prefabConfig.name + ".prefab.html";
+        let dhTs = await window.electron.ipcRenderer.invoke("FF:GetDirentHandle", tsPath);
+        let dhDom = await window.electron.ipcRenderer.invoke("FF:GetDirentHandle", domPath);
+        msg.valid = true;
+        msg.ts_str = dhTs.dataStr;
+        msg.dom_str = dhDom.dataStr;
+        msg.prefab_conf = item.prefabConfig;
+        EditorEnv.postMessageExceptSelf(msg);
+      }
+      else {
+        this.onOpenFile(projConf.path + item.filePath);
+      }
     }
   }
   async onPrefabDelete(msg: ProtocolObjectDeletePrefab) {

@@ -1,4 +1,4 @@
-import { AppNode } from "./app_node";
+import AppNode from "./app_node";
 import { NameClassMap, n2c } from "./serialize";
 
 export default class Prefab {

@@ -1,4 +1,4 @@
-import { AppNode } from "../../../core/app_node";
+import AppNode from "../../../core/app_node";
 import Prefab from "../../../core/prefab";
 import { RegClass } from "../../../core/serialize";
 import EditorEnv from "../../../env";

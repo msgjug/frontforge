@@ -1,4 +1,4 @@
-import { AppNode } from "../../core/app_node";
+import AppNode from "../../core/app_node";
 import { RegClass } from "../../core/serialize";
 import { ProtocolObjectProjectConfig } from "../../../../classes/protocol_dist";
 import PrefabStr from "./project_item.prefab.html?raw"

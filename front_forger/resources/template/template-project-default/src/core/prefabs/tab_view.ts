@@ -1,4 +1,4 @@
-import { AppNode } from "../app_node";
+import AppNode from "../app_node";
 import { RegClass } from "../serialize";
 import PrefabStr from "./tab_view.prefab.html?raw"
 

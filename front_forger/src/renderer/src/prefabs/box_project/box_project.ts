@@ -6,7 +6,7 @@ import Prefab from "../../core/prefab";
 import ProjectItem from "./project_item";
 import BoxNewProject from "./box_new_project";
 import Utils from "../../core/utils";
-import { AppNode } from "../../core/app_node";
+import AppNode from "../../core/app_node";
 @RegClass("BoxProject")
 export default class BoxProject extends AppNode {
     ebSearch: HTMLInputElement = null;

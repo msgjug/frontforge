@@ -1,5 +1,5 @@
 import * as Tween from "@tweenjs/tween.js";
-import { AppNode, property } from "../app_node";
+import AppNode, { property } from "../app_node";
 import { RegClass } from "../serialize";
 import PrefabStr from './toast.prefab.html?raw'
 @RegClass("MsgBox")

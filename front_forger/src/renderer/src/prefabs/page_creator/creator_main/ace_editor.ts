@@ -1,4 +1,4 @@
-import { AppNode } from "../../../core/app_node";
+import AppNode from "../../../core/app_node";
 import { RegClass } from "../../../core/serialize";
 import { Syncer } from "../../../core/utils";
 import EditorEnv from "../../../env";

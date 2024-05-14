@@ -1,15 +1,13 @@
-import { AppNode } from "../../../core/app_node";
+import AppNode from "../../../core/app_node";
 import Prefab from "../../../core/prefab";
 import { RegClass } from "../../../core/serialize";
-import EditorEnv, { ACE_THEME } from "../../../env";
-import { Protocol, ProtocolObjectDeletePrefab, ProtocolObjectEditorConfig, ProtocolObjectEditorConfigChange, ProtocolObjectFlagPrefab, ProtocolObjectOpenFile, ProtocolObjectPrefabConfig, ProtocolObjectSaveFile, ProtocolObjectSavePrefab, ProtocolObjectSelectPrefab } from "../../../../../classes/protocol_dist";
+import EditorEnv from "../../../env";
+import { Protocol,  ProtocolObjectEditorConfig, ProtocolObjectEditorConfigChange, ProtocolObjectOpenFile, ProtocolObjectPrefabConfig, ProtocolObjectSaveFile, ProtocolObjectSavePrefab, ProtocolObjectSelectPrefab } from "../../../../../classes/protocol_dist";
 import ACEEditor from "./ace_editor";
 import PrefabStr from "./creator_main.prefab.html?raw"
-import { Selector } from "./selector";
 import { TabView } from "./tab_view";
 import Utils, { Sync } from "../../../core/utils";
 import MsgHub from "../../../core/subject";
-import { utimesSync } from "fs";
 
 @RegClass("CreatorMain")
 export default class CreatorMain extends AppNode {
@@ -179,26 +177,7 @@ export default class CreatorMain extends AppNode {
     onClickSave() {
         this.save();
     }
-    onClickSetStart() {
-        if (!this.conf) {
-            return;
-        }
-        let msg = new ProtocolObjectFlagPrefab();
-        msg.prefab_conf = this.conf;
-        EditorEnv.postMessageExceptSelf(msg);
-    }
-    async onClickDelete() {
-        if (!this.conf) {
-            return;
-        }
-        if (!await Utils.app.msgBoxYesNo(`删除${this.conf.name}?`)) {
-            return;
-        }
-
-        let msg = new ProtocolObjectDeletePrefab();
-        msg.prefab_conf = this.conf;
-        EditorEnv.postMessageExceptSelf(msg);
-    }
+    
     onTabViewSelect() {
         console.log("select:", this.tabView.curInd);
         switch (this.tabView.curInd) {

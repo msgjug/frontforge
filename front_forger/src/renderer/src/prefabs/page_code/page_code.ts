@@ -1,5 +1,5 @@
 import { Protocol, ProtocolObjectCloseProject } from "../../../../classes/protocol_dist";
-import { AppNode } from "../../core/app_node";
+import AppNode from "../../core/app_node";
 import { RegClass } from "../../core/serialize";
 import MsgHub from "../../core/subject";
 import EditorEnv from "../../env";

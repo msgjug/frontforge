@@ -1,4 +1,4 @@
-import { AppNode } from "../../../core/app_node";
+import AppNode from "../../../core/app_node";
 import { RegClass } from "../../../core/serialize";
 
 import DefaultDom from "./tab_view.prefab.html?raw";

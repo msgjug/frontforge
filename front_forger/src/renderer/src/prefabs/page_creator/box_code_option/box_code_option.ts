@@ -1,5 +1,5 @@
 import { Protocol, ProtocolObjectEditorConfigChange } from "../../../../../classes/protocol_dist";
-import { AppNode } from "../../../core/app_node";
+import AppNode from "../../../core/app_node";
 import { RegClass } from "../../../core/serialize";
 import EditorEnv, { ACE_THEME } from "../../../env";
 import { Selector } from "../creator_main/selector";

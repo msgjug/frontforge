@@ -1,5 +1,5 @@
 import { PreviewMsgType, Protocol, ProtocolObjectPreviewMsg, ProtocolObjectSelectPrefab } from "../../../../../classes/protocol_dist";
-import { AppNode } from "../../../core/app_node";
+import AppNode from "../../../core/app_node";
 import { RegClass } from "../../../core/serialize";
 import PrefabStr from "./html_designer.prefab.html?raw"
 import EditorEnv from "../../../env";

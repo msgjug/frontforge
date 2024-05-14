@@ -67,7 +67,7 @@ const MEMBER_LIST = [
 ];
 
 @RegClass("AppNode")
-export class AppNode {
+export default class AppNode {
     private __valid = false;
     subject: Subject = new Subject();
     css: Element = null;

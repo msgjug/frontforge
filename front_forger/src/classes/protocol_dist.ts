@@ -481,7 +481,7 @@ Page = 3,
 //消息协议
 
 export class ProtocolObjectPrefabConfig extends Protocol {
-    name : string = "";desc : string = "";group : string = "";extend : string = "AppNode";is_persist : boolean = false;path : string = "";
+    name : string = "";desc : string = "";group : string = "";extend : string = "app_node";is_persist : boolean = false;path : string = "";
 
     getClassName(){
         return "PrefabConfig"

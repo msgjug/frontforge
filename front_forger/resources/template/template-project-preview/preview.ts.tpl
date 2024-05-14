@@ -1,4 +1,4 @@
-import { AppNode } from "./core/app_node";
+import AppNode from "./core/app_node";
 import Prefab from "./core/prefab";
 import { n2c } from "./core/serialize";
 import MsgHub from "./core/subject";

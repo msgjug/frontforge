@@ -1,4 +1,4 @@
-import { AppNode, property } from "../../core/app_node";
+import AppNode, { property } from "../../core/app_node";
 import { RegClass } from "../../core/serialize";
 import PrefabStr from "./script_item.prefab.html?raw"
 

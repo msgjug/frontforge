@@ -1,3 +1,7 @@
+- FrontForger 1.3.3(2024.5.15)
+  - 新建Prefab可以自定义继承
+  - 框架：
+    - AppNode 修改为 export default
 - FrontForger 1.3.2(2024.5.14)
   - 设计器开发，可以预览，查看元素。
   - 窗口增加alwayOnTop按钮

@@ -93,22 +93,32 @@ export default class Utils {
         }
     }
 
-    static async FindFileByName(dirPath: string, fileName: string) {
+    //fromDir 相对地址
+    static async FindFileByName(dirPath: string, fileName: string, fromDir: string = "") {
         try {
             // 读取目录内容
             const files = await fs.readdirSync(dirPath);
 
             // 遍历目录内容
             for (const file of files) {
-                const filePath = `${dirPath}/${fileName}`;
-
+                let abPath = path.join(dirPath, file);
                 // 获取文件状态信息
-                const stats = await fs.statSync(filePath);
+                const stats = await fs.statSync(abPath);
 
                 // 判断是否为文件
                 if (stats.isFile() && file === fileName) {
+                    let filePath = abPath
+                    if (fromDir) {
+                        filePath = Utils.GetRelativePath(abPath, fromDir);
+                    }
                     console.log(filePath);
                     return filePath; // 找到文件后返回
+                }
+                else if (stats.isDirectory()) {
+                    let foundPath = await Utils.FindFileByName(path.join(dirPath, file), fileName, fromDir);
+                    if (foundPath) {
+                        return foundPath;
+                    }
                 }
             }
             console.log(`File ${fileName} not found in${dirPath}`);
@@ -118,27 +128,27 @@ export default class Utils {
         return "";
     }
 
-    
-// async function findFileByName(directoryPath, fileName) {
-//     try {
-//       // 获取当前执行目录
-//       const currentDir = process.cwd();
-      
-//       // 构建完整的文件路径
-//       const filePath = path.resolve(currentDir, directoryPath, fileName);
-      
-//       // 获取文件状态信息
-//       const stats = await fs.stat(filePath);
-      
-//       // 判断是否为文件
-//       if (stats.isFile()) {
-//         console.log(filePath);
-//         return; // 找到文件后返回
-//       }
-//       console.log(`File ${fileName} not found in${directoryPath}`);
-//     } catch (error) {
-//       console.error(`Error reading directory: ${error}`);
-//     }
-//   }
-  
+    static GetRelativePath(absolutePath: string, currentDirectory: string) {
+        // 确保当前目录有尾部的分隔符，这样 path.relative 才能正确处理
+        if (!currentDirectory.endsWith(path.sep)) {
+            currentDirectory += path.sep;
+        }
+
+        // 使用 path.relative 计算相对路径
+        const relativePath = path.relative(currentDirectory, absolutePath);
+
+        // 由于 path.relative 可能返回绝对路径（如果两个路径没有共同的前缀），我们需要处理这种情况
+        if (relativePath.startsWith('..' + path.sep)) {
+            return relativePath;
+        } else {
+            // 如果不是相对路径，我们手动添加 './' 前缀
+            return `.${path.sep}${relativePath}`;
+        }
+    }
+
+    // // 示例使用
+    // const absolutePath = 'home/src/data.ts';
+    // const currentDirectory = './home/';
+    // const relativePath = getRelativePath(absolutePath, currentDirectory);
+
 }

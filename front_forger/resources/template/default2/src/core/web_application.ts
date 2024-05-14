@@ -4,7 +4,7 @@ import { Subject } from "./subject";
 import Utils, { rAF, Sync } from "./utils";
 import Prefab from "./prefab";
 import MsgBox from "./prefabs/msg_box";
-import { AppNode } from "./app_node";
+import AppNode from "./app_node";
 import { RegClass } from "./serialize";
 import data from "./cache_data";
 import MsgBoxYesNo from "./prefabs/msg_box_yes_no";

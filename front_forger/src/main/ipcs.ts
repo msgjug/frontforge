@@ -721,8 +721,8 @@ export class IPCS {
 
             let imports = "";
             if (extendName) {
-                let path = await Utils.FindFileByName(projConf.path, extendName + ".ts");
-                imports += `import ${Utils.SnakeToPascal(extendName)} from ${path};\n`;
+                let importPath = (await Utils.FindFileByName(projConf.path, extendName + ".ts", path.join(projConf.path, "src/prefabs"))).replace(/\\/g, '/');
+                imports += `import ${Utils.SnakeToPascal(extendName)} from "${importPath}";\n`;
             }
 
             await IPCS.FileContentReplaceKey(`${DST_DIR}${prefabName}.ts`,
