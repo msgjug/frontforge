@@ -83,7 +83,7 @@ export default class Utils {
                 }
             });
 
-            if(rmDir){
+            if (rmDir) {
                 // 最后删除空文件夹
                 fs.rmSync(directoryPath);
             }
@@ -92,4 +92,53 @@ export default class Utils {
             console.error(`Error deleting directory ${directoryPath}:`, err);
         }
     }
+
+    static async FindFileByName(dirPath: string, fileName: string) {
+        try {
+            // 读取目录内容
+            const files = await fs.readdirSync(dirPath);
+
+            // 遍历目录内容
+            for (const file of files) {
+                const filePath = `${dirPath}/${fileName}`;
+
+                // 获取文件状态信息
+                const stats = await fs.statSync(filePath);
+
+                // 判断是否为文件
+                if (stats.isFile() && file === fileName) {
+                    console.log(filePath);
+                    return filePath; // 找到文件后返回
+                }
+            }
+            console.log(`File ${fileName} not found in${dirPath}`);
+        } catch (error) {
+            console.error(`Error reading directory: ${error}`);
+        }
+        return "";
+    }
+
+    
+// async function findFileByName(directoryPath, fileName) {
+//     try {
+//       // 获取当前执行目录
+//       const currentDir = process.cwd();
+      
+//       // 构建完整的文件路径
+//       const filePath = path.resolve(currentDir, directoryPath, fileName);
+      
+//       // 获取文件状态信息
+//       const stats = await fs.stat(filePath);
+      
+//       // 判断是否为文件
+//       if (stats.isFile()) {
+//         console.log(filePath);
+//         return; // 找到文件后返回
+//       }
+//       console.log(`File ${fileName} not found in${directoryPath}`);
+//     } catch (error) {
+//       console.error(`Error reading directory: ${error}`);
+//     }
+//   }
+  
 }

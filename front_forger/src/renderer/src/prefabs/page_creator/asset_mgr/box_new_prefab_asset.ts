@@ -13,6 +13,9 @@ export default class BoxNewPrefabAsset extends Panel {
 
     selGroup: HTMLSelectElement = null;
 
+    cbExtends: HTMLInputElement = null;
+    ebExtends: HTMLInputElement = null;
+
     onLoad(): void {
         let project = EditorEnv.GetProjectConfig();
         let groups = [];
@@ -33,7 +36,9 @@ export default class BoxNewPrefabAsset extends Panel {
     onSelectGroup(evt) {
         this.ebGroup.value = evt.target.value
     }
-
+    onExtendsChange() {
+        this.ebExtends.style.display = this.cbExtends.checked ? "" : "none";
+    }
     async onClickSubmit() {
         let prefabName = this.ebName.value;
         if (!prefabName) {
@@ -47,7 +52,8 @@ export default class BoxNewPrefabAsset extends Panel {
         let conf = new ProtocolObjectPrefabConfig();
         conf.group = groupName;
         conf.name = prefabName;
-        let rsp: ProtocolObjectIPCResponse = await window.electron.ipcRenderer.invoke("FF:NewPrefabAsset", prefabName, EditorEnv.GetProjectConfig());
+        conf.extend = this.ebExtends.value;
+        let rsp: ProtocolObjectIPCResponse = await window.electron.ipcRenderer.invoke("FF:NewPrefabAsset", conf.toMixed(), EditorEnv.GetProjectConfig());
         if (rsp.ret) {
             Utils.app.msgBox(rsp.msg, "错误");
             return;

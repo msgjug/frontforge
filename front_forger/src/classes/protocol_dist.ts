@@ -481,7 +481,7 @@ Page = 3,
 //消息协议
 
 export class ProtocolObjectPrefabConfig extends Protocol {
-    name : string = "";desc : string = "";group : string = "";is_persist : boolean = false;path : string = "";
+    name : string = "";desc : string = "";group : string = "";extend : string = "AppNode";is_persist : boolean = false;path : string = "";
 
     getClassName(){
         return "PrefabConfig"
@@ -492,6 +492,7 @@ export class ProtocolObjectPrefabConfig extends Protocol {
         out["name"] = this.name;
 out["desc"] = this.desc;
 out["group"] = this.group;
+out["extend"] = this.extend;
 out["is_persist"] = this.is_persist;
 out["path"] = this.path;
 
@@ -502,6 +503,7 @@ out["path"] = this.path;
         this.name = input.hasOwnProperty("name") && input["name"] !== null ? input["name"] : this.name;
 this.desc = input.hasOwnProperty("desc") && input["desc"] !== null ? input["desc"] : this.desc;
 this.group = input.hasOwnProperty("group") && input["group"] !== null ? input["group"] : this.group;
+this.extend = input.hasOwnProperty("extend") && input["extend"] !== null ? input["extend"] : this.extend;
 this.is_persist = input.hasOwnProperty("is_persist") && input["is_persist"] !== null ? input["is_persist"] : this.is_persist;
 this.path = input.hasOwnProperty("path") && input["path"] !== null ? input["path"] : this.path;
 
@@ -513,6 +515,7 @@ this.path = input.hasOwnProperty("path") && input["path"] !== null ? input["path
         gBuf.writeString (this.name);
 gBuf.writeString (this.desc);
 gBuf.writeString (this.group);
+gBuf.writeString (this.extend);
 gBuf.writeBool (this.is_persist);
 gBuf.writeString (this.path);
 
@@ -523,6 +526,7 @@ gBuf.writeString (this.path);
         this.name = gBuf.readString ();
 this.desc = gBuf.readString ();
 this.group = gBuf.readString ();
+this.extend = gBuf.readString ();
 this.is_persist = gBuf.readBool ();
 this.path = gBuf.readString ();
 

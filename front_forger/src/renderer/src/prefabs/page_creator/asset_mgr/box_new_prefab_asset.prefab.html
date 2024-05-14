@@ -23,6 +23,11 @@
                     <select @change="onSelectGroup" $="selGroup">
                     </select>
                 </div>
+                <div class="row">
+                    <div style="word-break: keep-all;">继承</div>
+                    <input @change="onExtendsChange" $="cbExtends" width="40px" type="checkbox" />
+                    <input $="ebExtends" style="display: none;" value="app_node" />
+                </div>
                 <button @click="onClickSubmit">新建</button>
             </div>
         </div>

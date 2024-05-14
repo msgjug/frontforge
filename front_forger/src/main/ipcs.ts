@@ -700,7 +700,7 @@ export class IPCS {
      * @param projDat 
      * @returns 
      */
-    protected static async _NewPrefabAsset(_, name: string, projDat: JSON) {
+    protected static async _NewPrefabAsset(_, prefabConf: ProtocolObjectPrefabConfig, projDat: JSON) {
         IPCS.Log("--- 新建Prefab");
         let projConf = new ProtocolObjectProjectConfig();
         projConf.fromMixed(projDat);
@@ -708,14 +708,31 @@ export class IPCS {
         const TEMPLATE_DIR = Utils.GetResourcePath("template/template-prefab/");
         const DST_DIR = path.join(projConf.path, `src/prefabs/`);
 
+        let prefabName = prefabConf.name;
+        let extendName = prefabConf.extend;
+
         let rtn = new ProtocolObjectIPCResponse();
         try {
-            IPCS.Log(`复制TS模板"${TEMPLATE_DIR}_.ts" -> "${DST_DIR}${name}.ts"`);
-            await IPCS.CopyFile(`"${TEMPLATE_DIR}_.ts"`, `"${DST_DIR}${name}.ts"`);
-            IPCS.Log(`复制HTML模板"${TEMPLATE_DIR}_.prefab.html" -> "${DST_DIR}${name}.prefab.html"`);
-            await IPCS.CopyFile(`"${TEMPLATE_DIR}_.prefab.html"`, `"${DST_DIR}${name}.prefab.html"`);
+            IPCS.Log(`复制TS模板"${TEMPLATE_DIR}_.ts" -> "${DST_DIR}${prefabName}.ts"`);
+            await IPCS.CopyFile(`"${TEMPLATE_DIR}_.ts"`, `"${DST_DIR}${prefabName}.ts"`);
+            IPCS.Log(`复制HTML模板"${TEMPLATE_DIR}_.prefab.html" -> "${DST_DIR}${prefabName}.prefab.html"`);
+            await IPCS.CopyFile(`"${TEMPLATE_DIR}_.prefab.html"`, `"${DST_DIR}${prefabName}.prefab.html"`);
             IPCS.Log(`修改TS文件`);
-            await IPCS.FileContentReplaceKey(`${DST_DIR}${name}.ts`, ["{{CLASS_NAME}}", name], ["{{CLASS_NAME_BIG}}", Utils.SnakeToPascal(name)]);
+
+            let imports = "";
+            if (extendName) {
+                let path = await Utils.FindFileByName(projConf.path, extendName + ".ts");
+                imports += `import ${Utils.SnakeToPascal(extendName)} from ${path};\n`;
+            }
+
+            await IPCS.FileContentReplaceKey(`${DST_DIR}${prefabName}.ts`,
+                ["{{CLASS_NAME}}", prefabName],
+                ["{{CLASS_NAME_BIG}}", Utils.SnakeToPascal(prefabName)],
+                ["{{CLASS_EXTENDS}}", Utils.SnakeToPascal(extendName)],
+                ["{{IMPORTS}}", imports],
+            );
+
+
             IPCS.Log(`更新项目MAIN与RES_INDEX`);
             await ProjectUtils.BuildProject(projConf, "dev");
             IPCS.Log(`成功`);
