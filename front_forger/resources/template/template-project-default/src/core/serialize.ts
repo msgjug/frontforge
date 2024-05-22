@@ -21,6 +21,10 @@ export class ClassSerializeInfo {
         this.ctor = ctor;
     }
 
+    preAddSerializeList: [string, any][] = [];
+    preAddSerialize(key: string, ctor: any = null) {
+        this.preAddSerializeList.push([key, ctor]);
+    }
     addSerialize(key: string, ctorName: string = "") {
         this.memberList.push(key);
         this.memberCtorList.push(ctorName);
@@ -68,7 +72,7 @@ export function Serialize<T>(cls?: new () => T) {
             ClassSerializeInfoMap.set(target.constructor, new ClassSerializeInfo(target.constructor));
         }
         let csi = ClassSerializeInfoMap.get(target.constructor)!;
-        csi.addSerialize(property, cls ? cls["__cn"] : "");
+        csi.preAddSerialize(property, cls);
     };
 }
 export function RegClass(regClassName: string) {
@@ -83,6 +87,13 @@ export function RegClass(regClassName: string) {
             info = new PropertyInfo();
             ClassProperty.set(<any>ctor, info);
         }
+
+        let csi = ClassSerializeInfoMap.get(ctor);
+        csi.preAddSerializeList.forEach(kv => {
+            let [property, cls] = kv;
+            csi.addSerialize(property, cls ? cls["__cn"] : "");
+        });
+
     }
 }
 
