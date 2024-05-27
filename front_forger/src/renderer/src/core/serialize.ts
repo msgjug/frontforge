@@ -77,6 +77,9 @@ export function Serialize<T>(cls?: new () => T) {
 }
 export function RegClass(regClassName: string) {
     return function (ctor: any): void {
+        if (!ClassSerializeInfoMap.get(ctor)) {
+            ClassSerializeInfoMap.set(ctor, new ClassSerializeInfo(ctor));
+        }
         // console.log("REG CLASS:", regClassName);
         ctor.__cn = regClassName;
         NameClassMap.set(ctor.__cn, ctor);
