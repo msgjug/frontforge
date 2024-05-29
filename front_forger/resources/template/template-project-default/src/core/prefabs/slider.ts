@@ -26,6 +26,15 @@ export default class Slider extends AppNode {
         }
     }
 
+    set value(val) {
+        this.input.value = `${val}`;
+        this.__updateThumbPosition(this.input.value);
+        this.onInput();
+    }
+    get value() {
+        return Number(this.input.value);
+    }
+
     //释放
     onChanged() {
         this.subject.emit("changed", this.input.value);
@@ -40,21 +49,16 @@ export default class Slider extends AppNode {
         e.preventDefault();
         let rect = this.track.getBoundingClientRect();
         const mouseMoveHandler = (e) => {
-            
             var newX = e.clientX - this.thumb.clientWidth;
             var percent = (newX - rect.left) / rect.width;
             //@ts-ignore
-            this.input.value = Math.round(percent * (this.input.max - this.input.min) + this.input.min);
-            this.__updateThumbPosition(this.input.value);
-            this.onInput();
+            this.value = Math.round(percent * (this.input.max - this.input.min) + this.input.min);
         };
         const touchMoveHandler = (e) => {
             var newX = e.touches[0].clientX;
             var percent = (newX - rect.left) / rect.width;
             //@ts-ignore
-            this.input.value = Math.round(percent * (this.input.max - this.input.min) + this.input.min);
-            this.__updateThumbPosition(this.input.value);
-            this.onInput();
+            this.value = Math.round(percent * (this.input.max - this.input.min) + this.input.min);
         };
         const mouseUpHandler = () => {
             document.removeEventListener('mousemove', mouseMoveHandler);
@@ -82,7 +86,7 @@ export default class Slider extends AppNode {
         var percent = (num - Number(this.input.min)) / (Number(this.input.max) - Number(this.input.min));
         this.thumb.style.left = `calc(${percent} * calc(100% - ${this.thumb.clientWidth}px))`;
 
-        this.trackFill.style.width = `calc( ${percent * 100}% - ${(percent-0.5) * this.thumb.clientWidth}px)`;
+        this.trackFill.style.width = `calc( ${percent * 100}% - ${(percent - 0.5) * this.thumb.clientWidth}px)`;
 
     }
     static get __BindPrefab__(): string {
