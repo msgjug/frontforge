@@ -42,10 +42,8 @@ classes {
         server_domain "(str)";
         # 对应项目的Macro 中的 {{DOMAIN}} 项目请求的服务器PATH
         server_path "(str)";
-
-        # todo: apis
-
     };
+
     #  
     ProjectConfig { 
         app_name "(str)";
@@ -58,6 +56,8 @@ classes {
 
         compile_dev "(ProjectCompileConfig)";
         compile_res "(ProjectCompileConfig)";
+
+        # todo: apis
     };
     
     # 

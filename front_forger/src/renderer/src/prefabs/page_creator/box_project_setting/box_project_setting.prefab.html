@@ -1,5 +1,7 @@
 <style>
-
+    .settings-contain {
+        padding: 0.2em;
+    }
 </style>
 
 <dom>
@@ -9,9 +11,9 @@
                 <div style="flex-grow: 1;">项目设置</div>
                 <div @click="onClickClose" class="btn">x</div>
             </div>
-            <div class="panel-contain">
-                <div>
-                    <label>服务器配置</label>
+            <div class="settings-contain">
+                <fieldset>
+                    <legend>服务器配置</legend>
                     <fieldset>
                         <legend>DEV</legend>
                         <div>
@@ -34,10 +36,27 @@
                             <input $="ebResPath"/>
                         </div>
                     </fieldset>
-                    <div class="row">
-                        <button @click="onClickReset">重置</button>
-                        <button @click="onClickSave">保存</button>
-                    </div>
+                </fieldset>
+                <!-- <fieldset>
+                    <legend>静态资源</legend>
+                    <fieldset>
+                        <legend>DEV</legend>
+                        <button @click="onClickAddAsset(dev)">+</button>
+                        <div $="index_asset_contain_dev">
+
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>RES</legend>
+                        <button @click="onClickAddAsset(res)">+</button>
+                        <div $="index_asset_contain_res">
+                            
+                        </div>
+                    </fieldset>
+                </fieldset> -->
+                <div class="row">
+                    <button @click="onClickReset">重置</button>
+                    <button @click="onClickSave">保存</button>
                 </div>
             </div>
         </div>
