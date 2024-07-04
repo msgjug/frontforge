@@ -765,10 +765,10 @@ export class IPCS {
     /**
      * 用系统文件打开URL
      * @param _ 
-     * @param path 
+     * @param targetPath 
      */
-    protected static async _OpenDir(_, path: string) {
-        shell.openPath(path);
+    protected static async _OpenDir(_, targetPath: string) {
+        shell.openPath(path.normalize(targetPath));
     }
     /**
      * 遍历文件夹，返回DirentHandle
