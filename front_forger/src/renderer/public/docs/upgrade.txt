@@ -1,5 +1,6 @@
 - FrontForger 1.3.5(2024.7.5)
   - 修复BUG：构建后自动打开文件夹失败
+  - 更换LOGO
 - FrontForger 1.3.4(2024.7.4)
   - 框架：
     - 修BUG与优化
