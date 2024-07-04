@@ -250,6 +250,66 @@ export class rAF {
     }
 };
 
+export class Random {
+    static range(min: number, max: number) {
+        return Math.floor(Math.random() * (max - min) + min);
+    }
+    static rangeRound(min: number, max: number) {
+        return Math.round(Math.random() * (max - min) + min);
+    }
+    static rangeCeil(min: number, max: number) {
+        return Math.ceil(Math.random() * (max - min) + min);
+    }
+    static bool(percent: number) {
+        return (Math.random() < percent);
+    }
+    static selecter(...args: any[]) {
+        return args[Random.range(0, args.length)];
+    }
+    static splitValue(total: number, count: number, diffRange: number = 0) {
+
+        let yu = total % count;
+        let iVal = total - yu;
+        let avg = iVal / count;
+
+        let sum = 0;
+        let arr = [];
+        for (let i = 0; i < count; i++) {
+            let dt = Math.round((Math.random() > 0.5 ? -1 : 1) * Math.random() * diffRange);
+            let val = avg + dt;
+
+            if (yu > 0) {
+                yu--;
+                val++;
+            }
+
+            arr.push(val);
+            sum += val;
+        }
+
+        if (sum != total) {
+            let totalDt = sum - total;
+            let yuDt = totalDt % count;
+            let iValDt = totalDt - yuDt;
+            let avgDt = (iValDt != 0 ? iValDt / count : 0);
+            for (let i = 0; i < arr.length; i++) {
+                arr[i] -= avgDt;
+                if (yuDt > 0) {
+                    yuDt--;
+                    arr[i]--;
+                }
+                else if (yuDt < 0) {
+                    yuDt++;
+                    arr[i]++;
+                }
+            }
+        }
+
+        return arr;
+    }
+};
+
+
 /** 获取随机字符串，最大15位。 */
 export class Uid {
     static get0x(x: number) {

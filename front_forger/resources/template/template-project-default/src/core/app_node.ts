@@ -112,6 +112,21 @@ export default class AppNode {
                 let child = children[i];
                 this._recBindDom(child, true);
             }
+
+            //复制样式
+            //@ts-ignore
+            appNode.ele.style.cssText = ele.style.cssText;
+
+            // 复制属性
+            for (var i = 0; i < ele.attributes.length; i++) {
+                var attr = ele.attributes[i];
+                try {
+                    appNode.ele.setAttribute(attr.name, attr.value);
+                } catch (e) {
+                    // console.warn("copy Attr:", e)
+                }
+            }
+
             appNode.refCtor(ele);
             parentEle = ele.parentElement;
         }

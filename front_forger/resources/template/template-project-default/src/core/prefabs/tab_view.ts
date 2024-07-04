@@ -12,13 +12,15 @@ export default class TabView extends AppNode {
     onLoad(): void {
         this.openTab(0);
     }
-    refCtor(refEle: Element) {
-        this.readonly = Boolean(refEle.getAttribute("readonly") || "false");
+    refCtor(refEle: HTMLElement) {
+        this.readonly = Boolean(refEle.getAttribute("readonly") || false);
         let tabName = refEle.getAttribute("tab_name") || "#";
         let children = Array.from(refEle.children);
 
         for (let i = 0; i < children.length; i++) {
             let ele = children[i];
+            //@ts-ignore
+            this._pageOldDisplays[i] = ele.style.display;
             let tabNameSpec = ele.getAttribute("tab_name") || tabName;
             this.pageContain.appendChild(ele);
 
@@ -37,6 +39,7 @@ export default class TabView extends AppNode {
         }
         this.openTab(ind);
     }
+    _pageOldDisplays: string[] = [];
     openTab(ind: number, silent = false) {
         if (this.curInd === ind) {
             return;
@@ -49,7 +52,7 @@ export default class TabView extends AppNode {
             let ele = pages[i];
             let link = links[i];
             if (ele instanceof HTMLElement) {
-                ele.style.display = isCur ? "block" : "none";
+                ele.style.display = isCur ? this._pageOldDisplays[i] : "none";
             }
             if (link instanceof HTMLElement) {
                 if (isCur) {

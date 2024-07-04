@@ -10,6 +10,7 @@ export default class Slider extends AppNode {
     trackFill: HTMLDivElement = null;
     thumb: HTMLDivElement = null;
     lbName: HTMLSpanElement = null;
+    lbExt: HTMLSpanElement = null;
     lb: HTMLSpanElement = null;
     onLoad(): void {
         this.input.addEventListener('input', () => {
@@ -34,6 +35,22 @@ export default class Slider extends AppNode {
     get value() {
         return Number(this.input.value);
     }
+    refCtor(refEle: Element): void {
+        //@ts-ignore
+        if (refEle.hasAttribute("height")) {
+            this.ele.style.height = refEle.getAttribute("height");
+        }
+
+        this.lbName.innerText = refEle.getAttribute("title_name") || "百分比";
+        this.lbExt.innerText = refEle.getAttribute("ext") || "%";
+        this.input.max = refEle.getAttribute("max") || "30";
+        this.input.min = refEle.getAttribute("min") || "6";
+
+        this.input.value = refEle.getAttribute("val") || "10";
+
+        this.__updateThumbPosition(this.input.value);
+        this.lb.innerText = `${this.input.value}`;
+    }
 
     //释放
     onChanged() {
@@ -42,23 +59,23 @@ export default class Slider extends AppNode {
     //拖动
     onInput() {
         this.subject.emit("input", this.input.value);
-        this.lb.innerText = `${this.input.value}%`;
+        this.lb.innerText = `${this.input.value}`;
     }
 
     private __touching(e) {
+        let max = Number(this.input.max);
+        let min = Number(this.input.min);
         e.preventDefault();
         let rect = this.track.getBoundingClientRect();
         const mouseMoveHandler = (e) => {
             var newX = e.clientX - this.thumb.clientWidth;
             var percent = (newX - rect.left) / rect.width;
-            //@ts-ignore
-            this.value = Math.round(percent * (this.input.max - this.input.min) + this.input.min);
+            this.value = Math.round(percent * (max - min) + min);
         };
         const touchMoveHandler = (e) => {
             var newX = e.touches[0].clientX;
             var percent = (newX - rect.left) / rect.width;
-            //@ts-ignore
-            this.value = Math.round(percent * (this.input.max - this.input.min) + this.input.min);
+            this.value = Math.round(percent * (max - min) + min);
         };
         const mouseUpHandler = () => {
             document.removeEventListener('mousemove', mouseMoveHandler);

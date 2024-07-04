@@ -45,7 +45,7 @@ export function GetCSIByClass(ctor: any) { //类 -> 序列化结构
     let parent = Object.getPrototypeOf(ctor);
     let csi = ClassSerializeInfoMap.get(ctor);
     if (!csi.initExtends) {
-        while (parent.name !== "SerializeAble") {
+        while (parent.__cn !== "SerializeAble") {
             let pcsi = ClassSerializeInfoMap.get(parent);
             parent = Object.getPrototypeOf(parent);
             if (pcsi) {

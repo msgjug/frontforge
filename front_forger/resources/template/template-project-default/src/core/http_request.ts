@@ -101,7 +101,7 @@ export class Http {
         let request = new XMLHttpRequest();
         request.timeout = option.timeout;
 
-        let reqUrl = Http.getFullPath(option.url);
+        let reqUrl = option.urlRaw || Http.getFullPath(option.url);
 
         request.onreadystatechange = function () {
             if (request.readyState == 4) {
