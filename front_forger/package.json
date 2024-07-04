@@ -1,6 +1,6 @@
 {
   "name": "front_forger",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "A HTML5 Website builder",
   "main": "./out/main/index.mjs",
   "author": "naogua.ren",
