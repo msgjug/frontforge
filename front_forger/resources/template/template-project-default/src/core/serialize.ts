@@ -103,6 +103,8 @@ export function RegClass(regClassName: string) {
 export abstract class CloneAble {
     abstract clone(): CloneAble;
 };
+
+@RegClass("SerializeAble")
 export default abstract class SerializeAble extends CloneAble {
     toJSON(): any {
         let json: any = {
