@@ -10,6 +10,8 @@ export const AT_KEYS = {
     "@change": "onchange",
     "@input": "oninput",
     "@drop": "ondrop",
+    "@focus" : "onfocus",
+    "@blur" : "onblur",
 }
 
 export function property(queryStr: string, options?: any) {

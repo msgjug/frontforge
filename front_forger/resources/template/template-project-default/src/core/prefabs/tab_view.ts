@@ -32,6 +32,11 @@ export default class TabView extends AppNode {
             tab.innerText = tabNameSpec.replace("#", `${i + 1}`);
             this.linkContain.appendChild(tab);
         }
+
+        let hide_tab = Boolean(refEle.getAttribute("hide_tab") || false);
+        if (hide_tab) {
+            this.linkContain.style.display = "none";
+        }
     }
     onClickOpenTab(ind: number) {
         if (this.readonly) {
