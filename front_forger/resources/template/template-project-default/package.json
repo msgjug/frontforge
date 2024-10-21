@@ -13,6 +13,7 @@
     "vite": "^4.3.2"
   },
   "dependencies": {
-    "@tweenjs/tween.js": "^21.0.0"
+    "@tweenjs/tween.js": "^21.0.0",
+    "jszip": "^3.10.1"
   }
 }

@@ -1,0 +1,24 @@
+<style>
+  .fold-contain {
+    /* margin:0.5em 0; */
+  }
+
+  .fold-contain-legend {
+    cursor: default;
+  }
+
+  .fold-contain-arrow {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.5em;
+    font-weight: 900;
+    cursor: default;
+  }
+</style>
+
+<dom>
+  <fieldset class="fold-contain">
+    <legend class="fold-contain-legend" @click="onToggle"><span $="lbTitle">Title</span><span class="fold-contain-arrow"
+        $="lbArrow">-</span>
+    </legend>
+  </fieldset>
+</dom>

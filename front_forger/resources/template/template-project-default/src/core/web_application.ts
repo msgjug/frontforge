@@ -12,11 +12,13 @@ import TabView from "./prefabs/tab_view";
 import TabViewVerticle from "./prefabs/tab_view_verticle";
 import Blocker from "./prefabs/blocker";
 import Silder from "./prefabs/slider";
+import FoldContain from "./prefabs/fold_contain";
 
 //控件
 TabView
 TabViewVerticle
 Silder
+FoldContain
 
 @RegClass("WebApplication")
 export default class WebApplication extends Subject {

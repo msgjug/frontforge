@@ -100,7 +100,6 @@ export class CacheRecordCollection extends SerializeAble {
     }
 };
 
-
 @RegClass("CacheData")
 export class CacheData extends SerializeAble {
     //临时

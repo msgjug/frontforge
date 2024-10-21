@@ -100,33 +100,117 @@ export default class Utils {
         return str;
     }
 
-    static Post(action: string, msg: any = {}) {
+    private static async __Ajax<T>(method: "Post" | "Get", action: string, msg: any = {}, reTry = 1) {
+        let parts = action.split("/");
+        let path = "admin_actions";
+        if (parts.length > 1) {
+            path = parts[0];
+            action = parts[1];
+        }
         let dat: any = {
+            path: path,
             action: action,
         };
         Object.assign(dat, msg);
-        return HttpRequest.Post("REQ")
-            // .setHeader({
-            //     "Sess-Token": data.sessToken
-            // })
-            .setBody(dat);
+        let req = HttpRequest[method]("REQ");
+        if (method == "Get") {
+            req.setParam(dat);
+        }
+        else if (method == "Post") {
+            req.setBody(dat);
+        }
+        let token = data.storage.get<string>("admin-token");
+        if (token) {
+            req.setHeader({
+                "Sess-Token": token
+            });
+        }
+        let res = null;
+        let rtn = null;
+        while (reTry > 0) {
+            reTry--;
+            try {
+                res = await req.reqPromise();
+                if (res.ret) {
+                    console.warn(`${action} 请求失败`, res);
+                }
+                else {
+                    rtn = (res.data);
+                    break;
+                }
+            }
+            catch (e) {
+                console.warn(`${action} 请求失败`, e);
+            }
+        }
+        return rtn;
+    }
+    static Post<T>(action: string, msg: any = {}, reTry = 1) {
+        return this.__Ajax<T>("Post", action, msg, reTry);
     }
 
-    static Get(action: string, msg: any = {}) {
-        let dat: any = {
-            action: action,
-        };
-        Object.assign(dat, msg);
-        return HttpRequest.Get("REQ")
-            // .setHeader({
-            //     "Sess-Token": data.sessToken
-            // })
-            .setParam(dat);
+    static async Get<T>(action: string, msg: any = {}, reTry = 1) {
+        return this.__Ajax<T>("Get", action, msg, reTry);
     }
 
+    static Copy(val: string) {
+        let input: HTMLTextAreaElement = document.querySelector("textarea[id=__clipboard__]");
+        if (!input) {
+            input = document.createElement("textarea");
+            input.style.display = "none";
+            input.id = "__clipboard__";
+            document.body.append(input);
+            //@ts-ignore
+            let board = new ClipboardJS("#__clipboard__");
+
+            board.on('success', (e) => {
+                // console.log("success:", e);
+                Utils.scene.toast("复制成功");
+            });
+            board.on('error', (e) => {
+                console.warn("error:", e);
+            });
+        }
+
+        input.value = val;
+        input.setAttribute("data-clipboard-text", val);
+        input.click();
+        // let evt = document.createEvent('MouseEvents');
+        // evt.initEvent('click', true, false);
+        // input.dispatchEvent(evt);
+    }
 };
 
 export class H5Utils {
+    static CopyStyle(sourceElement, targetElement) {
+        // 获取源元素的所有计算样式
+        var style = window.getComputedStyle(sourceElement);
+
+        // 遍历所有样式属性
+        for (var i = 0; i < style.length; i++) {
+            // 复制每个样式属性到目标元素
+            var property = style[i];
+            targetElement.style[property] = style.getPropertyValue(property);
+        }
+    }
+
+    static GetDomAbsolutePosition(element) {
+        var rect = element.getBoundingClientRect();
+        return {
+            x: rect.left + window.scrollX,
+            y: rect.top + window.scrollY
+        };
+    }
+    static GetOutOfViewportOffsets(element) {
+        var rect = element.getBoundingClientRect();
+
+        return {
+            top: rect.top < 0 ? Math.abs(rect.top) : 0,
+            left: rect.left < 0 ? Math.abs(rect.left) : 0,
+            bottom: rect.bottom > (window.innerHeight || document.documentElement.clientHeight) ? rect.bottom - (window.innerHeight || document.documentElement.clientHeight) : 0,
+            right: rect.right > (window.innerWidth || document.documentElement.clientWidth) ? rect.right - (window.innerWidth || document.documentElement.clientWidth) : 0
+        };
+    }
     static get IsMobile() {
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
@@ -263,8 +347,11 @@ export class Random {
     static bool(percent: number) {
         return (Math.random() < percent);
     }
-    static selecter(...args: any[]) {
+    static selecter<T>(...args: T[]): T {
         return args[Random.range(0, args.length)];
+    }
+    static selecterArray<T>(arr: T[]): T {
+        return arr[Random.range(0, arr.length)];
     }
     static splitValue(total: number, count: number, diffRange: number = 0) {
 
