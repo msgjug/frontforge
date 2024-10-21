@@ -5,7 +5,7 @@
  - 如果报“ERROR: Cannot create symbolic link ” 这种错误，表示命令行的权限不够，用管理员执行一次npm run build:win ，然后以后就正常构建。
  - 文件在dist
 # 调试运行预览
- - 可以用VSCODE 打开 front_forger，按F5（ 主进程可以断点调试）
+ - 可以用VSCODE 打开 front_forger，按F5（主进程可以断点调试）
  - 进入front_forger 文件夹，执行 npx electron-vite 
 # electron 镜像源
 - https://registry.npmmirror.com/-/binary/electron/

@@ -47,6 +47,7 @@ classes {
     #  
     ProjectConfig { 
         app_name "(str)";
+        app_desc "(str)";
         app_version "(str)";
         path "(str)";
         entrance_prefab_name "(str)";

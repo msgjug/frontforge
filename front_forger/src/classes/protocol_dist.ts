@@ -569,7 +569,7 @@ this.server_path = gBuf.readString ();
     }
 };
 export class ProtocolObjectProjectConfig extends Protocol {
-    app_name : string = "";app_version : string = "";path : string = "";entrance_prefab_name : string = "";prefabs_list : ProtocolObjectPrefabConfig [] = [];create_date : number = 0;edit_date : number = 0;compile_dev : ProtocolObjectProjectCompileConfig = new ProtocolObjectProjectCompileConfig();compile_res : ProtocolObjectProjectCompileConfig = new ProtocolObjectProjectCompileConfig();
+    app_name : string = "";app_desc : string = "";app_version : string = "";path : string = "";entrance_prefab_name : string = "";prefabs_list : ProtocolObjectPrefabConfig [] = [];create_date : number = 0;edit_date : number = 0;compile_dev : ProtocolObjectProjectCompileConfig = new ProtocolObjectProjectCompileConfig();compile_res : ProtocolObjectProjectCompileConfig = new ProtocolObjectProjectCompileConfig();
 
     getClassName(){
         return "ProjectConfig"
@@ -578,6 +578,7 @@ export class ProtocolObjectProjectConfig extends Protocol {
         let out: any = {};
         out["__cn"] = this.getClassName();
         out["app_name"] = this.app_name;
+out["app_desc"] = this.app_desc;
 out["app_version"] = this.app_version;
 out["path"] = this.path;
 out["entrance_prefab_name"] = this.entrance_prefab_name;
@@ -595,6 +596,7 @@ out["compile_res"] = this.compile_res.toMixed();
     fromMixed(input: any) {
         
         this.app_name = input.hasOwnProperty("app_name") && input["app_name"] !== null ? input["app_name"] : this.app_name;
+this.app_desc = input.hasOwnProperty("app_desc") && input["app_desc"] !== null ? input["app_desc"] : this.app_desc;
 this.app_version = input.hasOwnProperty("app_version") && input["app_version"] !== null ? input["app_version"] : this.app_version;
 this.path = input.hasOwnProperty("path") && input["path"] !== null ? input["path"] : this.path;
 this.entrance_prefab_name = input.hasOwnProperty("entrance_prefab_name") && input["entrance_prefab_name"] !== null ? input["entrance_prefab_name"] : this.entrance_prefab_name;
@@ -622,6 +624,7 @@ if( input.hasOwnProperty("compile_res") && input["compile_res"] !== null && inpu
         gBuf.writeString(this.getClassName());
         let __arr_size = 0;
         gBuf.writeString (this.app_name);
+gBuf.writeString (this.app_desc);
 gBuf.writeString (this.app_version);
 gBuf.writeString (this.path);
 gBuf.writeString (this.entrance_prefab_name);
@@ -640,6 +643,7 @@ gBuf.writeUint8Array(this.compile_res.toBinary());
         
         let __arr_size = 0;
         this.app_name = gBuf.readString ();
+this.app_desc = gBuf.readString ();
 this.app_version = gBuf.readString ();
 this.path = gBuf.readString ();
 this.entrance_prefab_name = gBuf.readString ();

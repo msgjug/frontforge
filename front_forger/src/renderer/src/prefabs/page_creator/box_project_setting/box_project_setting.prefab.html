@@ -2,6 +2,9 @@
     .settings-contain {
         padding: 0.2em;
     }
+    .settings-contain fieldset legend {
+        font-weight: 900;
+    }
 </style>
 
 <dom>
@@ -13,27 +16,38 @@
             </div>
             <div class="settings-contain">
                 <fieldset>
+                    <legend>项目</legend>
+                    <div class="col">
+                        <label>项目名字</label>
+                        <input $="ebProjName" />
+                    </div>
+                    <div class="col">
+                        <label>项目描述</label>
+                        <input $="ebProjDesc" />
+                    </div>
+                </fieldset>
+                <fieldset>
                     <legend>服务器配置</legend>
                     <fieldset>
                         <legend>DEV</legend>
                         <div>
                             <label>服务器域名</label>
-                            <input $="ebDevDomain"/>
+                            <input $="ebDevDomain" />
                         </div>
                         <div>
                             <label>服务器路径</label>
-                            <input $="ebDevPath"/>
+                            <input $="ebDevPath" />
                         </div>
                     </fieldset>
                     <fieldset>
                         <legend>RES</legend>
                         <div>
                             <label>服务器域名</label>
-                            <input $="ebResDomain"/>
+                            <input $="ebResDomain" />
                         </div>
                         <div>
                             <label>服务器路径</label>
-                            <input $="ebResPath"/>
+                            <input $="ebResPath" />
                         </div>
                     </fieldset>
                 </fieldset>

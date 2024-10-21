@@ -7,6 +7,9 @@ import PrefabStr from "./box_project_setting.prefab.html?raw"
 import ProjectIndexAssetItem from "./project_index_asset_item";
 @RegClass("BoxProjectSetting")
 export default class BoxProjectSetting extends Panel {
+    ebProjName: HTMLInputElement = null;
+    ebProjDesc: HTMLInputElement = null;
+
     ebDevDomain: HTMLInputElement = null;
     ebDevPath: HTMLInputElement = null;
     ebResDomain: HTMLInputElement = null;
@@ -21,6 +24,9 @@ export default class BoxProjectSetting extends Panel {
     }
     refresh() {
         let projConf = EditorEnv.GetProjectConfig();
+        this.ebProjName.value = projConf.app_name;
+        this.ebProjDesc.value = projConf.app_desc;
+
         this.ebDevDomain.value = projConf.compile_dev.server_domain;
         this.ebDevPath.value = projConf.compile_dev.server_path;
         this.ebResDomain.value = projConf.compile_res.server_domain;
@@ -52,6 +58,9 @@ export default class BoxProjectSetting extends Panel {
     }
     async onClickSave() {
         let projConf = EditorEnv.GetProjectConfig();
+        projConf.app_name = this.ebProjName.value;
+        projConf.app_desc = this.ebProjDesc.value;
+
         projConf.compile_dev.server_domain = this.ebDevDomain.value;
         projConf.compile_dev.server_path = this.ebDevPath.value;
         projConf.compile_res.server_domain = this.ebResDomain.value;

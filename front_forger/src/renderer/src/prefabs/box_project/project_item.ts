@@ -5,6 +5,8 @@ import PrefabStr from "./project_item.prefab.html?raw"
 @RegClass("ProjectItem")
 export default class ProjectItem extends AppNode {
   lbName: HTMLDivElement = null;
+  lbDesc: HTMLDivElement = null;
+  lbPath: HTMLDivElement = null;
   lbVersion: HTMLDivElement = null;
 
   config: ProtocolObjectProjectConfig = null;
@@ -13,6 +15,8 @@ export default class ProjectItem extends AppNode {
   setData(config: ProtocolObjectProjectConfig) {
     this.config = config;
     this.lbName.innerHTML = this.config.app_name;
+    this.lbDesc.innerHTML = this.config.app_desc;
+    this.lbPath.innerHTML = this.config.path;
     this.lbVersion.innerHTML = this.config.app_version;
   }
   onClickDel() {

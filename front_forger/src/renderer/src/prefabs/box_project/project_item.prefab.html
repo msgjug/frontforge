@@ -22,10 +22,15 @@
     <div class="project-item">
         <div style="border-radius: 10px; background: #0095ff; color: black; padding: 0.5em;" $="lbVersion">
             edtior_version</div>
-        <div $="lbName">name</div>
+        <div class="col">
+            <div $="lbName"></div>
+            <div $="lbPath"></div>
+            <div $="lbDesc"></div>
+        </div>
         <div class="row">
             <button class="emoji-btn" @click="onClickDel">🗑️</button>
-            <button class="emoji-btn" style="color:white;background:#1359bc;border-radius: 0.5em;" @click="onClickOpen">▶</button>
+            <button class="emoji-btn" style="color:white;background:#1359bc;border-radius: 0.5em;"
+                @click="onClickOpen">▶</button>
         </div>
     </div>
 </dom>

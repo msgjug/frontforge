@@ -6,6 +6,7 @@ import EditorEnv from "../../env";
 @RegClass("BoxNewProject")
 export default class BoxNewProject extends Panel {
     ebName: HTMLInputElement = null;
+    ebDesc: HTMLInputElement = null;
     ebPath: HTMLInputElement = null;
     async onLoad() {
         super.onLoad && super.onLoad();
@@ -20,12 +21,14 @@ export default class BoxNewProject extends Panel {
             return;
         }
 
-        let projName = this.ebName.value;
-        let projPath = this.ebPath.value + `\\${projName}\\`;
+        let projName = this.ebName.value; //1.3.6 项目名字不再与项目文件夹绑定
+        let projPath = this.ebPath.value; //1.3.6 新建项目时路径指向项目而不是项目上级目录 // + `\\${projName}\\`;
+        let projDesc = this.ebDesc.value; //1.3.6 新增desc
 
         let projectConfig = new ProtocolObjectProjectConfig();
+        projectConfig.app_desc = projDesc;
         projectConfig.app_name = projName;
-        projectConfig.app_version = "2.0";
+        projectConfig.app_version = "2.1";
         projectConfig.path = projPath;
         this.subject.emit("submit", projectConfig);
         this.dispose();
