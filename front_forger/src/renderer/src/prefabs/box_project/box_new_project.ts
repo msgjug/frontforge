@@ -21,9 +21,9 @@ export default class BoxNewProject extends Panel {
             return;
         }
 
-        let projName = this.ebName.value; //1.3.6 项目名字不再与项目文件夹绑定
-        let projPath = this.ebPath.value; //1.3.6 新建项目时路径指向项目而不是项目上级目录 // + `\\${projName}\\`;
-        let projDesc = this.ebDesc.value; //1.3.6 新增desc
+        let projName = this.ebName.value; //1.3.7 项目名字不再与项目文件夹绑定
+        let projPath = this.ebPath.value; //1.3.7 新建项目时路径指向项目而不是项目上级目录 // + `\\${projName}\\`;
+        let projDesc = this.ebDesc.value; //1.3.7 新增desc
 
         let projectConfig = new ProtocolObjectProjectConfig();
         projectConfig.app_desc = projDesc;

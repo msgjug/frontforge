@@ -3,12 +3,12 @@ import AppNode from "../../core/app_node";
 import { RegClass } from "../../core/serialize";
 import MsgHub from "../../core/subject";
 import EditorEnv from "../../env";
-import CreatorMain from "../page_creator/creator_main/creator_main";
+import CodeEditor from "../page_creator/code_editor/code_editor";
 import Nav from "../title/nav";
 import PrefabStr from "./page_code.prefab.html?raw";
 @RegClass("PageCode")
 export default class PageCode extends AppNode {
-    creatorMain: CreatorMain = null;
+    codeEditor: CodeEditor = null;
 
     onDispose(): void {
         EditorEnv.offMessage(this);

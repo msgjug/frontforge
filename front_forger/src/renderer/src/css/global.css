@@ -169,6 +169,8 @@ button:active {
 
 .emoji-btn:hover span {
   display: inherit;
+  width:50px;
+  left:-10px;
 }
 
 
@@ -240,5 +242,4 @@ button:active {
   background: black;
   color: white;
   font-weight: bold;
-  padding: 0.5em;
 }

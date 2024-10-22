@@ -33,6 +33,7 @@ export default class PageCreator extends AppNode {
   btnRun: HTMLButtonElement = null;
   btnStop: HTMLButtonElement = null;
 
+  lbPreviewInfo: HTMLDivElement = null;
   lbInfo: HTMLDivElement = null;
   pb: HTMLProgressElement = null;
 
@@ -165,7 +166,7 @@ export default class PageCreator extends AppNode {
         EditorEnv.postMessageExceptSelf(msg);
       }
       else {
-        this.onOpenFile(projConf.path + item.filePath);
+        this.onOpenFile(projConf.path + "/" + item.filePath);
       }
     }
   }
@@ -231,7 +232,7 @@ export default class PageCreator extends AppNode {
     this.btnRun.style.display = "none";
     this.btnStop.style.display = "";
 
-    this.lbInfo.innerText = "运行中...";
+    this.lbPreviewInfo.innerText = "预览运行中..."
 
     this.pb.style.display = "";
     this.pb.max = 100;
@@ -246,10 +247,8 @@ export default class PageCreator extends AppNode {
     }
 
     this.pb.value = 100;
-    this.pb.style.display = "none";
 
-
-    this.lbInfo.innerText = `http://localhost:${this._runPort}`;
+    this.lbPreviewInfo.innerText = `http://localhost:${this._runPort}`;
 
     // port
     await window.electron.ipcRenderer.invoke("FF:OpenURL", `http://localhost:${this._runPort}`);
@@ -272,7 +271,7 @@ export default class PageCreator extends AppNode {
     this.btnRun.style.display = "";
     this.btnStop.style.display = "none";
 
-    this.lbInfo.innerText = `已停止预览`;
+    this.lbPreviewInfo.innerText = `已停止预览`;
   }
   isBuilding = false;
   async onClickBuild() {
@@ -293,7 +292,6 @@ export default class PageCreator extends AppNode {
     this.pb.max = 0;
     await window.electron.ipcRenderer.invoke("FF:BuildProject", projConf.toMixed());
 
-    this.pb.style.display = "none";
     this.lbInfo.innerText = `构建完毕`;
     this.isBuilding = false;
     await window.electron.ipcRenderer.invoke("FF:OpenDir", projConf.path + "/dist/");

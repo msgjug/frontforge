@@ -1,12 +1,12 @@
 <style>
-
   .creator {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     flex-grow: 1;
-    height: calc( 100vh - 1em );
+    height: calc(100vh - 1em);
   }
+
   .area-wrap {
     /* border: 1px solid gray; */
   }
@@ -20,7 +20,6 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 0.5em 0.5em;
     background: rgba(0, 0, 0, 0.8)
   }
 
@@ -36,26 +35,56 @@
     border: 1px solid #f7922c;
   }
 
+  .info {
+    background: #1f2e74;
+    border-top: 1px solid gray;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-size: 0.7em;
+  }
+
+  .info .progress-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%
+  }
+
+  .menu {
+    color: white;
+    display: grid;
+    grid-template-columns: repeat(8, minmax(25px, 1fr));
+  }
+  .menu button {
+    aspect-ratio: 1/1;
+  }
+
+  .emoji-btn img {
+    width: 100%;
+  }
 </style>
 
 <dom>
   <div class="creator">
     <div $="topArea" class="top-area area-wrap">
-      <div class="row" style="color:white;">
-        <button class="emoji-btn" style="color:white;background:#1359bc;border-radius: 0.5em;" $="btnRun"
-          @click="onClickRun">▶<span>预览</span></button>
-        <button class="emoji-btn" style="color:white;background:#651308;border-radius: 0.5em; display:none;" $="btnStop"
-          @click="onClickStop">🚫<span>停止预览</span></button>
-        <button class="emoji-btn" @click="onClickBuild">⏱<span>构建项目</span></button>
-        <button class="img-btn" style="color:white;background:url(gear.png) center no-repeat;width:1.4em; background-size: 100%;"
-          @click="onClickSetup"><span>设置项目</span></button>
-        <button class="emoji-btn" @click="onClickOpenProjectDir">📂<span>打开项目文件夹</span></button>
-        <button class="emoji-btn toggle-btn" $="toggleCode"
-        @click="onClickToggleCodeEditor">⌨️<span>代码编辑器</span></button>
-        <button class="emoji-btn toggle-btn" $="toggleDesigner"
-          @click="onClickToggleHTMLDesigner">📐<span>HTML设计</span></button>
-        <button class="emoji-btn toggle-btn" @click="onClickHelp">❓<span>帮助</span></button>
-        <button class="emoji-btn" @click="onClickCloseProject">❌<span>关闭项目</span></button>
+      <div class="menu">
+        <button class="emoji-btn" $="btnRun" @click="onClickRun"><img src="ui/preview.png"/><span>预览</span></button>
+        <button class="emoji-btn" style=" display:none;" $="btnStop" @click="onClickStop"><img
+            src="ui/preview-close.png" /><span>停止预览</span></button>
+        <button class="emoji-btn" @click="onClickBuild"><img src="ui/build.png" /><span>构建项目</span></button>
+        <button class="emoji-btn" @click="onClickSetup"><img src="ui/setting.png" /><span>设置项目</span></button>
+        <button class="emoji-btn" @click="onClickOpenProjectDir"><img
+            src="ui/folder.png" /><span>打开项目文件夹</span></button>
+        <button class="emoji-btn toggle-btn" $="toggleCode" @click="onClickToggleCodeEditor"><img
+            src="ui/keyboard.png" /><span>代码编辑器</span></button>
+        <button class="emoji-btn toggle-btn" $="toggleDesigner" @click="onClickToggleHTMLDesigner"><img
+            src="ui/design.png" /><span>HTML设计</span></button>
+        <button class="emoji-btn toggle-btn" @click="onClickHelp"><img src="ui/help.png"><span>帮助</span></button>
+        <button class="emoji-btn" @click="onClickCloseProject"><img src="ui/close.png" /><span>关闭项目</span></button>
       </div>
     </div>
     <div class="row" style="flex-grow: 1;">
@@ -63,9 +92,14 @@
         <ref $="assetMgr" ctor="AssetMgr" />
       </div>
     </div>
-    <div class="row" style="background:#1f2e74;border-top:1px solid gray">
-      <div $="lbInfo">FrontForger</div>
-      <progress $="pb" value=0 max=100 style="display: none;"></progress>
+    <div class="info">
+      <div $="lbInfo"></div>
+      <div class="progress-wrap">
+        <div $="lbPreviewInfo" style="position: absolute; mix-blend-mode: difference">
+          未开启预览
+        </div>
+        <progress $="pb" value=0 max=100 style="height: 3em;width: 100%;margin: -1em 0;"></progress>
+      </div>
     </div>
   </div>
 </dom>

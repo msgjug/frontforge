@@ -4,13 +4,13 @@ import { RegClass } from "../../../core/serialize";
 import EditorEnv from "../../../env";
 import { Protocol,  ProtocolObjectEditorConfig, ProtocolObjectEditorConfigChange, ProtocolObjectOpenFile, ProtocolObjectPrefabConfig, ProtocolObjectSaveFile, ProtocolObjectSavePrefab, ProtocolObjectSelectPrefab } from "../../../../../classes/protocol_dist";
 import ACEEditor from "./ace_editor";
-import PrefabStr from "./creator_main.prefab.html?raw"
+import PrefabStr from "./code_editor.prefab.html?raw"
 import { TabView } from "./tab_view";
 import Utils, { Sync } from "../../../core/utils";
 import MsgHub from "../../../core/subject";
 
-@RegClass("CreatorMain")
-export default class CreatorMain extends AppNode {
+@RegClass("CodeEditor")
+export default class CodeEditor extends AppNode {
     lbName: HTMLDivElement = null;
     tabView: TabView = null;
     aceWrap: HTMLDivElement = null;
@@ -177,7 +177,9 @@ export default class CreatorMain extends AppNode {
     onClickSave() {
         this.save();
     }
-    
+    onClickDelete(){
+        
+    }
     onTabViewSelect() {
         console.log("select:", this.tabView.curInd);
         switch (this.tabView.curInd) {

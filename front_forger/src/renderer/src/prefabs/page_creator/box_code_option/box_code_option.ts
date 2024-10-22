@@ -2,7 +2,7 @@ import { Protocol, ProtocolObjectEditorConfigChange } from "../../../../../class
 import AppNode from "../../../core/app_node";
 import { RegClass } from "../../../core/serialize";
 import EditorEnv, { ACE_THEME } from "../../../env";
-import { Selector } from "../creator_main/selector";
+import { Selector } from "../code_editor/selector";
 import PrefabStr from "./box_code_option.prefab.html?raw"
 @RegClass("BoxCodeOption")
 export default class BoxCodeOption extends AppNode {

@@ -34,3 +34,9 @@
 # todo: 
   - 设计器，编辑CSS，MAIN。
   - preview 项目变更时刷新。
+
+## 1.40
+  - data_ext 中的简写HtmlElement( 在 palette_image 项目 )
+  - folder.ts ( 在 palette_image ) 
+  - prefab设定attribute值，让<ref>使用时能有提示。
+  - <ref>时复制style 和 className，在refCtor

@@ -1,16 +1,16 @@
 <style>
-    .main-area {
+    .code-editor {
         flex-grow: 1;
         display: flex;
         flex-direction: column;
         flex-wrap: nowrap;
     }
 
-    .main-area select {
+    .code-editor select {
         max-width: 8em;
     }
 
-    .main-area .tap {
+    .code-editor .tap {
         margin: 0.3em -0.2em 0;
         background: #474c4d;
         border: none;
@@ -20,7 +20,7 @@
         color: white;
     }
 
-    .main-area .tap[cur] {
+    .code-editor .tap[cur] {
         margin: 0 0.2em 0;
         background: #f7922c;
         color: black;
@@ -33,7 +33,7 @@
 </style>
 
 <dom>
-    <div class="main-area">
+    <div class="code-editor">
         <div class="row" style="
         justify-content: space-between;
         padding-top: 0.5em;
